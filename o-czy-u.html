@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#EEF3FA">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✏️</text></svg>">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Ó czy u</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Lexend:wght@400;600&display=swap">
+<style>
+/* Layout: one narrow phone column; ó is always warm orange, u is always blue */
+:root {
+  --bg: #EEF3FA;
+  --card: #FFFFFF;
+  --ink: #1B2540;
+  --muted: #5B6785;
+  --line: #D6DEEC;
+  --o: #D2621C;  --o-soft: #FDEBDD;
+  --u: #2F5FD0;  --u-soft: #E0E8FA;
+  --ok: #1E8A5F;
+  --bad: #D0392F; --bad-soft: #FBE3E1;
+  --on-color: #FFFFFF;
+  --font-display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Lexend", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121827; --card: #1C2438; --ink: #EDF1F9; --muted: #9AA6C2; --line: #2C3752;
+    --o: #FF9B5C; --o-soft: #3A2618;
+    --u: #86A7FF; --u-soft: #1C2A4E;
+    --ok: #4FCB95;
+    --bad: #FF7A70; --bad-soft: #3B1D1D;
+    --on-color: #121827;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121827; --card: #1C2438; --ink: #EDF1F9; --muted: #9AA6C2; --line: #2C3752;
+  --o: #FF9B5C; --o-soft: #3A2618;
+  --u: #86A7FF; --u-soft: #1C2A4E;
+  --ok: #4FCB95;
+  --bad: #FF7A70; --bad-soft: #3B1D1D;
+  --on-color: #121827;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.45;
+  padding-inline: 16px; -webkit-tap-highlight-color: transparent;
+}
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+button:focus-visible { outline: 3px solid var(--u); outline-offset: 2px; }
+.app { max-width: 520px; margin: 0 auto; padding-block: 14px 40px; display: flex; flex-direction: column; gap: 18px; }
+
+header { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: 44px; line-height: 1; margin: 0; }
+h1 .o, .c-o { color: var(--o); } h1 .u, .c-u { color: var(--u); }
+.sub { font-size: 14px; color: var(--muted); padding-bottom: 6px; text-align: right; }
+
+.tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 4px; gap: 4px; }
+.tabs button { font-family: var(--font-display); font-weight: 800; font-size: 20px; padding: 8px 0 6px; border-radius: 12px; color: var(--muted); }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+
+.note { color: var(--muted); font-size: 14px; margin: 0; }
+
+/* Rules */
+.rule { border-radius: 20px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.rule.o { background: var(--o-soft); } .rule.u { background: var(--u-soft); }
+.rule h2 { font-family: var(--font-display); font-weight: 800; font-size: 21px; line-height: 1.2; margin: 0; text-wrap: balance; }
+.rule p { margin: 0; font-size: 15px; }
+.words { display: flex; flex-wrap: wrap; gap: 6px; }
+.words span { background: var(--card); border-radius: 10px; padding: 3px 10px; font-family: var(--font-display); font-weight: 600; font-size: 18px; }
+.words b { font-weight: 800; }
+.rule.o .words b { color: var(--o); } .rule.u .words b { color: var(--u); }
+.exc { border-top: 2px dashed var(--line); padding-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+.exc-label { font-family: var(--font-display); font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--bad); }
+.exc .words b { color: var(--u); }
+.exc.to-o .words b { color: var(--o); }
+
+.big-btn { display: flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-display); font-weight: 800; font-size: 20px; padding: 12px 16px 10px; border-radius: 16px; background: var(--ink); color: var(--bg); width: 100%; }
+.big-btn.ghost { background: var(--card); color: var(--ink); border: 2px solid var(--line); }
+.big-btn:active { transform: scale(.98); }
+
+/* Practice */
+.dots { display: flex; gap: 5px; }
+.dots span { flex: 1; height: 8px; border-radius: 4px; background: var(--line); }
+.dots span.ok { background: var(--ok); } .dots span.no { background: var(--bad); } .dots span.now { background: var(--muted); }
+
+.q { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 26px 16px 20px; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
+.word { font-family: var(--font-display); font-weight: 800; font-size: 48px; line-height: 1.1; overflow-wrap: anywhere; }
+.slot { display: inline-block; min-width: 0.9em; border-bottom: 5px dashed var(--muted); color: transparent; margin: 0 2px; }
+.slot.filled { border-bottom-style: solid; }
+.slot.filled.o { color: var(--o); border-color: var(--o); }
+.slot.filled.u { color: var(--u); border-color: var(--u); }
+
+.why { width: 100%; border-radius: 16px; padding: 12px 14px; text-align: left; display: flex; flex-direction: column; gap: 4px; }
+.why.o { background: var(--o-soft); } .why.u { background: var(--u-soft); }
+.why .tag { font-family: var(--font-display); font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+.why .txt { font-size: 17px; }
+.why .pair { font-family: var(--font-display); font-weight: 800; font-size: 22px; }
+.why .pair b.o { color: var(--o); } .why .pair b.u { color: var(--u); }
+.why.exception .tag { color: var(--bad); }
+
+.answers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.answers button { font-family: var(--font-display); font-weight: 800; font-size: 44px; line-height: 1; padding: 16px 4px 12px; border-radius: 20px; color: var(--on-color); box-shadow: 0 4px 0 rgba(0,0,0,.18); transition: transform .1s, opacity .2s; }
+.answers button:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.18); }
+.answers .o { background: var(--o); } .answers .u { background: var(--u); }
+.answers button:disabled { opacity: .3; cursor: default; }
+.answers button.picked-ok { opacity: 1; outline: 4px solid var(--ink); outline-offset: 2px; }
+.answers button.picked-bad { opacity: 1; background: var(--bad); animation: shake .35s; }
+.answers button.show-ok { opacity: 1; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+.feedback { min-height: 28px; text-align: center; font-family: var(--font-display); font-weight: 800; font-size: 22px; }
+.feedback.ok { color: var(--ok); } .feedback.no { color: var(--bad); }
+
+.result { text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.result .score { font-family: var(--font-display); font-weight: 800; font-size: 64px; line-height: 1; }
+.stars { font-size: 26px; letter-spacing: 2px; color: var(--o); word-break: break-all; }
+.stars .off { color: var(--line); }
+.result .msg { font-family: var(--font-display); font-weight: 800; font-size: 26px; }
+.review { width: 100%; text-align: left; display: flex; flex-direction: column; gap: 6px; }
+.review h3 { font-family: var(--font-display); font-weight: 800; font-size: 18px; margin: 0; }
+.review .words span { background: var(--bg); }
+.review .words b.o { color: var(--o); } .review .words b.u { color: var(--u); }
+
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="app">
+  <header>
+    <h1><span class="o">ó</span> czy <span class="u">u</span>?</h1>
+    <div class="sub">ó zamknięte<br>u otwarte</div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button id="tab-practice" role="tab" aria-selected="true">Ćwicz</button>
+    <button id="tab-rules" role="tab" aria-selected="false">Zasady</button>
+  </nav>
+
+  <section id="practice" style="display:flex;flex-direction:column;gap:14px">
+    <div id="quiz" style="display:flex;flex-direction:column;gap:14px"></div>
+  </section>
+
+  <section id="rules" hidden style="flex-direction:column;gap:12px">
+    <div class="rule o">
+      <h2>1. Piszemy <span class="c-o">ó</span>, gdy w innej formie jest o, e albo a</h2>
+      <p>Zmień wyraz: więcej, mniej, zdrobnij. Jeśli słychać <b>o</b>, piszemy <b class="c-o">ó</b>.</p>
+      <div class="words"><span>st<b>ó</b>ł → stoły</span><span>kr<b>ó</b>wka → krowa</span><span>s<b>ó</b>l → solić</span><span>n<b>ó</b>żka → noga</span><span>wi<b>ó</b>zł → wiozła</span></div>
+    </div>
+    <div class="rule o">
+      <h2>2. Piszemy <span class="c-o">ó</span> w zakończeniach -ów, -ówka, -ówna</h2>
+      <div class="words"><span>Krak<b>ó</b>w</span><span>kot<b>ó</b>w</span><span>temper<b>ó</b>wka</span><span>stoł<b>ó</b>wka</span><span>Nowak<b>ó</b>wna</span></div>
+      <div class="exc">
+        <div class="exc-label">Wyjątki z u</div>
+        <p>Piszemy <b class="c-u">u</b>, bo pochodzą od „suwać” i „kuwać”:</p>
+        <div class="words"><span>sk<b>u</b>wka</span><span>zas<b>u</b>wka</span><span>ws<b>u</b>wka</span><span>zs<b>u</b>wka</span></div>
+      </div>
+    </div>
+    <div class="rule o">
+      <h2>3. <span class="c-o">Ó</span> bez wymiany. Trzeba zapamiętać</h2>
+      <div class="words"><span>c<b>ó</b>rka</span><span>kr<b>ó</b>l</span><span>g<b>ó</b>ra</span><span>wiewi<b>ó</b>rka</span><span>s<b>ó</b>jka</span><span>wł<b>ó</b>czka</span><span>kt<b>ó</b>ry</span><span>wr<b>ó</b>bel</span><span>og<b>ó</b>rek</span><span>ż<b>ó</b>łw</span><span>r<b>ó</b>ża</span></div>
+    </div>
+    <div class="rule u">
+      <h2>4. Na początku wyrazu piszemy <span class="c-u">u</span></h2>
+      <div class="words"><span><b>u</b>lica</span><span><b>u</b>cho</span><span><b>u</b>czeń</span><span><b>u</b>rodziny</span></div>
+      <div class="exc to-o">
+        <div class="exc-label">Wyjątki z ó</div>
+        <p>Bo osiem:</p>
+        <div class="words"><span><b>ó</b>smy</span><span><b>ó</b>semka</span></div>
+      </div>
+    </div>
+    <div class="rule u">
+      <h2>5. Piszemy <span class="c-u">u</span> w zakończeniach -unek, -uszek, -uszka, -utki, -uch, -uje</h2>
+      <div class="words"><span>rys<b>u</b>nek</span><span>fart<b>u</b>szek</span><span>pod<b>u</b>szka</span><span>mal<b>u</b>tki</span><span>mal<b>u</b>ch</span><span>mal<b>u</b>je</span></div>
+    </div>
+    <div class="rule u">
+      <h2>6. <span class="c-u">U</span> bez reguły. Trzeba zapamiętać</h2>
+      <p>Jeśli nie da się wymienić na o i nie ma reguły, zwykle piszemy u.</p>
+      <div class="words"><span>c<b>u</b>kier</span><span>b<b>u</b>rza</span><span>chm<b>u</b>ra</span><span>w<b>u</b>jek</span><span>g<b>u</b>zik</span><span>kr<b>u</b>k</span></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  // word with the letter in {}, rule, hint
+  // W = ó wymienne, K = końcówka z ó, X = wyjątek -uwka, O = ó do zapamiętania
+  // P = u na początku, U = końcówka z u, Z = u do zapamiętania
+  const RAW = `st{ó}ł|W|stoły
+s{ó}l|W|solić
+l{ó}d|W|lodu
+m{ó}j|W|moja
+tw{ó}j|W|twoja
+sw{ó}j|W|swoja
+p{ó}ł|W|połowa
+d{ó}ł|W|doły
+w{ó}z|W|wozy
+n{ó}ż|W|noże
+r{ó}g|W|rogi
+mr{ó}z|W|mrozy
+kr{ó}wka|W|krowa
+dr{ó}żka|W|droga
+n{ó}żka|W|noga
+gł{ó}wka|W|głowa
+k{ó}łko|W|koło
+szk{ó}łka|W|szkoła
+ł{ó}dka|W|łodzie
+ł{ó}dź|W|łodzie
+ł{ó}żko|W|łoże
+k{ó}zka|W|koza
+s{ó}wka|W|sowa
+podk{ó}wka|W|podkowa
+r{ó}b|W|robić
+zr{ó}b|W|zrobić
+m{ó}w|W|mowa
+m{ó}c|W|mogę
+b{ó}l|W|boleć
+b{ó}br|W|bobry
+pok{ó}j|W|pokoje
+zbi{ó}r|W|zbiory
+dw{ó}r|W|dwory
+wyb{ó}r|W|wybory
+pr{ó}g|W|progi
+wr{ó}g|W|wrogowie
+ogr{ó}d|W|ogrody
+ogr{ó}dek|W|ogrody
+samoch{ó}d|W|samochody
+zach{ó}d|W|zachody
+wsch{ó}d|W|wschody
+wi{ó}zł|W|wiozła
+ni{ó}sł|W|niosła
+{ó}smy|W|osiem
+{ó}semka|W|osiem
+Krak{ó}w|K|-ów
+Tarn{ó}w|K|-ów
+Rzesz{ó}w|K|-ów
+Chorz{ó}w|K|-ów
+kot{ó}w|K|-ów
+dom{ó}w|K|-ów
+chłopc{ó}w|K|-ów
+kwiat{ó}w|K|-ów
+zeszyt{ó}w|K|-ów
+ptak{ó}w|K|-ów
+temper{ó}wka|K|-ówka
+stoł{ó}wka|K|-ówka
+poczt{ó}wka|K|-ówka
+kresk{ó}wka|K|-ówka
+ciężar{ó}wka|K|-ówka
+Nowak{ó}wna|K|-ówna
+sk{u}wka|X|skuwać
+zas{u}wka|X|zasuwać
+ws{u}wka|X|wsuwać
+zs{u}wka|X|zsuwać
+c{ó}rka|O|
+kr{ó}l|O|
+kr{ó}lik|O|
+kr{ó}lowa|O|
+g{ó}ra|O|
+g{ó}ral|O|
+wiewi{ó}rka|O|
+s{ó}jka|O|
+wł{ó}czka|O|
+kt{ó}ry|O|
+wr{ó}bel|O|
+og{ó}rek|O|
+ż{ó}łw|O|
+ż{ó}łty|O|
+ż{ó}łtko|O|
+r{ó}ża|O|
+r{ó}wny|O|
+r{ó}wnież|O|
+r{ó}żny|O|
+źr{ó}dło|O|
+jask{ó}łka|O|
+p{ó}źno|O|
+pr{ó}ba|O|
+m{ó}zg|O|
+wr{ó}żka|O|
+ch{ó}r|O|
+sk{ó}ra|O|
+sk{ó}rka|O|
+kr{ó}tki|O|
+oł{ó}wek|O|
+kł{ó}tnia|O|
+kł{ó}dka|O|
+tch{ó}rz|O|
+wr{ó}cić|O|
+{u}lica|P|
+{u}cho|P|
+{u}szko|P|
+{u}czeń|P|
+{u}l|P|
+{u}branie|P|
+{u}śmiech|P|
+{u}rodziny|P|
+{u}mywalka|P|
+{u}lewa|P|
+{u}czyć|P|
+{u}dko|P|
+rys{u}nek|U|-unek
+pocał{u}nek|U|-unek
+opatr{u}nek|U|-unek
+podar{u}nek|U|-unek
+kier{u}nek|U|-unek
+fart{u}szek|U|-uszek
+łańc{u}szek|U|-uszek
+garn{u}szek|U|-uszek
+koż{u}szek|U|-uszek
+pod{u}szka|U|-uszka
+pietr{u}szka|U|-uszka
+piel{u}szka|U|-uszka
+gr{u}szka|U|-uszka
+mal{u}tki|U|-utki
+ciepl{u}tki|U|-utki
+cich{u}tki|U|-utki
+mal{u}ch|U|-uch
+leni{u}ch|U|-uch
+łas{u}ch|U|-uch
+zmarzl{u}ch|U|-uch
+mal{u}je|U|-uje
+kup{u}je|U|-uje
+rys{u}je|U|-uje
+got{u}je|U|-uje
+c{u}kier|Z|
+g{u}zik|Z|
+b{u}rza|Z|
+chm{u}ra|Z|
+m{u}cha|Z|
+b{u}t|Z|
+s{u}kienka|Z|
+k{u}ra|Z|
+dzi{u}ra|Z|
+j{u}tro|Z|
+l{u}stro|Z|
+tr{u}skawka|Z|
+b{u}rak|Z|
+t{u}lipan|Z|
+pap{u}ga|Z|
+w{u}jek|Z|
+kał{u}ża|Z|
+br{u}dny|Z|
+m{u}zyka|Z|
+ch{u}stka|Z|
+g{u}ma|Z|
+d{u}ży|Z|
+k{u}chnia|Z|
+k{u}bek|Z|
+sł{u}chawki|Z|
+j{u}ż|Z|
+t{u}taj|Z|
+b{u}dynek|Z|
+kl{u}cz|Z|
+sz{u}flada|Z|
+p{u}dełko|Z|
+st{u}dnia|Z|
+k{u}rtka|Z|
+f{u}tro|Z|
+kr{u}k|Z|
+l{u}dzie|Z|
+k{u}lka|Z|
+brz{u}ch|Z|`;
+
+  const BANK = RAW.split("\n").map(line => {
+    const [w, type, hint] = line.split("|");
+    const m = w.match(/^(.*)\{(ó|u)\}(.*)$/);
+    return { before: m[1], letter: m[2], after: m[3], word: m[1] + m[2] + m[3], type, hint: hint || "" };
+  });
+
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem("ou-" + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem("ou-" + k, JSON.stringify(v)); } catch (e) {} }
+  };
+
+  // ---------- sounds ----------
+  let actx = null;
+  function tones(freqs, dur, type) {
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      let t = actx.currentTime;
+      freqs.forEach(f => {
+        const o = actx.createOscillator(), g = actx.createGain();
+        o.type = type; o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.18, t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        o.connect(g).connect(actx.destination); o.start(t); o.stop(t + dur + 0.02);
+        t += dur * 0.8;
+      });
+    } catch (e) {}
+  }
+  const ding = () => tones([660, 880], 0.16, "sine");
+  const bonk = () => tones([200, 160], 0.18, "triangle");
+
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const cls = letter => letter === "ó" ? "o" : "u";
+
+  // word with the letter coloured, as DOM
+  function wordEl(item, tag) {
+    const w = el(tag || "span");
+    const b = el("b", cls(item.letter), item.letter);
+    w.append(document.createTextNode(item.before), b, document.createTextNode(item.after));
+    return w;
+  }
+
+  function explain(item) {
+    const box = el("div", "why " + cls(item.letter));
+    const tag = el("div", "tag");
+    const txt = el("div", "txt");
+    switch (item.type) {
+      case "W": {
+        tag.textContent = "ó wymienia się na o, e, a";
+        const p = el("div", "pair");
+        p.append(wordEl(item), document.createTextNode(" → " + item.hint));
+        box.append(tag, p);
+        return box;
+      }
+      case "K": tag.textContent = "zakończenie " + item.hint; txt.textContent = "Zakończenie " + item.hint + " zawsze piszemy przez ó."; break;
+      case "X": box.classList.add("exception"); tag.textContent = "wyjątek!"; txt.textContent = "Wygląda jak -ówka, ale piszemy u, bo " + item.hint + "."; break;
+      case "O": tag.textContent = "ó bez wymiany"; txt.textContent = "Nie da się wymienić na o. Ten wyraz trzeba zapamiętać."; break;
+      case "P": tag.textContent = "początek wyrazu"; txt.textContent = "Na początku wyrazu piszemy u."; break;
+      case "U": tag.textContent = "zakończenie " + item.hint; txt.textContent = "Zakończenie " + item.hint + " piszemy przez u."; break;
+      case "Z": tag.textContent = "u bez reguły"; txt.textContent = "Nie wymienia się na o. Ten wyraz trzeba zapamiętać."; break;
+    }
+    box.append(tag, txt);
+    return box;
+  }
+
+  // ---------- tabs ----------
+  const tabP = document.getElementById("tab-practice"), tabR = document.getElementById("tab-rules");
+  const secP = document.getElementById("practice"), secR = document.getElementById("rules");
+  function showTab(name) {
+    const p = name === "practice";
+    tabP.setAttribute("aria-selected", p); tabR.setAttribute("aria-selected", !p);
+    secP.hidden = !p; secR.hidden = p;
+    secR.style.display = p ? "" : "flex";
+    store.set("tab", name);
+  }
+  tabP.onclick = () => showTab("practice");
+  tabR.onclick = () => showTab("rules");
+
+  // ---------- practice ----------
+  const ROUND = 10;
+  const quiz = document.getElementById("quiz");
+  let deck = [];
+  let state;
+
+  function newRound() {
+    if (deck.length < ROUND) deck = deck.concat(shuffle(BANK));
+    state = { qs: deck.splice(0, ROUND), i: 0, res: [], answered: false };
+    renderQuestion();
+  }
+
+  function dotsEl() {
+    const d = el("div", "dots");
+    for (let i = 0; i < ROUND; i++) {
+      const s = el("span");
+      if (i < state.res.length) s.className = state.res[i] ? "ok" : "no";
+      else if (i === state.i) s.className = "now";
+      d.appendChild(s);
+    }
+    return d;
+  }
+
+  function renderQuestion() {
+    const item = state.qs[state.i];
+    state.answered = false;
+    quiz.replaceChildren();
+    quiz.appendChild(dotsEl());
+
+    const card = el("div", "q");
+    const word = el("div", "word");
+    const slot = el("span", "slot", item.letter);
+    word.append(document.createTextNode(item.before), slot, document.createTextNode(item.after));
+    card.appendChild(word);
+    quiz.appendChild(card);
+
+    const answers = el("div", "answers");
+    const btns = {};
+    ["ó", "u"].forEach(l => {
+      const b = el("button", cls(l), l);
+      b.id = "answer-" + cls(l);
+      b.onclick = () => answer(l);
+      btns[l] = b;
+      answers.appendChild(b);
+    });
+    const fb = el("div", "feedback");
+    quiz.append(answers, fb);
+
+    const next = el("button", "big-btn", state.i === ROUND - 1 ? "Zobacz wynik →" : "Dalej →");
+    next.hidden = true;
+    next.onclick = () => { state.i++; state.i >= ROUND ? renderResult() : renderQuestion(); };
+    quiz.appendChild(next);
+
+    function answer(l) {
+      if (state.answered) return;
+      state.answered = true;
+      const ok = l === item.letter;
+      state.res.push(ok);
+      Object.values(btns).forEach(b => b.disabled = true);
+      if (ok) { btns[l].classList.add("picked-ok"); fb.textContent = ["Brawo!", "Super!", "Świetnie!", "Tak jest!"][Math.floor(Math.random() * 4)]; fb.className = "feedback ok"; ding(); }
+      else { btns[l].classList.add("picked-bad"); btns[item.letter].classList.add("show-ok"); fb.textContent = "Prawie! Piszemy " + item.word; fb.className = "feedback no"; bonk(); }
+      slot.classList.add("filled", cls(item.letter));
+      card.appendChild(explain(item));
+      next.hidden = false;
+      quiz.firstChild.replaceWith(dotsEl());
+      next.focus({ preventScroll: true });
+    }
+  }
+
+  function renderResult() {
+    const score = state.res.filter(Boolean).length;
+    const best = Math.max(store.get("best", 0), score);
+    store.set("best", best);
+    quiz.replaceChildren();
+    const r = el("div", "q result");
+    r.appendChild(el("div", "score", score + " / " + ROUND));
+    const stars = el("div", "stars");
+    for (let i = 0; i < ROUND; i++) stars.appendChild(el("span", i < score ? null : "off", "★"));
+    r.appendChild(stars);
+    const msg = score === ROUND ? "Perfekcyjnie!" : score >= 7 ? "Super!" : score >= 4 ? "Dobrze idzie!" : "Poćwiczmy jeszcze!";
+    r.appendChild(el("div", "msg", msg));
+    const wrong = state.qs.filter((_, i) => !state.res[i]);
+    if (wrong.length) {
+      const rev = el("div", "review");
+      rev.appendChild(el("h3", null, "Do powtórki"));
+      const ws = el("div", "words");
+      wrong.forEach(it => ws.appendChild(wordEl(it)));
+      rev.appendChild(ws);
+      r.appendChild(rev);
+    }
+    r.appendChild(el("p", "note", "Najlepszy wynik: " + best + " / " + ROUND + " · w apce jest " + BANK.length + " wyrazów"));
+    quiz.appendChild(r);
+    const again = el("button", "big-btn", "Jeszcze raz");
+    again.onclick = newRound;
+    const rules = el("button", "big-btn ghost", "Zobacz zasady");
+    rules.onclick = () => showTab("rules");
+    quiz.append(again, rules);
+    if (score >= 7) ding();
+  }
+
+  newRound();
+  showTab(store.get("tab", "practice"));
+})();
+</script>
+
+</body>
+</html>
