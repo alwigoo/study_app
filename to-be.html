@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#EEF3FA">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇬🇧</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📘</text></svg>">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Lexend:wght@400;600&display=swap">
 <style>
+[hidden]{display:none!important}
 /* Layout: one narrow column for a phone; each form (am / is / are) owns a colour used everywhere */
 :root {
   --bg: #EEF3FA;
@@ -137,6 +138,25 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: 44px; line-h
 .stars .off { color: var(--line); }
 .result .msg { font-family: var(--font-display); font-weight: 800; font-size: 26px; }
 
+
+.modes { display: flex; flex-wrap: wrap; gap: 6px; }
+.modes button { font-size: 15px; padding: 7px 14px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--muted); }
+.modes button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.task-label { font-family: var(--font-display); font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+.slot.tight { min-width: 2.2ch; padding: 0 2px; }
+.type-row { display: flex; gap: 8px; }
+.type-row input { flex: 1; min-width: 0; font-family: var(--font-display); font-weight: 800; font-size: 26px; padding: 10px 14px 6px; border-radius: 16px; border: 3px solid var(--line); background: var(--card); color: var(--ink); }
+.type-row input:focus { outline: none; border-color: var(--are); }
+.type-row input.ok { border-color: var(--is); }
+.type-row input.no { border-color: var(--bad); }
+.type-row button { font-family: var(--font-display); font-weight: 800; font-size: 19px; padding: 0 18px; border-radius: 16px; background: var(--ink); color: var(--bg); }
+.correction { display: flex; flex-direction: column; gap: 6px; background: var(--bad-soft); border-radius: 16px; padding: 12px 14px; }
+.correction .yours { text-decoration: line-through; text-decoration-color: var(--bad); color: var(--muted); font-family: var(--font-display); font-weight: 800; font-size: 20px; }
+.correction .right { font-family: var(--font-display); font-weight: 800; font-size: 26px; }
+.review { width: 100%; text-align: left; display: flex; flex-direction: column; gap: 6px; }
+.review .list { display: flex; flex-wrap: wrap; gap: 6px; }
+.review .list span { background: var(--bad-soft); border-radius: 8px; padding: 2px 8px; font-family: var(--font-display); font-weight: 800; font-size: 16px; }
+
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 
@@ -170,6 +190,11 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: 44px; line-h
   </section>
 
   <section id="practice" hidden style="flex-direction:column;gap:14px">
+    <div class="modes" id="modes">
+      <button id="mode-pick" data-mode="pick">am / is / are</button>
+      <button id="mode-short" data-mode="short">Skróty 'm 's 're</button>
+      <button id="mode-type" data-mode="type">✏️ Wpisz sam</button>
+    </div>
     <div id="quiz" style="display:flex;flex-direction:column;gap:14px"></div>
   </section>
 </div>
@@ -179,7 +204,7 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: 44px; line-h
   // ---------- data ----------
   // subject|form|rest|picture
   const BANK = `I|am|Adam|🙋
-I|am|from Poland|🇵🇱
+I|am|from Poland|🌍
 I|am|a student|🎒
 I|am|at school|🏫
 I|am|at home|🏠
@@ -202,13 +227,13 @@ He|is|at school|🏫
 He|is|my brother|👦
 He|is|tall|🦒
 He|is|a doctor|🧑‍⚕️
-He|is|from England|🇬🇧
+He|is|from England|🌍
 He|is|a king|👑
 She|is|a fish|🐟
 She|is|a teacher|👩‍🏫
 She|is|my sister|👧
 She|is|a princess|👸
-She|is|from Spain|🇪🇸
+She|is|from Spain|🌍
 She|is|a teenager|🧑
 She|is|at the shop|🛒
 It|is|a cat|🐱
@@ -221,10 +246,10 @@ It|is|a car|🚗
 It|is|a banana|🍌
 It|is|green|🐸
 Mark|is|a student|🎒
-Mark|is|British|🇬🇧
+Mark|is|British|🌍
 Adam|is|at school|🏫
 Adam|is|a pirate|🏴‍☠️
-Lena|is|from Poland|🇵🇱
+Lena|is|from Poland|🌍
 Lena|is|my friend|🤝
 Mum|is|at home|🏠
 Dad|is|in the kitchen|🍳
@@ -249,7 +274,7 @@ The TV|is|new|📺
 The water|is|cold|💧
 The monkey|is|funny|🐒
 You|are|my friend|🤝
-You|are|from Poland|🇵🇱
+You|are|from Poland|🌍
 You|are|a student|🎒
 You|are|fast|🏃
 You|are|funny|😂
@@ -257,7 +282,7 @@ You|are|at home|🏠
 You|are|a good player|⚽
 You|are|a dinosaur|🦖
 You|are|tall|🦒
-We|are|from Poland|🇵🇱
+We|are|from Poland|🌍
 We|are|at school|🏫
 We|are|at home|🏠
 We|are|friends|🤝
@@ -266,16 +291,16 @@ We|are|in the park|🌳
 We|are|happy|😊
 We|are|on the bus|🚌
 We|are|brothers|👦
-They|are|British|🇬🇧
+They|are|British|🌍
 They|are|dinosaurs|🦕
 They|are|at school|🏫
 They|are|hungry|🍕
 They|are|my friends|🤝
-They|are|from Italy|🇮🇹
+They|are|from Italy|🌍
 They|are|cats|🐱
 They|are|in the garden|🌷
 They|are|teachers|🧑‍🏫
-My friends|are|from the UK|🇬🇧
+My friends|are|from the UK|🌍
 Tom and Ola|are|at school|🏫
 Mum and Dad|are|at home|🏠
 Adam and Lena|are|friends|🤝
@@ -468,15 +493,56 @@ The lions|are|big|🦁`.split("\n").map(l => l.split("|"));
   // ---------- practice ----------
   const ROUND = 10;
   const quiz = document.getElementById("quiz");
+  const SHORT = { am: "'m", is: "'s", are: "'re" };
+  const PRON = ["I", "You", "He", "She", "It", "We", "They"];
+  const PRON_BANK = BANK.filter(r => PRON.includes(r[0]));
+  const CONVERT = [["I", "am"], ["you", "are"], ["he", "is"], ["she", "is"], ["it", "is"], ["we", "are"], ["they", "are"]];
+  let mode = store.get("mode", "pick");
+  if (!["pick", "short", "type"].includes(mode)) mode = "pick";
   let state;
   let showHint = false;
+  const decks = {};
 
-  let deck = [];
+  const norm = t => t.replace(/[’‘`´]/g, "'").replace(/\s+/g, " ").trim().toLowerCase();
+
+  function draw(pool, key) {
+    if (!decks[key] || decks[key].length < 1) decks[key] = shuffle(pool);
+    return decks[key].pop();
+  }
+
+  // q: { kind, before, after, answer, label, full, show, tight, f }
+  function makeQ(m) {
+    if (m === "pick") {
+      const [s, f, r, pic] = draw(BANK, "all");
+      return { kind: "pick", pic, before: s + " ", after: " " + r + ".", answer: f, f, show: f, full: s + " " + f + " " + r + "." };
+    }
+    if (m === "short") {
+      const [s, f, r, pic] = draw(PRON_BANK, "pron");
+      return { kind: "short", pic, before: s, after: " " + r + ".", answer: f, f, show: SHORT[f], tight: true, full: s + SHORT[f] + " " + r + "." };
+    }
+    // typing: mix of three task types
+    const x = Math.random();
+    if (x < 0.5) {
+      const [s, f, r, pic] = draw(BANK, "all");
+      return { kind: "type", label: "Wpisz am, is albo are", pic, before: s + " ", after: " " + r + ".", answer: f, f, show: f, full: s + " " + f + " " + r + "." };
+    }
+    if (x < 0.8) {
+      const [s, f, r, pic] = draw(PRON_BANK, "pron");
+      return { kind: "type", label: "Wpisz skrót: 'm, 's albo 're", pic, before: s, after: " " + r + ".", answer: SHORT[f], f, show: SHORT[f], tight: true, full: s + SHORT[f] + " " + r + "." };
+    }
+    const [p, f] = CONVERT[Math.floor(Math.random() * CONVERT.length)];
+    return { kind: "type", label: "Napisz skrót", pic: "✂️", before: p + " " + f + "  →  ", after: "", answer: p + SHORT[f], f, show: p + SHORT[f], full: p + SHORT[f], convert: true };
+  }
+
   function newRound() {
-    if (deck.length < ROUND) deck = deck.concat(shuffle(BANK));
-    state = { qs: deck.splice(0, ROUND), i: 0, res: [], answered: false };
+    state = { qs: Array.from({ length: ROUND }, () => makeQ(mode)), i: 0, res: [], wrong: [] };
     renderQuestion();
   }
+
+  const modeBtns = document.querySelectorAll("#modes button");
+  function markModes() { modeBtns.forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode)); }
+  modeBtns.forEach(b => b.onclick = () => { mode = b.dataset.mode; store.set("mode", mode); markModes(); newRound(); });
+  markModes();
 
   function dotsEl() {
     const d = el("div", "dots");
@@ -497,9 +563,9 @@ The lions|are|big|🦁`.split("\n").map(l => l.split("|"));
     wrap.appendChild(t);
     if (showHint) {
       const h = el("div", "hint");
-      [["am", "I"], ["is", "he, she, it — jedna osoba lub rzecz (Mark, mama, pies)"], ["are", "you, we, they — kilka osób lub rzeczy (Tom i Ola, koty)"]].forEach(([f, who]) => {
+      [["am", "I", "I'm"], ["is", "he, she, it — jedna osoba lub rzecz", "he's, she's, it's"], ["are", "you, we, they — kilka osób lub rzeczy", "you're, we're, they're"]].forEach(([f, who, sh]) => {
         const line = el("div");
-        line.append(el("b", "c-" + f, f), document.createTextNode("  ←  " + who));
+        line.append(el("b", "c-" + f, f), document.createTextNode("  ←  " + who + "   (skrót: " + sh + ")"));
         h.appendChild(line);
       });
       wrap.appendChild(h);
@@ -508,62 +574,107 @@ The lions|are|big|🦁`.split("\n").map(l => l.split("|"));
   }
 
   function renderQuestion() {
-    const [s, f, r, pic] = state.qs[state.i];
-    const full = s + " " + f + " " + r + ".";
-    state.answered = false;
+    const q = state.qs[state.i];
+    let done = false;
     quiz.replaceChildren();
     quiz.appendChild(dotsEl());
 
     const card = el("div", "q");
-    card.appendChild(el("div", "pic", pic));
+    if (q.label) card.appendChild(el("div", "task-label", q.label));
+    else if (q.kind === "short") card.appendChild(el("div", "task-label", "Wybierz skrót"));
+    card.appendChild(el("div", "pic", q.pic));
     const sent = el("div", "sentence");
-    const slot = el("span", "slot", f);
-    sent.append(document.createTextNode(s + " "), slot, document.createTextNode(" " + r + "."));
+    const slot = el("span", "slot" + (q.tight ? " tight" : ""), q.show);
+    sent.append(document.createTextNode(q.before), slot, document.createTextNode(q.after));
     card.appendChild(sent);
     const replay = el("button", "replay", "🔊 Posłuchaj");
     replay.hidden = true;
-    replay.onclick = () => speak(full);
+    replay.onclick = () => speak(q.full);
     card.appendChild(replay);
     quiz.appendChild(card);
 
     const fb = el("div", "feedback");
-    const answers = el("div", "answers");
-    const btns = {};
-    FORMS.forEach(k => {
-      const b = el("button", k, k);
-      b.onclick = () => answer(k);
-      btns[k] = b;
-      answers.appendChild(b);
-    });
-    quiz.append(answers, fb);
-
     const next = el("button", "big-btn", state.i === ROUND - 1 ? "Zobacz wynik →" : "Dalej →");
     next.hidden = true;
     next.onclick = () => { state.i++; state.i >= ROUND ? renderResult() : renderQuestion(); };
-    quiz.appendChild(next);
-    quiz.appendChild(hintEl());
 
-    function answer(k) {
-      if (state.answered) return;
-      state.answered = true;
-      const ok = k === f;
-      state.res.push(ok);
-      FORMS.forEach(x => btns[x].disabled = true);
-      if (ok) { btns[k].classList.add("picked-ok"); fb.textContent = ["Brawo!", "Super!", "Świetnie!", "Tak jest!"][Math.floor(Math.random() * 4)]; fb.className = "feedback ok"; ding(); }
-      else { btns[k].classList.add("picked-bad"); btns[f].classList.add("show-ok"); fb.textContent = "Prawie! Poprawnie: " + f; fb.className = "feedback no"; bonk(); }
-      slot.classList.add("filled", f);
+    function reveal(ok) {
+      slot.classList.add("filled", q.f);
       replay.hidden = false;
-      next.hidden = false;
       quiz.firstChild.replaceWith(dotsEl());
-      setTimeout(() => speak(full), 300);
-      next.focus({ preventScroll: true });
+      setTimeout(() => speak(q.full), 300);
+      if (ok) { fb.textContent = ["Brawo!", "Super!", "Świetnie!", "Tak jest!"][Math.floor(Math.random() * 4)]; fb.className = "feedback ok"; ding(); }
+      else { bonk(); state.wrong.push(q.full); }
     }
+
+    if (q.kind === "pick" || q.kind === "short") {
+      const answers = el("div", "answers");
+      const btns = {};
+      FORMS.forEach(k => {
+        const b = el("button", k, q.kind === "short" ? SHORT[k] : k);
+        b.onclick = () => {
+          if (done) return; done = true;
+          const ok = k === q.answer;
+          state.res.push(ok);
+          FORMS.forEach(x => btns[x].disabled = true);
+          if (ok) btns[k].classList.add("picked-ok");
+          else { btns[k].classList.add("picked-bad"); btns[q.answer].classList.add("show-ok"); fb.textContent = "Prawie! Poprawnie: " + q.show; fb.className = "feedback no"; }
+          reveal(ok);
+          next.hidden = false;
+          next.focus({ preventScroll: true });
+        };
+        btns[k] = b;
+        answers.appendChild(b);
+      });
+      quiz.append(answers, fb, next, hintEl());
+      return;
+    }
+
+    // typing
+    const row = el("div", "type-row");
+    const inp = document.createElement("input");
+    inp.id = "answer-input";
+    inp.setAttribute("autocomplete", "off"); inp.setAttribute("autocorrect", "off"); inp.setAttribute("autocapitalize", "none"); inp.spellcheck = false;
+    inp.placeholder = "wpisz tutaj";
+    const go = el("button", null, "Sprawdź");
+    row.append(inp, go);
+    quiz.append(row, fb);
+    const corr = el("div", "correction"); corr.hidden = true;
+    quiz.append(corr, next, hintEl());
+
+    function check() {
+      const v = norm(inp.value);
+      if (!v) { inp.focus(); return; }
+      if (done) return; done = true;
+      const ok = v === norm(q.answer);
+      state.res.push(ok);
+      inp.classList.add(ok ? "ok" : "no");
+      reveal(ok);
+      if (ok) { inp.disabled = true; go.disabled = true; next.hidden = false; next.focus({ preventScroll: true }); return; }
+      let why = "Prawie!";
+      if (q.answer.includes("'") && !v.includes("'") && v.replace(/'/g, "") === norm(q.answer).replace(/'/g, "")) why = "Brakuje apostrofu ' !";
+      fb.textContent = why; fb.className = "feedback no";
+      corr.hidden = false;
+      corr.replaceChildren(el("div", "task-label", "Twoja odpowiedź"), el("div", "yours", inp.value), el("div", "task-label", "Poprawnie"), el("div", "right c-" + q.f, q.answer), el("div", "note", "Przepisz poprawną odpowiedź, żeby przejść dalej."));
+      inp.value = ""; inp.classList.remove("no"); inp.placeholder = "przepisz: " + q.answer;
+      go.textContent = "OK";
+      inp.focus();
+      go.onclick = retype;
+    }
+    function retype() {
+      if (norm(inp.value) === norm(q.answer)) { inp.classList.add("ok"); inp.disabled = true; go.disabled = true; next.hidden = false; next.focus({ preventScroll: true }); }
+      else { inp.classList.add("no"); card.classList.remove("shake"); void card.offsetWidth; }
+    }
+    go.onclick = check;
+    inp.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); if (!next.hidden) next.click(); else go.click(); } });
+    setTimeout(() => inp.focus({ preventScroll: true }), 50);
   }
 
   function renderResult() {
     const score = state.res.filter(Boolean).length;
-    const best = Math.max(store.get("best", 0), score);
-    store.set("best", best);
+    const key = "best-" + mode;
+    const best = Math.max(store.get(key, 0), score);
+    store.set(key, best);
     quiz.replaceChildren();
     const r = el("div", "q result");
     r.appendChild(el("div", "score", score + " / " + ROUND));
@@ -572,7 +683,15 @@ The lions|are|big|🦁`.split("\n").map(l => l.split("|"));
     r.appendChild(stars);
     const msg = score === ROUND ? "Perfekcyjnie!" : score >= 7 ? "Super!" : score >= 4 ? "Dobrze idzie!" : "Poćwiczmy jeszcze!";
     r.appendChild(el("div", "msg", msg));
-    r.appendChild(el("p", "note", "Najlepszy wynik: " + best + " / " + ROUND));
+    if (state.wrong.length) {
+      const rev = el("div", "review");
+      rev.appendChild(el("div", "task-label", "Do powtórki"));
+      const list = el("div", "list");
+      state.wrong.forEach(w => list.appendChild(el("span", null, w)));
+      rev.appendChild(list);
+      r.appendChild(rev);
+    }
+    r.appendChild(el("p", "note", "Najlepszy wynik w tym trybie: " + best + " / " + ROUND));
     quiz.appendChild(r);
     const again = el("button", "big-btn", "Jeszcze raz");
     again.onclick = newRound;

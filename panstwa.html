@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#EEF3FA">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Państwa i narodowości</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Lexend:wght@400;600&display=swap">
+<style>
+[hidden]{display:none!important}
+/* Layout: one phone column; country = blue, nationality = orange, tricky letters on a yellow marker */
+:root {
+  --bg: #EEF3FA;
+  --card: #FFFFFF;
+  --ink: #1B2540;
+  --muted: #5B6785;
+  --line: #D6DEEC;
+  --country: #2F5FD0; --country-soft: #E0E8FA;
+  --nat: #D2621C; --nat-soft: #FDEBDD;
+  --ok: #1E8A5F; --ok-soft: #DDF3E9;
+  --bad: #D0392F; --bad-soft: #FBE3E1;
+  --hl: #FFE58A;
+  --on-color: #FFFFFF;
+  --font-display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Lexend", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121827; --card: #1C2438; --ink: #EDF1F9; --muted: #9AA6C2; --line: #2C3752;
+    --country: #86A7FF; --country-soft: #1C2A4E;
+    --nat: #FF9B5C; --nat-soft: #3A2618;
+    --ok: #4FCB95; --ok-soft: #173327;
+    --bad: #FF7A70; --bad-soft: #3B1D1D;
+    --hl: #6B5A12;
+    --on-color: #121827;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121827; --card: #1C2438; --ink: #EDF1F9; --muted: #9AA6C2; --line: #2C3752;
+  --country: #86A7FF; --country-soft: #1C2A4E;
+  --nat: #FF9B5C; --nat-soft: #3A2618;
+  --ok: #4FCB95; --ok-soft: #173327;
+  --bad: #FF7A70; --bad-soft: #3B1D1D;
+  --hl: #6B5A12;
+  --on-color: #121827;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.45; padding-inline: 16px; -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+button:focus-visible { outline: 3px solid var(--country); outline-offset: 2px; }
+.app { max-width: 520px; margin: 0 auto; padding-block: 14px 40px; display: flex; flex-direction: column; gap: 16px; }
+
+header { display: flex; flex-direction: column; gap: 2px; }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: 36px; line-height: 1.05; margin: 0; }
+h1 .c { color: var(--country); } h1 .n { color: var(--nat); }
+.note { color: var(--muted); font-size: 14px; margin: 0; }
+
+.tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 4px; gap: 4px; }
+.tabs button { font-family: var(--font-display); font-weight: 800; font-size: 20px; padding: 8px 0 6px; border-radius: 12px; color: var(--muted); }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+
+.warn { background: var(--bad-soft); border-radius: 12px; padding: 10px 12px; font-size: 14px; margin: 0; }
+.seg { display: inline-flex; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 3px; gap: 3px; }
+.seg button { font-size: 13px; padding: 5px 10px; border-radius: 9px; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+
+/* learn */
+.group-label { font-family: var(--font-display); font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); padding-left: 4px; }
+.pairs { display: flex; flex-direction: column; gap: 6px; }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2px 10px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 8px 12px; }
+.pair .w { font-family: var(--font-display); font-weight: 800; font-size: 22px; line-height: 1.2; text-align: left; min-width: 0; }
+.pair .w.c { color: var(--country); } .pair .w.n { color: var(--nat); }
+.pair .pl { font-size: 13px; color: var(--muted); }
+.w b, .right b, .opt b { background: var(--hl); border-radius: 3px; color: inherit; }
+.w.playing { text-decoration: underline; text-decoration-thickness: 3px; }
+
+.ex { display: flex; flex-direction: column; gap: 6px; }
+.ex button { display: flex; flex-direction: column; text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; }
+.ex .en { font-family: var(--font-display); font-weight: 800; font-size: 19px; }
+.ex .plx { font-size: 14px; color: var(--muted); }
+
+.traps { background: var(--bad-soft); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; font-size: 15px; }
+.traps .label, .task-label { font-family: var(--font-display); font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+.traps .label { color: var(--bad); }
+.traps s { color: var(--muted); text-decoration-color: var(--bad); text-decoration-thickness: 2px; }
+
+/* practice */
+.modes { display: flex; flex-wrap: wrap; gap: 6px; }
+.modes button { font-size: 15px; padding: 7px 13px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--muted); }
+.modes button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.dots { display: flex; gap: 5px; }
+.dots span { flex: 1; height: 8px; border-radius: 4px; background: var(--line); }
+.dots span.ok { background: var(--ok); } .dots span.no { background: var(--bad); } .dots span.now { background: var(--muted); }
+
+.q { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 18px 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+.q .flag { font-size: 54px; line-height: 1; }
+.q .prompt { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-height: 1.2; text-wrap: balance; }
+.q .prompt .c { color: var(--country); } .q .prompt .n { color: var(--nat); }
+.q .ask { font-size: 15px; color: var(--muted); }
+.gap { display: inline-block; min-width: 4ch; border-bottom: 4px dashed var(--muted); }
+.gap.filled { border-bottom-style: solid; }
+.replay { font-size: 14px; color: var(--muted); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); }
+
+.opts { display: flex; flex-direction: column; gap: 8px; }
+.opt { font-family: var(--font-display); font-weight: 800; font-size: 26px; padding: 12px 16px 8px; border-radius: 16px; background: var(--card); border: 3px solid var(--line); text-align: center; }
+.opt:disabled { opacity: .4; cursor: default; }
+.opt.picked-ok, .opt.show-ok { opacity: 1; border-color: var(--ok); background: var(--ok-soft); }
+.opt.picked-bad { opacity: 1; border-color: var(--bad); background: var(--bad-soft); }
+
+.type-row { display: flex; gap: 8px; }
+.type-row input { flex: 1; min-width: 0; font-family: var(--font-display); font-weight: 800; font-size: 26px; padding: 10px 14px 6px; border-radius: 16px; border: 3px solid var(--line); background: var(--card); color: var(--ink); }
+.type-row input:focus { outline: none; border-color: var(--country); }
+.type-row input.ok { border-color: var(--ok); }
+.type-row input.no { border-color: var(--bad); }
+.type-row button { font-family: var(--font-display); font-weight: 800; font-size: 19px; padding: 0 18px; border-radius: 16px; background: var(--ink); color: var(--bg); }
+.type-row button:disabled { opacity: .4; }
+.remind { font-size: 13px; color: var(--muted); text-align: center; }
+
+.feedback { min-height: 28px; text-align: center; font-family: var(--font-display); font-weight: 800; font-size: 22px; }
+.feedback.ok { color: var(--ok); } .feedback.no { color: var(--bad); }
+.correction { display: flex; flex-direction: column; gap: 4px; background: var(--bad-soft); border-radius: 16px; padding: 12px 14px; }
+.correction .yours { text-decoration: line-through; text-decoration-color: var(--bad); text-decoration-thickness: 2px; color: var(--muted); font-family: var(--font-display); font-weight: 800; font-size: 20px; }
+.correction .right { font-family: var(--font-display); font-weight: 800; font-size: 28px; }
+
+.big-btn { display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 800; font-size: 20px; padding: 12px 16px 10px; border-radius: 16px; background: var(--ink); color: var(--bg); width: 100%; }
+.big-btn.ghost { background: var(--card); color: var(--ink); border: 2px solid var(--line); }
+
+.result { text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.result .score { font-family: var(--font-display); font-weight: 800; font-size: 64px; line-height: 1; }
+.stars { font-size: 26px; letter-spacing: 2px; color: var(--nat); word-break: break-all; }
+.stars .off { color: var(--line); }
+.result .msg { font-family: var(--font-display); font-weight: 800; font-size: 26px; }
+.review { width: 100%; text-align: left; display: flex; flex-direction: column; gap: 6px; }
+.review .list { display: flex; flex-wrap: wrap; gap: 6px; }
+.review .list span { background: var(--bad-soft); border-radius: 8px; padding: 2px 8px; font-family: var(--font-display); font-weight: 800; font-size: 17px; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="app">
+  <header>
+    <h1><span class="c">Countries</span> &amp; <span class="n">nationalities</span></h1>
+    <p class="note">Unit 1 · państwa i narodowości. Zawsze wielką literą.</p>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button id="tab-learn" role="tab" aria-selected="true">Poznaj</button>
+    <button id="tab-practice" role="tab" aria-selected="false">Ćwicz</button>
+  </nav>
+  <p class="warn" id="voice-warn" hidden></p>
+
+  <section id="learn" style="display:flex;flex-direction:column;gap:14px">
+    <p class="note">Dotknij słowa, żeby usłyszeć. Żółte litery to miejsca, gdzie łatwo o błąd.</p>
+    <div id="groups" style="display:flex;flex-direction:column;gap:12px"></div>
+
+    <div class="group-label">W zdaniach</div>
+    <div class="ex" id="examples"></div>
+    <p class="note">Państwo idzie po <b>from</b>: I'm from Spain. Narodowość stoi sama: I'm Spanish.</p>
+
+    <div class="traps">
+      <div class="label">Uwaga na pisownię</div>
+      <div>Zawsze wielka litera: <s>polish</s> → <b>Polish</b></div>
+      <div><b>the UK</b> i <b>the USA</b> mają przed sobą <b>the</b></div>
+      <div><b>Spain</b> → <b>Spanish</b>: w narodowości znika i</div>
+      <div><b>Turkey</b> → <b>Turkish</b>: -ey zmienia się w -ish</div>
+      <div><b>Brazil</b> przez z, nie s</div>
+    </div>
+
+    <div class="bar">
+      <span class="note">Tempo mówienia</span>
+      <div class="seg" id="speed">
+        <button id="speed-slow" data-rate="0.7">Wolno</button>
+        <button id="speed-normal" data-rate="0.95">Normalnie</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="practice" hidden style="flex-direction:column;gap:14px">
+    <div class="modes" id="modes">
+      <button id="mode-pick" data-mode="pick">Wybierz pisownię</button>
+      <button id="mode-nat" data-mode="nat">✏️ Narodowość</button>
+      <button id="mode-country" data-mode="country">✏️ Państwo</button>
+      <button id="mode-pl" data-mode="pl">✏️ Z polskiego</button>
+      <button id="mode-sent" data-mode="sent">✏️ Zdania</button>
+      <button id="mode-mix" data-mode="mix">✏️ Wszystko</button>
+    </div>
+    <div id="quiz" style="display:flex;flex-direction:column;gap:14px"></div>
+  </section>
+</div>
+
+<script>
+(function () {
+  // country | nationality | flag | pl country | pl nationality | group | wrong spellings (country) | wrong spellings (nationality)
+  // {x} marks a tricky spot
+  const DATA = [
+    ["Poland", "Pol{ish}", "", "Polska", "Polak / Polka", "-ish", ["Polland", "poland"], ["Polisch", "polish"]],
+    ["{the} UK", "Brit{ish}", "", "Wielka Brytania", "Brytyjczyk / Brytyjka", "-ish", ["UK", "the Uk"], ["Brytish", "Britisch"]],
+    ["Spa{i}n", "Span{ish}", "", "Hiszpania", "Hiszpan / Hiszpanka", "-ish", ["Spane", "Spian"], ["Spainish", "Spanisch"]],
+    ["Turk{ey}", "Turk{ish}", "", "Turcja", "Turek / Turczynka", "-ish", ["Turky", "Turkei"], ["Turkeyish", "Turkis"]],
+    ["Argentina", "Argentin{ian}", "", "Argentyna", "Argentyńczyk / Argentynka", "-ian / -an", ["Argentyna", "Argentine"], ["Argentynian", "Argentinan"]],
+    ["Australia", "Austral{ian}", "", "Australia", "Australijczyk / Australijka", "-ian / -an", ["Austalia", "Australija"], ["Australijan", "Austrailian"]],
+    ["Bra{z}il", "Bra{z}il{ian}", "", "Brazylia", "Brazylijczyk / Brazylijka", "-ian / -an", ["Brasil", "Brazill"], ["Brasilian", "Brazillian"]],
+    ["{the} USA", "Americ{an}", "", "USA", "Amerykanin / Amerykanka", "-ian / -an", ["USA", "the Usa"], ["Amerikan", "Americian"]],
+    ["China", "Chin{ese}", "", "Chiny", "Chińczyk / Chinka", "-ese", ["Chiny", "Chaina"], ["Chinise", "Chineese"]],
+    ["France", "Fr{ench}", "", "Francja", "Francuz / Francuzka", "inna", ["Franse", "Frans"], ["Franch", "Frensh"]],
+  ].map(r => ({ cM: r[0], nM: r[1], c: r[0].replace(/[{}]/g, ""), n: r[1].replace(/[{}]/g, ""), flag: r[2], plC: r[3], plN: r[4], group: r[5], badC: r[6], badN: r[7] }));
+
+  const PEOPLE = [["Ana", "She"], ["Mickey", "He"], ["Emma", "She"], ["Tom", "He"], ["Lena", "She"], ["Piotr", "He"], ["Mia", "She"], ["Joe", "He"], ["Kerem", "He"], ["Lara", "She"]];
+
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem("cn-" + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem("cn-" + k, JSON.stringify(v)); } catch (e) {} }
+  };
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  // render "Bra{z}il" with highlighted letters
+  function marked(tag, cls, s) {
+    const e = el(tag, cls);
+    s.split(/(\{[^}]*\})/).forEach(part => {
+      if (!part) return;
+      if (part[0] === "{") e.appendChild(el("b", null, part.slice(1, -1)));
+      else e.appendChild(document.createTextNode(part));
+    });
+    return e;
+  }
+
+  // ---------- speech ----------
+  const synth = window.speechSynthesis;
+  let voice = null;
+  let rate = store.get("rate", 0.7);
+  const warn = document.getElementById("voice-warn");
+  function pickVoice() {
+    if (!synth) return;
+    const vs = synth.getVoices(); if (!vs.length) return;
+    const en = vs.filter(v => /^en[-_]/i.test(v.lang) || v.lang === "en");
+    const byLang = l => en.filter(v => v.lang.replace("_", "-").toLowerCase() === l);
+    const pref = list => list.find(v => /natural|enhanced|premium|google/i.test(v.name)) || list[0];
+    voice = pref(byLang("en-gb")) || pref(byLang("en-us")) || pref(en) || null;
+    if (!voice) { warn.textContent = "Na tym telefonie nie ma angielskiego głosu. Doinstaluj go w ustawieniach (Mowa / Zamiana tekstu na mowę)."; warn.hidden = false; } else warn.hidden = true;
+  }
+  if (synth) { pickVoice(); if (synth.addEventListener) synth.addEventListener("voiceschanged", pickVoice); else synth.onvoiceschanged = pickVoice; }
+  else { warn.textContent = "Ta przeglądarka nie umie czytać na głos. Spróbuj w Chrome albo Safari."; warn.hidden = false; }
+  let playing = null;
+  function speak(text, node) {
+    if (!synth) return;
+    synth.cancel();
+    if (playing) playing.classList.remove("playing");
+    const u = new SpeechSynthesisUtterance(text);
+    if (voice) u.voice = voice;
+    u.lang = voice ? voice.lang : "en-GB"; u.rate = rate;
+    playing = node || null;
+    if (node) node.classList.add("playing");
+    u.onend = u.onerror = () => { if (node) node.classList.remove("playing"); };
+    setTimeout(() => synth.speak(u), 40);
+  }
+  const say = t => t.replace(/\bthe USA\b/, "the U S A").replace(/\bthe UK\b/, "the U K");
+
+  // ---------- sounds ----------
+  let actx = null;
+  function tones(freqs, dur, type) {
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      let t = actx.currentTime;
+      freqs.forEach(f => {
+        const o = actx.createOscillator(), g = actx.createGain();
+        o.type = type; o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.18, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        o.connect(g).connect(actx.destination); o.start(t); o.stop(t + dur + 0.02); t += dur * 0.8;
+      });
+    } catch (e) {}
+  }
+  const ding = () => tones([660, 880], 0.16, "sine");
+  const bonk = () => tones([200, 160], 0.18, "triangle");
+
+  // ---------- tabs ----------
+  const tabL = document.getElementById("tab-learn"), tabP = document.getElementById("tab-practice");
+  const secL = document.getElementById("learn"), secP = document.getElementById("practice");
+  function showTab(name) {
+    const l = name === "learn";
+    tabL.setAttribute("aria-selected", l); tabP.setAttribute("aria-selected", !l);
+    secL.hidden = !l; secP.hidden = l; secP.style.display = l ? "" : "flex";
+    store.set("tab", name);
+    if (synth) synth.cancel();
+  }
+  tabL.onclick = () => showTab("learn");
+  tabP.onclick = () => showTab("practice");
+
+  // ---------- learn ----------
+  const groupsEl = document.getElementById("groups");
+  [...new Set(DATA.map(d => d.group))].forEach(g => {
+    const wrap = el("div", "pairs");
+    wrap.appendChild(el("div", "group-label", g === "inna" ? "inna końcówka" : "końcówka " + g));
+    DATA.filter(d => d.group === g).forEach(d => {
+      const row = el("div", "pair");
+      const c = marked("button", "w c", d.cM); c.onclick = () => speak(say(d.c), c);
+      const n = marked("button", "w n", d.nM); n.onclick = () => speak(d.n, n);
+      row.append(c, n, el("span", "pl", d.plC), el("span", "pl", d.plN));
+      wrap.appendChild(row);
+    });
+    groupsEl.appendChild(wrap);
+  });
+  const exEl = document.getElementById("examples");
+  [["I'm from Poland. I'm Polish.", "Jestem z Polski. Jestem Polakiem."],
+   ["Ana is from Brazil. She's Brazilian.", "Ana jest z Brazylii. Jest Brazylijką."],
+   ["Mickey is from the UK. He's British.", "Mickey jest z Wielkiej Brytanii. Jest Brytyjczykiem."],
+   ["Emma is from the USA. She's American.", "Emma jest z USA. Jest Amerykanką."]].forEach(([en, pl]) => {
+    const b = el("button"); b.append(el("span", "en", en), el("span", "plx", pl));
+    b.onclick = () => speak(say(en)); exEl.appendChild(b);
+  });
+  const speedBtns = document.querySelectorAll("#speed button");
+  function markSpeed() { speedBtns.forEach(b => b.setAttribute("aria-pressed", Number(b.dataset.rate) === rate)); }
+  speedBtns.forEach(b => b.onclick = () => { rate = Number(b.dataset.rate); store.set("rate", rate); markSpeed(); speak("Poland. Polish."); });
+  markSpeed();
+
+  // ---------- practice ----------
+  const ROUND = 10;
+  const quiz = document.getElementById("quiz");
+  const MODES = ["pick", "nat", "country", "pl", "sent", "mix"];
+  let mode = store.get("mode", "pick"); if (!MODES.includes(mode)) mode = "pick";
+  let state;
+  const decks = {};
+  function drawItem(key) { if (!decks[key] || !decks[key].length) decks[key] = shuffle(DATA); return decks[key].pop(); }
+
+  // q: { label, flag, prompt (array of [text, cls]), answer, answerM, ask, speakText, options? }
+  function makeQ(m) {
+    if (m === "mix") m = pick(["nat", "country", "pl", "sent"]);
+    const d = drawItem(m);
+    if (m === "pick") {
+      const isNat = Math.random() < 0.5;
+      const right = isNat ? d.n : d.c, rightM = isNat ? d.nM : d.cM;
+      const wrong = shuffle(isNat ? d.badN : d.badC).slice(0, 2);
+      return { kind: "pick", label: "Która pisownia jest poprawna?", flag: "🌍",
+        prompt: [[isNat ? d.plN : d.plC, isNat ? "n" : "c"]], ask: isNat ? "narodowość po angielsku" : "państwo po angielsku",
+        answer: right, answerM: rightM, options: shuffle([right, ...wrong]), speakText: say(right) };
+    }
+    if (m === "nat") return { kind: "type", label: "Napisz narodowość", flag: "🌍", prompt: [[d.c, "c"], [" → ", ""], ["?", "n"]], ask: "Jak nazywa się człowiek z tego państwa?", answer: d.n, answerM: d.nM, speakText: say(d.c) + ". " + d.n };
+    if (m === "country") return { kind: "type", label: "Napisz państwo", flag: "❔", prompt: [[d.n, "n"], [" → ", ""], ["?", "c"]], ask: "Z jakiego państwa jest ten człowiek?", answer: d.c, answerM: d.cM, speakText: d.n + ". " + say(d.c) };
+    if (m === "pl") {
+      const isNat = Math.random() < 0.5;
+      return isNat
+        ? { kind: "type", label: "Napisz po angielsku: narodowość", flag: "🌍", prompt: [[d.plN, "n"]], ask: "", answer: d.n, answerM: d.nM, speakText: d.n }
+        : { kind: "type", label: "Napisz po angielsku: państwo", flag: "🌍", prompt: [[d.plC, "c"]], ask: "", answer: d.c, answerM: d.cM, speakText: say(d.c) };
+    }
+    // sentences
+    const t = Math.random();
+    let who, pron, be1, be2;
+    if (t < 0.15) { who = "I"; pron = "I"; be1 = "'m"; be2 = "'m"; }
+    else if (t < 0.25) { who = "They"; pron = "They"; be1 = " are"; be2 = "'re"; }
+    else { const p = pick(PEOPLE); who = p[0]; pron = p[1]; be1 = " is"; be2 = "'s"; }
+    const askNat = Math.random() < 0.6;
+    const s1 = who + be1 + " from ", s2 = ". " + pron + be2 + " ";
+    const full = s1 + d.c + s2 + d.n + ".";
+    return askNat
+      ? { kind: "type", label: "Uzupełnij zdanie: narodowość", flag: "🌍", prompt: [[s1 + d.c + s2, ""], ["GAP", "n"], [".", ""]], ask: "", answer: d.n, answerM: d.nM, speakText: say(full) }
+      : { kind: "type", label: "Uzupełnij zdanie: państwo", flag: "❔", prompt: [[s1, ""], ["GAP", "c"], [s2 + d.n + ".", ""]], ask: "", answer: d.c, answerM: d.cM, speakText: say(full) };
+  }
+
+  function newRound() {
+    state = { qs: Array.from({ length: ROUND }, () => makeQ(mode)), i: 0, res: [], wrong: [] };
+    renderQuestion();
+  }
+  const modeBtns = document.querySelectorAll("#modes button");
+  function markModes() { modeBtns.forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode)); }
+  modeBtns.forEach(b => b.onclick = () => { mode = b.dataset.mode; store.set("mode", mode); markModes(); newRound(); });
+  markModes();
+
+  function dotsEl() {
+    const d = el("div", "dots");
+    for (let i = 0; i < ROUND; i++) {
+      const s = el("span");
+      if (i < state.res.length) s.className = state.res[i] ? "ok" : "no";
+      else if (i === state.i) s.className = "now";
+      d.appendChild(s);
+    }
+    return d;
+  }
+  const clean = v => v.replace(/[’‘`´]/g, "'").replace(/\s+/g, " ").trim();
+
+  function renderQuestion() {
+    const q = state.qs[state.i];
+    let done = false;
+    quiz.replaceChildren(dotsEl());
+    const card = el("div", "q");
+    card.appendChild(el("div", "task-label", q.label));
+    card.appendChild(el("div", "flag", q.flag));
+    const prompt = el("div", "prompt");
+    let gapEl = null;
+    let gapWrap = null;
+    q.prompt.forEach(([txt, cls]) => {
+      if (txt === "GAP") { gapEl = el("span", "gap " + cls, "\u00a0"); gapWrap = el("span"); gapWrap.style.whiteSpace = "nowrap"; gapWrap.appendChild(gapEl); prompt.appendChild(gapWrap); return; }
+      if (gapWrap) { const m = txt.match(/^[.,!?]+/); if (m) { gapWrap.appendChild(document.createTextNode(m[0])); txt = txt.slice(m[0].length); } gapWrap = null; }
+      if (txt) prompt.appendChild(el("span", cls || null, txt));
+    });
+    card.appendChild(prompt);
+    if (q.ask) card.appendChild(el("div", "ask", q.ask));
+    const replay = el("button", "replay", "🔊 Posłuchaj"); replay.hidden = true;
+    replay.onclick = () => speak(q.speakText);
+    card.appendChild(replay);
+    quiz.appendChild(card);
+
+    const fb = el("div", "feedback");
+    const corr = el("div", "correction"); corr.hidden = true;
+    const next = el("button", "big-btn", state.i === ROUND - 1 ? "Zobacz wynik →" : "Dalej →"); next.hidden = true;
+    next.onclick = () => { state.i++; state.i >= ROUND ? renderResult() : renderQuestion(); };
+
+    function finish(ok) {
+      quiz.firstChild.replaceWith(dotsEl());
+      replay.hidden = false;
+      if (gapEl) { gapEl.replaceChildren(marked("span", null, q.answerM)); gapEl.classList.add("filled"); }
+      setTimeout(() => speak(q.speakText), 250);
+      if (ok) { fb.textContent = pick(["Brawo!", "Super!", "Świetnie!", "Tak jest!"]); fb.className = "feedback ok"; ding(); }
+      else { bonk(); state.wrong.push(q.answer); }
+    }
+
+    if (q.kind === "pick") {
+      const opts = el("div", "opts");
+      const btns = q.options.map(o => {
+        const b = el("button", "opt", o);
+        b.onclick = () => {
+          if (done) return; done = true;
+          const ok = o === q.answer;
+          state.res.push(ok);
+          btns.forEach(x => x.disabled = true);
+          if (ok) b.classList.add("picked-ok");
+          else { b.classList.add("picked-bad"); const r = btns.find(x => x.textContent === q.answer); r.classList.add("show-ok"); fb.textContent = "Prawie! Poprawnie: " + q.answer; fb.className = "feedback no"; }
+          finish(ok);
+          next.hidden = false; next.focus({ preventScroll: true });
+        };
+        opts.appendChild(b); return b;
+      });
+      quiz.append(opts, fb, next);
+      return;
+    }
+
+    const row = el("div", "type-row");
+    const inp = document.createElement("input");
+    inp.id = "answer-input";
+    inp.setAttribute("autocomplete", "off"); inp.setAttribute("autocorrect", "off"); inp.setAttribute("autocapitalize", "none"); inp.spellcheck = false;
+    inp.placeholder = "wpisz tutaj";
+    const go = el("button", null, "Sprawdź");
+    row.append(inp, go);
+    quiz.append(row, el("div", "remind", "Pamiętaj: wielka litera, a przed UK i USA słowo the."), fb, corr, next);
+
+    function check() {
+      const v = clean(inp.value);
+      if (!v) { inp.focus(); return; }
+      if (done) return; done = true;
+      const ok = v === q.answer;
+      state.res.push(ok);
+      inp.classList.add(ok ? "ok" : "no");
+      finish(ok);
+      if (ok) { inp.disabled = true; go.disabled = true; next.hidden = false; next.focus({ preventScroll: true }); return; }
+      let why = "Prawie!";
+      const lv = v.toLowerCase(), la = q.answer.toLowerCase();
+      if (lv === la) why = "Pamiętaj o wielkiej literze!";
+      else if (la.startsWith("the ") && lv === la.slice(4)) why = "Brakuje słowa the!";
+      else if (lv.replace(/^the /, "") === la.replace(/^the /, "")) why = "Pamiętaj o wielkiej literze!";
+      fb.textContent = why; fb.className = "feedback no";
+      corr.hidden = false;
+      corr.replaceChildren(el("div", "task-label", "Twoja odpowiedź"), el("div", "yours", inp.value), el("div", "task-label", "Poprawnie"), marked("div", "right", q.answerM), el("div", "note", "Przepisz poprawnie, żeby przejść dalej."));
+      inp.value = ""; inp.classList.remove("no"); inp.placeholder = "przepisz: " + q.answer;
+      go.textContent = "OK"; go.onclick = retype;
+      inp.focus();
+    }
+    function retype() {
+      if (clean(inp.value) === q.answer) { inp.classList.remove("no"); inp.classList.add("ok"); inp.disabled = true; go.disabled = true; next.hidden = false; next.focus({ preventScroll: true }); }
+      else inp.classList.add("no");
+    }
+    go.onclick = check;
+    inp.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); if (!next.hidden) next.click(); else go.click(); } });
+    setTimeout(() => inp.focus({ preventScroll: true }), 50);
+  }
+
+  function renderResult() {
+    const score = state.res.filter(Boolean).length;
+    const key = "best-" + mode;
+    const best = Math.max(store.get(key, 0), score); store.set(key, best);
+    quiz.replaceChildren();
+    const r = el("div", "q result");
+    r.appendChild(el("div", "score", score + " / " + ROUND));
+    const stars = el("div", "stars");
+    for (let i = 0; i < ROUND; i++) stars.appendChild(el("span", i < score ? null : "off", "★"));
+    r.appendChild(stars);
+    r.appendChild(el("div", "msg", score === ROUND ? "Perfekcyjnie!" : score >= 7 ? "Super!" : score >= 4 ? "Dobrze idzie!" : "Poćwiczmy jeszcze!"));
+    if (state.wrong.length) {
+      const rev = el("div", "review");
+      rev.appendChild(el("div", "task-label", "Do powtórki"));
+      const list = el("div", "list");
+      [...new Set(state.wrong)].forEach(w => list.appendChild(el("span", null, w)));
+      rev.appendChild(list); r.appendChild(rev);
+    }
+    r.appendChild(el("p", "note", "Najlepszy wynik w tym trybie: " + best + " / " + ROUND));
+    quiz.appendChild(r);
+    const again = el("button", "big-btn", "Jeszcze raz"); again.onclick = newRound;
+    const learn = el("button", "big-btn ghost", "Wróć do listy"); learn.onclick = () => showTab("learn");
+    quiz.append(again, learn);
+    if (score >= 7) ding();
+  }
+
+  newRound();
+  showTab(store.get("tab", "learn"));
+})();
+</script>
+
+</body>
+</html>
