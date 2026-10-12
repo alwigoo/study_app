@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#EEF3FA">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔢</text></svg>">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Numbers 1–100</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Lexend:wght@400;600&display=swap">
+<style>
+[hidden]{display:none!important}
+/* Layout: one phone column; tens are always blue, ones always orange, the hyphen green — in pictures and in words */
+:root {
+  --bg: #EEF3FA;
+  --card: #FFFFFF;
+  --ink: #1B2540;
+  --muted: #5B6785;
+  --line: #D6DEEC;
+  --tens: #2F5FD0; --tens-soft: #E0E8FA;
+  --ones: #D2621C; --ones-soft: #FDEBDD;
+  --hy: #1E8A5F; --ok: #1E8A5F; --ok-soft: #DDF3E9;
+  --bad: #D0392F; --bad-soft: #FBE3E1;
+  --hl: #FFE58A;
+  --font-display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Lexend", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121827; --card: #1C2438; --ink: #EDF1F9; --muted: #9AA6C2; --line: #2C3752;
+    --tens: #86A7FF; --tens-soft: #1C2A4E;
+    --ones: #FF9B5C; --ones-soft: #3A2618;
+    --hy: #4FCB95; --ok: #4FCB95; --ok-soft: #173327;
+    --bad: #FF7A70; --bad-soft: #3B1D1D;
+    --hl: #6B5A12;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121827; --card: #1C2438; --ink: #EDF1F9; --muted: #9AA6C2; --line: #2C3752;
+  --tens: #86A7FF; --tens-soft: #1C2A4E;
+  --ones: #FF9B5C; --ones-soft: #3A2618;
+  --hy: #4FCB95; --ok: #4FCB95; --ok-soft: #173327;
+  --bad: #FF7A70; --bad-soft: #3B1D1D;
+  --hl: #6B5A12;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.45; padding-inline: 16px; -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+button:focus-visible { outline: 3px solid var(--tens); outline-offset: 2px; }
+.app { max-width: 540px; margin: 0 auto; padding-block: 14px 40px; display: flex; flex-direction: column; gap: 16px; }
+
+header { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: 34px; line-height: 1; margin: 0; white-space: nowrap; }
+h1 .t { color: var(--tens); } h1 .o { color: var(--ones); }
+.sub { font-size: 14px; color: var(--muted); text-align: right; padding-bottom: 4px; }
+.note { color: var(--muted); font-size: 14px; margin: 0; }
+.label { font-family: var(--font-display); font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+h2 { font-family: var(--font-display); font-weight: 800; font-size: 24px; line-height: 1.15; margin: 4px 0 0; }
+
+.tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 4px; gap: 4px; }
+.tabs button { font-family: var(--font-display); font-weight: 800; font-size: 19px; padding: 8px 0 6px; border-radius: 12px; color: var(--muted); }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+.warn { background: var(--bad-soft); border-radius: 12px; padding: 10px 12px; font-size: 14px; margin: 0; }
+.seg { display: inline-flex; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 3px; gap: 3px; }
+.seg button { font-size: 13px; padding: 5px 10px; border-radius: 9px; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+
+/* word colouring */
+.wt { color: var(--tens); } .wo { color: var(--ones); } .wh { color: var(--hy); }
+.word b { background: var(--hl); border-radius: 3px; color: inherit; }
+
+/* learn: 1-20 grid */
+.grid20 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.ncard { display: flex; align-items: baseline; gap: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 7px 12px; text-align: left; min-width: 0; }
+.ncard .d { font-family: var(--font-display); font-weight: 800; font-size: 22px; min-width: 2ch; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ncard .word { font-family: var(--font-display); font-weight: 800; font-size: 18px; word-break: keep-all; }
+.ncard.teen { background: var(--ones-soft); border-color: transparent; }
+.ncard.playing { outline: 3px solid var(--tens); }
+
+/* learn: tens stories */
+.tens-list { display: flex; flex-direction: column; gap: 10px; }
+.story { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 12px 14px; text-align: left; width: 100%; }
+.story .big { grid-row: 1 / span 3; font-family: var(--font-display); font-weight: 800; font-size: 40px; color: var(--tens); line-height: 1; font-variant-numeric: tabular-nums; }
+.story .word { font-family: var(--font-display); font-weight: 800; font-size: 28px; line-height: 1.1; color: var(--tens); }
+.story .how { font-size: 15px; }
+.story .how s { color: var(--muted); text-decoration-color: var(--bad); text-decoration-thickness: 2px; }
+.story .pic { font-size: 22px; letter-spacing: 1px; }
+.story.playing { outline: 3px solid var(--tens); }
+
+.vs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.vs button { display: flex; flex-direction: column; align-items: center; gap: 2px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px 8px; }
+.vs .d { font-family: var(--font-display); font-weight: 800; font-size: 34px; line-height: 1; }
+.vs .word { font-family: var(--font-display); font-weight: 800; font-size: 22px; }
+.vs .tip { font-size: 13px; color: var(--muted); text-align: center; }
+.vs .teen .d, .vs .teen .word { color: var(--ones); } .vs .ty .d, .vs .ty .word { color: var(--tens); }
+
+.tipbox { background: var(--card); border: 1px dashed var(--line); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; }
+
+/* picture of a number */
+.picture { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-items: flex-end; }
+.ten { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; padding: 4px; border-radius: 10px; background: var(--tens-soft); border: 2px solid var(--tens); line-height: 1; }
+.ten span { font-size: var(--e, 16px); }
+.ones { display: grid; grid-template-columns: repeat(5, auto); gap: 1px; padding: 4px; border-radius: 10px; background: var(--ones-soft); border: 2px dashed var(--ones); line-height: 1; }
+.ones span { font-size: var(--e, 16px); }
+
+/* builder */
+.builder { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 16px 14px; display: flex; flex-direction: column; gap: 14px; align-items: center; text-align: center; }
+.bnum { font-family: var(--font-display); font-weight: 800; font-size: 64px; line-height: 1; font-variant-numeric: tabular-nums; }
+.bword { font-family: var(--font-display); font-weight: 800; font-size: 34px; line-height: 1.1; overflow-wrap: anywhere; }
+.pick { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.pick .row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; }
+.pick button { font-family: var(--font-display); font-weight: 800; font-size: 20px; padding: 7px 0 4px; border-radius: 10px; border: 2px solid var(--line); background: var(--card); font-variant-numeric: tabular-nums; }
+.pick.t button[aria-pressed="true"] { background: var(--tens); border-color: var(--tens); color: var(--card); }
+.pick.o button[aria-pressed="true"] { background: var(--ones); border-color: var(--ones); color: var(--card); }
+.btn-row { display: flex; gap: 8px; width: 100%; }
+.btn-row button { flex: 1; font-family: var(--font-display); font-weight: 800; font-size: 18px; padding: 10px 8px 8px; border-radius: 14px; background: var(--ink); color: var(--bg); }
+.btn-row button.ghost { background: var(--card); color: var(--ink); border: 2px solid var(--line); }
+
+/* practice */
+.ranges, .modes { display: flex; flex-wrap: wrap; gap: 6px; }
+.ranges button, .modes button { font-size: 15px; padding: 7px 13px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--muted); }
+.ranges button[aria-pressed="true"], .modes button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.dots { display: flex; gap: 5px; }
+.dots span { flex: 1; height: 8px; border-radius: 4px; background: var(--line); }
+.dots span.ok { background: var(--ok); } .dots span.no { background: var(--bad); } .dots span.now { background: var(--muted); }
+.q { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 18px 14px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+.q .prompt { font-family: var(--font-display); font-weight: 800; font-size: 44px; line-height: 1.1; overflow-wrap: anywhere; }
+.q .prompt.small { font-size: 30px; }
+.listen { font-family: var(--font-display); font-weight: 800; font-size: 22px; padding: 14px 24px 10px; border-radius: 18px; background: var(--tens); color: var(--card); }
+.replay { font-size: 14px; color: var(--muted); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); }
+.opts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.opt { font-family: var(--font-display); font-weight: 800; font-size: 34px; padding: 14px 4px 10px; border-radius: 18px; background: var(--card); border: 3px solid var(--line); font-variant-numeric: tabular-nums; }
+.opt:disabled { opacity: .4; cursor: default; }
+.opt.picked-ok, .opt.show-ok { opacity: 1; border-color: var(--ok); background: var(--ok-soft); }
+.opt.picked-bad { opacity: 1; border-color: var(--bad); background: var(--bad-soft); }
+.type-row { display: flex; gap: 8px; }
+.type-row input { flex: 1; min-width: 0; font-family: var(--font-display); font-weight: 800; font-size: 26px; padding: 10px 14px 6px; border-radius: 16px; border: 3px solid var(--line); background: var(--card); color: var(--ink); }
+.type-row input:focus { outline: none; border-color: var(--tens); }
+.type-row input.ok { border-color: var(--ok); } .type-row input.no { border-color: var(--bad); }
+.type-row button { font-family: var(--font-display); font-weight: 800; font-size: 19px; padding: 0 18px; border-radius: 16px; background: var(--ink); color: var(--bg); }
+.type-row button:disabled { opacity: .4; }
+.feedback { min-height: 28px; text-align: center; font-family: var(--font-display); font-weight: 800; font-size: 22px; }
+.feedback.ok { color: var(--ok); } .feedback.no { color: var(--bad); }
+.correction { display: flex; flex-direction: column; gap: 4px; background: var(--bad-soft); border-radius: 16px; padding: 12px 14px; }
+.correction .yours { text-decoration: line-through; text-decoration-color: var(--bad); text-decoration-thickness: 2px; color: var(--muted); font-family: var(--font-display); font-weight: 800; font-size: 20px; }
+.correction .right { font-family: var(--font-display); font-weight: 800; font-size: 28px; }
+.big-btn { display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 800; font-size: 20px; padding: 12px 16px 10px; border-radius: 16px; background: var(--ink); color: var(--bg); width: 100%; }
+.big-btn.ghost { background: var(--card); color: var(--ink); border: 2px solid var(--line); }
+.result { text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.result .score { font-family: var(--font-display); font-weight: 800; font-size: 64px; line-height: 1; }
+.stars { font-size: 26px; letter-spacing: 2px; color: var(--ones); word-break: break-all; }
+.stars .off { color: var(--line); }
+.result .msg { font-family: var(--font-display); font-weight: 800; font-size: 26px; }
+.review { width: 100%; text-align: left; display: flex; flex-direction: column; gap: 6px; }
+.review .list { display: flex; flex-wrap: wrap; gap: 6px; }
+.review .list span { background: var(--bad-soft); border-radius: 8px; padding: 2px 8px; font-family: var(--font-display); font-weight: 800; font-size: 16px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="app">
+  <header>
+    <h1><span class="t">forty</span>-<span class="o">two</span></h1>
+    <div class="sub">liczby po angielsku<br>od 1 do 100</div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button id="tab-learn" role="tab" aria-selected="true">Poznaj</button>
+    <button id="tab-build" role="tab" aria-selected="false">Buduj</button>
+    <button id="tab-practice" role="tab" aria-selected="false">Ćwicz</button>
+  </nav>
+  <p class="warn" id="voice-warn" hidden></p>
+
+  <!-- LEARN -->
+  <section id="learn" style="display:flex;flex-direction:column;gap:14px">
+    <p class="note">Dotknij, żeby usłyszeć. Żółte litery to miejsca, gdzie łatwo o błąd.</p>
+
+    <h2>1–20</h2>
+    <p class="note">Pomarańczowe to <b>-teen</b>, czyli nastki: 13–19.</p>
+    <div class="grid20" id="grid20"></div>
+
+    <h2>Dziesiątki: 20–100</h2>
+    <p class="note">Każda dziesiątka to „paczka po 10”. Na obrazku: ile paczek, taka dziesiątka.</p>
+    <div class="tens-list" id="tens"></div>
+
+    <h2>-teen czy -ty?</h2>
+    <div class="vs" id="vs"></div>
+    <div class="tipbox">
+      <div class="label">Jak odróżnić na słuch</div>
+      <div><b class="wo">-teen</b> jest długie i mocne na końcu: thir-<b>TEEN</b>.</div>
+      <div><b class="wt">-ty</b> jest krótkie, mocny jest początek: <b>THIR</b>-ty.</div>
+    </div>
+
+    <h2>Składanie liczby</h2>
+    <div class="tipbox">
+      <div>Dziesiątka + <b class="wh">łącznik</b> + jedność:</div>
+      <div class="word" style="font-family:var(--font-display);font-weight:800;font-size:24px"><span class="wt">forty</span><span class="wh">-</span><span class="wo">seven</span> = 47</div>
+      <div class="note">Łącznik jest zawsze. Bez niego nauczycielka liczy błąd.</div>
+    </div>
+
+    <div class="bar">
+      <span class="note">Tempo mówienia</span>
+      <div class="seg" id="speed">
+        <button id="speed-slow" data-rate="0.7">Wolno</button>
+        <button id="speed-normal" data-rate="0.95">Normalnie</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- BUILD -->
+  <section id="build" hidden style="flex-direction:column;gap:14px">
+    <p class="note">Wybierz dziesiątki i jedności. Zobaczysz liczbę, obrazek i słowo.</p>
+    <div class="builder">
+      <div class="bnum" id="b-num">47</div>
+      <div class="picture" id="b-pic"></div>
+      <div class="bword" id="b-word"></div>
+      <div class="btn-row">
+        <button id="b-say">🔊 Posłuchaj</button>
+        <button id="b-rand" class="ghost">🎲 Losuj</button>
+      </div>
+    </div>
+    <div class="pick t" id="pick-tens">
+      <div class="label">Dziesiątki (paczki po 10)</div>
+      <div class="row" id="tens-row1"></div>
+      <div class="row" id="tens-row2"></div>
+    </div>
+    <div class="pick o" id="pick-ones">
+      <div class="label">Jedności (pojedyncze)</div>
+      <div class="row" id="ones-row1"></div>
+      <div class="row" id="ones-row2"></div>
+    </div>
+  </section>
+
+  <!-- PRACTICE -->
+  <section id="practice" hidden style="flex-direction:column;gap:12px">
+    <div class="label">Zakres</div>
+    <div class="ranges" id="ranges">
+      <button id="range-20" data-range="1-20">1–20</button>
+      <button id="range-100" data-range="20-100">20–100</button>
+      <button id="range-all" data-range="1-100">1–100</button>
+    </div>
+    <div class="label">Ćwiczenie</div>
+    <div class="modes" id="modes">
+      <button id="mode-listen" data-mode="listen">🔊 Usłysz i wybierz</button>
+      <button id="mode-pic" data-mode="pic">✏️ Policz obrazek</button>
+      <button id="mode-write" data-mode="write">✏️ Napisz słowem</button>
+      <button id="mode-digits" data-mode="digits">✏️ Napisz cyframi</button>
+      <button id="mode-mix" data-mode="mix">✏️ Wszystko</button>
+    </div>
+    <div id="quiz" style="display:flex;flex-direction:column;gap:14px"></div>
+  </section>
+</div>
+
+<script>
+(function () {
+  // ---------- numbers ----------
+  const ONES = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+  const TENS = { 2: "twenty", 3: "thirty", 4: "forty", 5: "fifty", 6: "sixty", 7: "seventy", 8: "eighty", 9: "ninety" };
+  // tricky letters for display
+  const MARK = { twelve: "twel{ve}", thirteen: "th{ir}teen", fifteen: "fi{f}teen", eighteen: "eigh{t}een", twenty: "twent{y}", thirty: "th{ir}ty", forty: "f{o}rty", fifty: "fi{f}ty", eighty: "eigh{ty}", ninety: "nin{e}ty", eleven: "eleven" };
+  function word(n) {
+    if (n === 100) return "one hundred";
+    if (n < 20) return ONES[n];
+    const t = TENS[Math.floor(n / 10)], o = n % 10;
+    return o ? t + "-" + ONES[o] : t;
+  }
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  function marked(s, cls) {
+    const e = el("span", cls);
+    const m = MARK[s] || s;
+    m.split(/(\{[^}]*\})/).forEach(p => { if (!p) return; if (p[0] === "{") e.appendChild(el("b", null, p.slice(1, -1))); else e.appendChild(document.createTextNode(p)); });
+    return e;
+  }
+  // coloured word: tens blue, hyphen green, ones orange
+  function wordEl(n, cls) {
+    const w = el("span", "word" + (cls ? " " + cls : ""));
+    if (n === 100) { w.appendChild(el("span", "wt", "one hundred")); return w; }
+    if (n < 10) { w.appendChild(marked(ONES[n], "wo")); return w; }
+    if (n < 20) { w.appendChild(marked(ONES[n], n >= 13 ? "wo" : "")); return w; }
+    const t = TENS[Math.floor(n / 10)], o = n % 10;
+    w.appendChild(marked(t, "wt"));
+    if (o) { w.appendChild(el("span", "wh", "-")); w.appendChild(marked(ONES[o], "wo")); }
+    return w;
+  }
+
+  // ---------- pictures ----------
+  const EMOJI = ["🐸", "🍪", "🦖", "⚽", "🐵", "🍕", "🚗", "⭐", "🐱", "🍩", "🐥", "🦄"];
+  function picture(n, emo, size) {
+    const box = el("div", "picture");
+    const tens = Math.floor(n / 10), ones = n % 10;
+    const s = size || (n > 60 ? 11 : n > 30 ? 13 : 16);
+    box.style.setProperty("--e", s + "px");
+    for (let i = 0; i < tens; i++) { const t = el("div", "ten"); for (let k = 0; k < 10; k++) t.appendChild(el("span", null, emo)); box.appendChild(t); }
+    if (ones) { const o = el("div", "ones"); for (let k = 0; k < ones; k++) o.appendChild(el("span", null, emo)); box.appendChild(o); }
+    return box;
+  }
+
+  // ---------- storage, speech, sounds ----------
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem("num-" + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem("num-" + k, JSON.stringify(v)); } catch (e) {} }
+  };
+  const synth = window.speechSynthesis;
+  let voice = null, rate = store.get("rate", 0.7);
+  const warn = document.getElementById("voice-warn");
+  function pickVoice() {
+    if (!synth) return;
+    const vs = synth.getVoices(); if (!vs.length) return;
+    const en = vs.filter(v => /^en[-_]/i.test(v.lang) || v.lang === "en");
+    const byLang = l => en.filter(v => v.lang.replace("_", "-").toLowerCase() === l);
+    const pref = list => list.find(v => /natural|enhanced|premium|google/i.test(v.name)) || list[0];
+    voice = pref(byLang("en-gb")) || pref(byLang("en-us")) || pref(en) || null;
+    if (!voice) { warn.textContent = "Na tym urządzeniu nie ma angielskiego głosu. Doinstaluj go w ustawieniach (Mowa / Zamiana tekstu na mowę)."; warn.hidden = false; } else warn.hidden = true;
+  }
+  if (synth) { pickVoice(); if (synth.addEventListener) synth.addEventListener("voiceschanged", pickVoice); else synth.onvoiceschanged = pickVoice; }
+  else { warn.textContent = "Ta przeglądarka nie umie czytać na głos. Spróbuj w Chrome albo Safari."; warn.hidden = false; }
+  let playing = null;
+  function speak(text, node) {
+    if (!synth) return;
+    synth.cancel();
+    if (playing) playing.classList.remove("playing");
+    const u = new SpeechSynthesisUtterance(text.replace(/-/g, " "));
+    if (voice) u.voice = voice;
+    u.lang = voice ? voice.lang : "en-GB"; u.rate = rate;
+    playing = node || null; if (node) node.classList.add("playing");
+    u.onend = u.onerror = () => { if (node) node.classList.remove("playing"); };
+    setTimeout(() => synth.speak(u), 40);
+  }
+  let actx = null;
+  function tones(freqs, dur, type) {
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      let t = actx.currentTime;
+      freqs.forEach(f => { const o = actx.createOscillator(), g = actx.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.18, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); o.connect(g).connect(actx.destination); o.start(t); o.stop(t + dur + 0.02); t += dur * 0.8; });
+    } catch (e) {}
+  }
+  const ding = () => tones([660, 880], 0.16, "sine");
+  const bonk = () => tones([200, 160], 0.18, "triangle");
+  const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+
+  // ---------- tabs ----------
+  const TABS = ["learn", "build", "practice"];
+  function showTab(name) {
+    TABS.forEach(t => {
+      const sec = document.getElementById(t), b = document.getElementById("tab-" + t);
+      const on = t === name;
+      b.setAttribute("aria-selected", on); sec.hidden = !on; sec.style.display = on ? "flex" : "";
+    });
+    store.set("tab", name);
+    if (synth) synth.cancel();
+  }
+  TABS.forEach(t => document.getElementById("tab-" + t).onclick = () => showTab(t));
+
+  // ---------- learn ----------
+  const g20 = document.getElementById("grid20");
+  for (let n = 1; n <= 20; n++) {
+    const b = el("button", "ncard" + (n >= 13 && n <= 19 ? " teen" : ""));
+    b.id = "n-" + n;
+    const wEl = el("span", "word"); wEl.appendChild(marked(word(n), n >= 13 && n <= 19 ? "wo" : ""));
+    b.append(el("span", "d", n), wEl);
+    b.onclick = () => speak(word(n), b);
+    g20.appendChild(b);
+  }
+  const STORIES = {
+    20: ["two", "<s>two</s> → <b>twen</b> + ty. Zmienia się mocno, trzeba zapamiętać!", "🐸"],
+    30: ["three", "<s>three</s> → <b>thir</b> + ty. W środku <b>ir</b>, jak w thirteen.", "🍪"],
+    40: ["four", "four → for + ty. Literka <b>u</b> uciekła! 🏃 Nie piszemy fourty.", "🦖"],
+    50: ["five", "five → <b>fif</b> + ty. v zamienia się w f, jak w fifteen.", "⚽"],
+    60: ["six", "six + ty. Łatwe, nic się nie zmienia! 🎉", "🐵"],
+    70: ["seven", "seven + ty. Łatwe, nic się nie zmienia! 🎉", "🍕"],
+    80: ["eight", "eight + <b>y</b>. Jedno t wystarczy: eighty, nie eightty.", "🚗"],
+    90: ["nine", "nine + ty. Literka <b>e</b> zostaje: ninety.", "⭐"],
+    100: ["", "one hundred albo a hundred. Dziesięć paczek po 10! 💯", "🐱"]
+  };
+  const tensEl = document.getElementById("tens");
+  Object.keys(STORIES).map(Number).forEach(n => {
+    const [base, how, emo] = STORIES[n];
+    const b = el("button", "story");
+    b.id = "t-" + n;
+    const big = el("span", "big", n);
+    const w = wordEl(n);
+    const h = el("span", "how"); h.innerHTML = how;
+    b.append(big, w, h, picture(n, emo, n >= 80 ? 9 : n >= 50 ? 10 : 12));
+    b.onclick = () => speak(base ? base + ". " + word(n) : word(n), b);
+    tensEl.appendChild(b);
+  });
+  const vsEl = document.getElementById("vs");
+  [[13, 30], [14, 40], [15, 50], [16, 60]].forEach(([a, c]) => {
+    [a, c].forEach(n => {
+      const b = el("button", n < 20 ? "teen" : "ty");
+      b.id = "vs-" + n;
+      b.append(el("span", "d", n), marked(word(n), "word"), el("span", "tip", n < 20 ? "nastka: -teen" : "dziesiątka: -ty"));
+      b.onclick = () => speak(word(n));
+      vsEl.appendChild(b);
+    });
+  });
+  const speedBtns = document.querySelectorAll("#speed button");
+  function markSpeed() { speedBtns.forEach(b => b.setAttribute("aria-pressed", Number(b.dataset.rate) === rate)); }
+  speedBtns.forEach(b => b.onclick = () => { rate = Number(b.dataset.rate); store.set("rate", rate); markSpeed(); speak("forty-seven"); });
+  markSpeed();
+
+  // ---------- build ----------
+  let bT = 4, bO = 7, bEmo = "🐸";
+  const tr1 = document.getElementById("tens-row1"), tr2 = document.getElementById("tens-row2");
+  const or1 = document.getElementById("ones-row1"), or2 = document.getElementById("ones-row2");
+  for (let t = 0; t <= 9; t++) { const b = el("button", null, t ? t * 10 : "0"); b.id = "bt-" + t; b.onclick = () => { bT = t; renderBuild(); }; (t < 5 ? tr1 : tr2).appendChild(b); }
+  for (let o = 0; o <= 9; o++) { const b = el("button", null, o); b.id = "bo-" + o; b.onclick = () => { bO = o; renderBuild(); }; (o < 5 ? or1 : or2).appendChild(b); }
+  // 100 handled as tens=10
+  const b100 = el("button", null, "100"); b100.id = "bt-10"; b100.onclick = () => { bT = 10; bO = 0; renderBuild(); };
+  tr2.parentNode.appendChild(Object.assign(el("div", "row"), {})).appendChild(b100);
+  function renderBuild() {
+    if (bT === 10) bO = 0;
+    let n = bT * 10 + bO; if (n === 0) { bO = 1; n = 1; }
+    document.querySelectorAll("#pick-tens button").forEach(b => b.setAttribute("aria-pressed", b.id === "bt-" + bT));
+    document.querySelectorAll("#pick-ones button").forEach(b => b.setAttribute("aria-pressed", b.id === "bo-" + bO));
+    document.getElementById("b-num").textContent = n;
+    const pic = document.getElementById("b-pic"); pic.replaceWith(Object.assign(picture(n, bEmo), { id: "b-pic" }));
+    const w = document.getElementById("b-word"); w.replaceChildren(wordEl(n));
+    speak(word(n));
+  }
+  document.getElementById("b-say").onclick = () => speak(word(bT * 10 + bO));
+  document.getElementById("b-rand").onclick = () => { const n = 1 + Math.floor(Math.random() * 100); bT = Math.floor(n / 10); bO = n % 10; bEmo = pick(EMOJI); renderBuild(); };
+
+  // ---------- practice ----------
+  const ROUND = 10;
+  const quiz = document.getElementById("quiz");
+  let range = store.get("range", "20-100"), mode = store.get("mode", "listen");
+  if (!["1-20", "20-100", "1-100"].includes(range)) range = "20-100";
+  if (!["listen", "pic", "write", "digits", "mix"].includes(mode)) mode = "listen";
+  let state;
+  function pool() { const [a, b] = range.split("-").map(Number); const out = []; for (let n = a; n <= b; n++) out.push(n); return out; }
+  function drawNums(k) {
+    const p = pool();
+    // more weight on round tens and tricky ones
+    const weighted = p.concat(p.filter(n => [12, 13, 15, 18, 20, 30, 40, 50, 80, 90].includes(n)));
+    const out = []; let guard = 0;
+    while (out.length < k && guard++ < 500) { const n = pick(weighted); if (!out.includes(n) || p.length < k) out.push(n); }
+    return out;
+  }
+  function makeQ(n, m) {
+    if (m === "mix") m = pick(["listen", "pic", "write", "digits"]);
+    return { n, m, emo: pick(EMOJI) };
+  }
+  function newRound() { state = { qs: drawNums(ROUND).map(n => makeQ(n, mode)), i: 0, res: [], wrong: [] }; renderQuestion(); }
+  const rangeBtns = document.querySelectorAll("#ranges button"), modeBtns = document.querySelectorAll("#modes button");
+  function markSel() { rangeBtns.forEach(b => b.setAttribute("aria-pressed", b.dataset.range === range)); modeBtns.forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode)); }
+  rangeBtns.forEach(b => b.onclick = () => { range = b.dataset.range; store.set("range", range); markSel(); newRound(); });
+  modeBtns.forEach(b => b.onclick = () => { mode = b.dataset.mode; store.set("mode", mode); markSel(); newRound(); });
+  markSel();
+
+  function dotsEl() {
+    const d = el("div", "dots");
+    for (let i = 0; i < ROUND; i++) { const s = el("span"); if (i < state.res.length) s.className = state.res[i] ? "ok" : "no"; else if (i === state.i) s.className = "now"; d.appendChild(s); }
+    return d;
+  }
+  const clean = v => v.toLowerCase().replace(/[–—]/g, "-").replace(/\s*-\s*/g, "-").replace(/\s+/g, " ").trim();
+  function okWord(v, n) {
+    const a = clean(v), w = word(n);
+    if (n === 100) return a === "one hundred" || a === "a hundred" || a === "hundred";
+    return a === w;
+  }
+  function whyWord(v, n) {
+    const a = clean(v), w = word(n);
+    if (w.includes("-") && a === w.replace("-", " ")) return "Brakuje łącznika - !";
+    if (w.includes("-") && a === w.replace("-", "")) return "Brakuje łącznika - !";
+    if (/fourty/.test(a)) return "Forty bez u!";
+    if (/twenti|thirti|sixti|seventi|eighti|ninti|fifti/.test(a)) return "Na końcu y, nie i!";
+    return "Prawie!";
+  }
+
+  function renderQuestion() {
+    const q = state.qs[state.i];
+    let done = false;
+    quiz.replaceChildren(dotsEl());
+    const card = el("div", "q");
+    const fb = el("div", "feedback");
+    const corr = el("div", "correction"); corr.hidden = true;
+    const next = el("button", "big-btn", state.i === ROUND - 1 ? "Zobacz wynik →" : "Dalej →"); next.hidden = true;
+    next.onclick = () => { state.i++; state.i >= ROUND ? renderResult() : renderQuestion(); };
+    const replay = el("button", "replay", "🔊 Posłuchaj"); replay.hidden = true; replay.onclick = () => speak(word(q.n));
+
+    function finish(ok) {
+      quiz.firstChild.replaceWith(dotsEl());
+      if (ok) { fb.textContent = pick(["Brawo!", "Super!", "Świetnie!", "Tak jest!"]); fb.className = "feedback ok"; ding(); }
+      else { bonk(); state.wrong.push(q.n + " " + word(q.n)); }
+      replay.hidden = false;
+      setTimeout(() => speak(word(q.n)), 250);
+    }
+
+    if (q.m === "listen") {
+      card.appendChild(el("div", "label", "Posłuchaj i wybierz liczbę"));
+      const L = el("button", "listen", "🔊 Posłuchaj"); L.onclick = () => speak(word(q.n));
+      card.appendChild(L);
+      quiz.appendChild(card);
+      // distractors: teen/ty twin and neighbours
+      const cand = new Set();
+      const twin = q.n >= 13 && q.n <= 19 ? (q.n % 10) * 10 : (q.n % 10 === 0 && q.n >= 30 && q.n <= 90 ? 10 + q.n / 10 : null);
+      if (twin) cand.add(twin);
+      const p = pool();
+      while (cand.size < 2) { const x = pick([q.n + 1, q.n - 1, q.n + 10, q.n - 10, pick(p)]); if (x !== q.n && x >= 1 && x <= 100) cand.add(x); }
+      const opts = shuffle([q.n, ...[...cand].slice(0, 2)]);
+      const box = el("div", "opts");
+      const btns = opts.map(o => {
+        const b = el("button", "opt", o);
+        b.onclick = () => {
+          if (done) return; done = true;
+          const ok = o === q.n; state.res.push(ok);
+          btns.forEach(x => x.disabled = true);
+          if (ok) b.classList.add("picked-ok"); else { b.classList.add("picked-bad"); btns.find(x => Number(x.textContent) === q.n).classList.add("show-ok"); fb.textContent = "To było " + q.n; fb.className = "feedback no"; }
+          card.appendChild(wordEl(q.n));
+          finish(ok); next.hidden = false; next.focus({ preventScroll: true });
+        };
+        box.appendChild(b); return b;
+      });
+      quiz.append(box, fb, next);
+      setTimeout(() => speak(word(q.n)), 300);
+      return;
+    }
+
+    if (q.m === "digits") {
+      card.appendChild(el("div", "label", "Napisz cyframi"));
+      card.appendChild(el("div", "prompt small", word(q.n)));
+      card.appendChild(replay);
+    } else if (q.m === "pic") {
+      card.appendChild(el("div", "label", "Ile jest? Napisz słowem"));
+      card.appendChild(picture(q.n, q.emo));
+      card.appendChild(el("div", "note", "Niebieska ramka = paczka po 10"));
+    } else {
+      card.appendChild(el("div", "label", "Napisz słowem"));
+      card.appendChild(el("div", "prompt", q.n));
+    }
+    quiz.appendChild(card);
+
+    const row = el("div", "type-row");
+    const inp = document.createElement("input");
+    inp.id = "answer-input";
+    inp.setAttribute("autocomplete", "off"); inp.setAttribute("autocorrect", "off"); inp.setAttribute("autocapitalize", "none"); inp.spellcheck = false;
+    if (q.m === "digits") { inp.inputMode = "numeric"; inp.placeholder = "np. 47"; } else inp.placeholder = "wpisz słowem";
+    const go = el("button", null, "Sprawdź");
+    row.append(inp, go);
+    quiz.append(row, fb, corr, next);
+
+    const right = q.m === "digits" ? String(q.n) : word(q.n);
+    function check() {
+      if (!inp.value.trim()) { inp.focus(); return; }
+      if (done) return; done = true;
+      const ok = q.m === "digits" ? inp.value.trim() === String(q.n) : okWord(inp.value, q.n);
+      state.res.push(ok);
+      inp.classList.add(ok ? "ok" : "no");
+      if (q.m !== "digits") card.appendChild(wordEl(q.n));
+      else card.appendChild(el("div", "prompt", q.n));
+      finish(ok);
+      if (ok) { inp.disabled = true; go.disabled = true; next.hidden = false; next.focus({ preventScroll: true }); return; }
+      fb.textContent = q.m === "digits" ? "Prawie!" : whyWord(inp.value, q.n); fb.className = "feedback no";
+      corr.hidden = false;
+      const rightEl = q.m === "digits" ? el("div", "right", right) : Object.assign(wordEl(q.n), { className: "word right" });
+      corr.replaceChildren(el("div", "label", "Twoja odpowiedź"), el("div", "yours", inp.value), el("div", "label", "Poprawnie"), rightEl, el("div", "note", "Przepisz poprawnie, żeby przejść dalej."));
+      inp.value = ""; inp.classList.remove("no"); inp.placeholder = "przepisz: " + right;
+      go.textContent = "OK"; go.onclick = retype; inp.focus();
+    }
+    function retype() {
+      const ok = q.m === "digits" ? inp.value.trim() === String(q.n) : clean(inp.value) === clean(right);
+      if (ok) { inp.classList.remove("no"); inp.classList.add("ok"); inp.disabled = true; go.disabled = true; next.hidden = false; next.focus({ preventScroll: true }); }
+      else inp.classList.add("no");
+    }
+    go.onclick = check;
+    inp.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); if (!next.hidden) next.click(); else go.click(); } });
+    setTimeout(() => inp.focus({ preventScroll: true }), 50);
+  }
+
+  function renderResult() {
+    const score = state.res.filter(Boolean).length;
+    const key = "best-" + mode + "-" + range;
+    const best = Math.max(store.get(key, 0), score); store.set(key, best);
+    quiz.replaceChildren();
+    const r = el("div", "q result");
+    r.appendChild(el("div", "score", score + " / " + ROUND));
+    const stars = el("div", "stars");
+    for (let i = 0; i < ROUND; i++) stars.appendChild(el("span", i < score ? null : "off", "★"));
+    r.appendChild(stars);
+    r.appendChild(el("div", "msg", score === ROUND ? "Perfekcyjnie!" : score >= 7 ? "Super!" : score >= 4 ? "Dobrze idzie!" : "Poćwiczmy jeszcze!"));
+    if (state.wrong.length) {
+      const rev = el("div", "review"); rev.appendChild(el("div", "label", "Do powtórki"));
+      const list = el("div", "list"); [...new Set(state.wrong)].forEach(w => list.appendChild(el("span", null, w)));
+      rev.appendChild(list); r.appendChild(rev);
+    }
+    r.appendChild(el("p", "note", "Najlepszy wynik w tym ćwiczeniu: " + best + " / " + ROUND));
+    quiz.appendChild(r);
+    const again = el("button", "big-btn", "Jeszcze raz"); again.onclick = newRound;
+    const learn = el("button", "big-btn ghost", "Wróć do nauki"); learn.onclick = () => showTab("learn");
+    quiz.append(again, learn);
+    if (score >= 7) ding();
+  }
+
+  // init (build without speaking)
+  const _speak = speak; speak = () => {}; renderBuild(); speak = _speak;
+  newRound();
+  showTab(store.get("tab", "learn"));
+})();
+</script>
+
+</body>
+</html>
