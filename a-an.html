@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#EEF3FA">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🅰️</text></svg>">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>.home-link{display:inline-flex;align-self:flex-start;align-items:center;gap:6px;font-family:"Lexend",system-ui,sans-serif;font-size:14px;color:var(--muted,#5B6785);text-decoration:none;padding:6px 12px;border-radius:999px;border:1px solid var(--line,#D6DEEC);background:var(--card,#FFFFFF)}.home-link:focus-visible{outline:3px solid var(--muted,#5B6785);outline-offset:2px}</style>
+</head>
+<body>
+<title>a, an czy nic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Lexend:wght@400;600&display=swap">
+<style>
+[hidden]{display:none!important}
+/* Layout: one phone column; a = green, an = orange, nothing = blue, used on buttons, rules and answers alike */
+:root {
+  --bg: #EEF3FA;
+  --card: #FFFFFF;
+  --ink: #1B2540;
+  --muted: #5B6785;
+  --line: #D6DEEC;
+  --a: #1E8A5F;  --a-soft: #DDF3E9;
+  --an: #D2621C; --an-soft: #FDEBDD;
+  --no: #2F5FD0; --no-soft: #E0E8FA;
+  --bad: #D0392F; --bad-soft: #FBE3E1;
+  --hl: #FFE58A;
+  --on-color: #FFFFFF;
+  --font-display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Lexend", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121827; --card: #1C2438; --ink: #EDF1F9; --muted: #9AA6C2; --line: #2C3752;
+    --a: #4FCB95; --a-soft: #173327;
+    --an: #FF9B5C; --an-soft: #3A2618;
+    --no: #86A7FF; --no-soft: #1C2A4E;
+    --bad: #FF7A70; --bad-soft: #3B1D1D;
+    --hl: #6B5A12;
+    --on-color: #121827;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121827; --card: #1C2438; --ink: #EDF1F9; --muted: #9AA6C2; --line: #2C3752;
+  --a: #4FCB95; --a-soft: #173327;
+  --an: #FF9B5C; --an-soft: #3A2618;
+  --no: #86A7FF; --no-soft: #1C2A4E;
+  --bad: #FF7A70; --bad-soft: #3B1D1D;
+  --hl: #6B5A12;
+  --on-color: #121827;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.45; padding-inline: 16px; -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+button:focus-visible { outline: 3px solid var(--no); outline-offset: 2px; }
+.app { max-width: 520px; margin: 0 auto; padding-block: 14px 40px; display: flex; flex-direction: column; gap: 16px; }
+
+header { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: 42px; line-height: 1; margin: 0; white-space: nowrap; }
+.c-a { color: var(--a); } .c-an { color: var(--an); } .c-no { color: var(--no); }
+.sub { font-size: 14px; color: var(--muted); text-align: right; padding-bottom: 4px; }
+.note { color: var(--muted); font-size: 14px; margin: 0; }
+.label { font-family: var(--font-display); font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+h2 { font-family: var(--font-display); font-weight: 800; font-size: 24px; line-height: 1.15; margin: 4px 0 0; }
+
+.tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 4px; gap: 4px; }
+.tabs button { font-family: var(--font-display); font-weight: 800; font-size: 20px; padding: 8px 0 6px; border-radius: 12px; color: var(--muted); }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+.warn { background: var(--bad-soft); border-radius: 12px; padding: 10px 12px; font-size: 14px; margin: 0; }
+
+/* rules */
+.rule { border-radius: 18px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.rule.a { background: var(--a-soft); } .rule.an { background: var(--an-soft); } .rule.no { background: var(--no-soft); }
+.rule .head { display: flex; align-items: baseline; gap: 12px; }
+.rule .big { font-family: var(--font-display); font-weight: 800; font-size: 36px; line-height: 1; }
+.rule .when { font-size: 15px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips button { background: var(--card); border-radius: 10px; padding: 4px 10px; font-family: var(--font-display); font-weight: 800; font-size: 18px; }
+.chips b { background: var(--hl); border-radius: 3px; }
+.tipbox { background: var(--card); border: 1px dashed var(--line); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; }
+.traps { background: var(--bad-soft); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; font-size: 15px; }
+.traps .label { color: var(--bad); }
+.traps s { color: var(--muted); text-decoration-color: var(--bad); text-decoration-thickness: 2px; }
+
+/* practice */
+.modes { display: flex; flex-wrap: wrap; gap: 6px; }
+.modes button { font-size: 15px; padding: 7px 13px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--muted); }
+.modes button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.dots { display: flex; gap: 5px; }
+.dots span { flex: 1; height: 8px; border-radius: 4px; background: var(--line); }
+.dots span.ok { background: var(--a); } .dots span.no { background: var(--bad); } .dots span.now { background: var(--muted); }
+.q { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 20px 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+.q .pic { font-size: 60px; line-height: 1; }
+.q .sentence { font-family: var(--font-display); font-weight: 800; font-size: 32px; line-height: 1.25; text-wrap: balance; }
+.slot { display: inline-block; min-width: 2.4ch; border-bottom: 4px dashed var(--muted); color: transparent; padding: 0 3px; }
+.slot.filled { border-bottom-style: solid; }
+.slot.filled.a { color: var(--a); border-color: var(--a); }
+.slot.filled.an { color: var(--an); border-color: var(--an); }
+.slot.filled.no { color: var(--no); border-color: var(--no); }
+.key { border-radius: 4px; }
+.key.show { background: var(--hl); }
+.why { font-size: 16px; }
+.replay { font-size: 14px; color: var(--muted); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); }
+.answers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.answers button { font-family: var(--font-display); font-weight: 800; font-size: 32px; padding: 14px 4px 10px; border-radius: 18px; color: var(--on-color); box-shadow: 0 4px 0 rgba(0,0,0,.18); transition: transform .1s, opacity .2s; }
+.answers button:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.18); }
+.answers .a { background: var(--a); } .answers .an { background: var(--an); } .answers .no { background: var(--no); }
+.answers button small { display: block; font-family: var(--font-body); font-weight: 400; font-size: 12px; opacity: .9; }
+.answers button:disabled { opacity: .3; cursor: default; }
+.answers button.picked-ok { opacity: 1; outline: 4px solid var(--ink); outline-offset: 2px; }
+.answers button.picked-bad { opacity: 1; background: var(--bad); }
+.answers button.show-ok { opacity: 1; }
+.feedback { min-height: 28px; text-align: center; font-family: var(--font-display); font-weight: 800; font-size: 22px; }
+.feedback.ok { color: var(--a); } .feedback.no { color: var(--bad); }
+.big-btn { display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 800; font-size: 20px; padding: 12px 16px 10px; border-radius: 16px; background: var(--ink); color: var(--bg); width: 100%; }
+.big-btn.ghost { background: var(--card); color: var(--ink); border: 2px solid var(--line); }
+.result { text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.result .score { font-family: var(--font-display); font-weight: 800; font-size: 64px; line-height: 1; }
+.stars { font-size: 26px; letter-spacing: 2px; color: var(--an); word-break: break-all; }
+.stars .off { color: var(--line); }
+.result .msg { font-family: var(--font-display); font-weight: 800; font-size: 26px; }
+.review { width: 100%; text-align: left; display: flex; flex-direction: column; gap: 6px; }
+.review .list { display: flex; flex-wrap: wrap; gap: 6px; }
+.review .list span { background: var(--bad-soft); border-radius: 8px; padding: 2px 8px; font-family: var(--font-display); font-weight: 800; font-size: 16px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="app">
+  <a class="home-link" href="index.html">← Strona główna</a>
+  <header>
+    <h1><span class="c-a">a</span> · <span class="c-an">an</span> · <span class="c-no">–</span></h1>
+    <div class="sub">a, an<br>czy nic?</div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button id="tab-learn" role="tab" aria-selected="true">Poznaj</button>
+    <button id="tab-practice" role="tab" aria-selected="false">Ćwicz</button>
+  </nav>
+  <p class="warn" id="voice-warn" hidden></p>
+
+  <section id="learn" style="display:flex;flex-direction:column;gap:12px">
+    <p class="note">Patrz na <b>pierwszą literę słowa zaraz po luce</b>. Dotknij przykładu, żeby usłyszeć.</p>
+    <div class="rule a">
+      <div class="head"><span class="big c-a">a</span><span class="when">jedna rzecz, słowo zaczyna się na <b>spółgłoskę</b> (b, c, d, p, r, s, t…)</span></div>
+      <div class="chips" id="ex-a"></div>
+    </div>
+    <div class="rule an">
+      <div class="head"><span class="big c-an">an</span><span class="when">jedna rzecz, słowo zaczyna się na <b>a, e, i, o, u</b></span></div>
+      <div class="chips" id="ex-an"></div>
+    </div>
+    <div class="rule no">
+      <div class="head"><span class="big c-no">–</span><span class="when"><b>nic</b>, gdy jest kilka rzeczy (liczba mnoga, -s na końcu)</span></div>
+      <div class="chips" id="ex-no"></div>
+    </div>
+
+    <h2>Z przymiotnikiem</h2>
+    <div class="tipbox">
+      <div>Gdy przed rzeczą stoi przymiotnik, patrzysz na <b>przymiotnik</b>, bo to on jest zaraz po luce.</div>
+      <div class="chips" id="ex-adj"></div>
+    </div>
+
+    <div class="traps">
+      <div class="label">Uwaga, częste błędy</div>
+      <div><s>an student</s> → <b>a student</b> (s to nie samogłoska)</div>
+      <div><s>a apple</s> → <b>an apple</b></div>
+      <div><s>an big apple</s> → <b>a big apple</b> (patrz na big!)</div>
+      <div><s>a amazing watch</s> → <b>an amazing watch</b></div>
+      <div><s>They're a pencils</s> → <b>They're pencils</b></div>
+    </div>
+  </section>
+
+  <section id="practice" hidden style="flex-direction:column;gap:14px">
+    <div class="modes" id="modes">
+      <button id="mode-simple" data-mode="simple">a / an</button>
+      <button id="mode-adj" data-mode="adj">Z przymiotnikiem</button>
+      <button id="mode-all" data-mode="all">Wszystko + liczba mnoga</button>
+    </div>
+    <div id="quiz" style="display:flex;flex-direction:column;gap:14px"></div>
+  </section>
+</div>
+
+<script>
+(function () {
+  // noun | plural | emoji | group (t = thing, p = person/animal, f = food)
+  const NOUNS = `pencil|pencils|✏️|t
+pen|pens|🖊️|t
+book|books|📕|t
+notebook|notebooks|📓|t
+ruler|rulers|📏|t
+rubber|rubbers|🧽|t
+school bag|school bags|🎒|t
+backpack|backpacks|🎒|t
+pencil case|pencil cases|👝|t
+chair|chairs|🪑|t
+desk|desks|🗄️|t
+clock|clocks|🕰️|t
+computer|computers|💻|t
+poster|posters|🖼️|t
+bike|bikes|🚲|t
+watch|watches|⌚|t
+phone|phones|📱|t
+football|footballs|⚽|t
+robot|robots|🤖|t
+car|cars|🚗|t
+house|houses|🏠|t
+umbrella|umbrellas|☂️|t
+eraser|erasers|🧽|t
+igloo|igloos|🛖|t
+envelope|envelopes|✉️|t
+cat|cats|🐱|p
+dog|dogs|🐶|p
+student|students|🧑‍🎓|p
+teacher|teachers|👩‍🏫|p
+friend|friends|🤝|p
+monkey|monkeys|🐵|p
+elephant|elephants|🐘|p
+owl|owls|🦉|p
+octopus|octopuses|🐙|p
+ant|ants|🐜|p
+actor|actors|🎭|p
+apple|apples|🍎|f
+orange|oranges|🍊|f
+egg|eggs|🥚|f
+ice cream|ice creams|🍦|f
+banana|bananas|🍌|f
+sandwich|sandwiches|🥪|f
+pizza|pizzas|🍕|f
+cake|cakes|🎂|f`.split("\n").map(l => { const [s, pl, e, g] = l.split("|"); return { s, pl, e, g }; });
+  const ADJ = {
+    t: ["big", "small", "new", "old", "nice", "cool", "amazing", "red", "blue", "green", "yellow", "orange", "pink", "black", "white", "brown", "purple", "interesting"],
+    p: ["big", "small", "nice", "funny", "happy", "old", "amazing", "good", "great", "little", "interesting"],
+    f: ["big", "small", "nice", "good", "amazing", "great", "little", "yummy"]
+  };
+  // "interesting" only with things that make sense
+  const INTERESTING_OK = ["book", "notebook", "poster", "computer", "robot", "teacher", "friend", "actor", "student"];
+  const VOWELS = "aeiou";
+  const an = w => VOWELS.includes(w[0].toLowerCase()) ? "an" : "a";
+
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem("aan-" + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem("aan-" + k, JSON.stringify(v)); } catch (e) {} }
+  };
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+
+  // ---------- speech, sounds ----------
+  const synth = window.speechSynthesis;
+  let voice = null;
+  const warn = document.getElementById("voice-warn");
+  function pickVoice() {
+    if (!synth) return;
+    const vs = synth.getVoices(); if (!vs.length) return;
+    const en = vs.filter(v => /^en[-_]/i.test(v.lang) || v.lang === "en");
+    const byLang = l => en.filter(v => v.lang.replace("_", "-").toLowerCase() === l);
+    const pref = list => list.find(v => /natural|enhanced|premium|google/i.test(v.name)) || list[0];
+    voice = pref(byLang("en-gb")) || pref(byLang("en-us")) || pref(en) || null;
+    if (!voice) { warn.textContent = "Na tym urządzeniu nie ma angielskiego głosu. Doinstaluj go w ustawieniach (Mowa / Zamiana tekstu na mowę)."; warn.hidden = false; } else warn.hidden = true;
+  }
+  if (synth) { pickVoice(); if (synth.addEventListener) synth.addEventListener("voiceschanged", pickVoice); else synth.onvoiceschanged = pickVoice; }
+  function speak(t) {
+    if (!synth) return;
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(t);
+    if (voice) u.voice = voice;
+    u.lang = voice ? voice.lang : "en-GB"; u.rate = 0.8;
+    setTimeout(() => synth.speak(u), 40);
+  }
+  let actx = null;
+  function tones(freqs, dur, type) {
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      let t = actx.currentTime;
+      freqs.forEach(f => { const o = actx.createOscillator(), g = actx.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.18, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); o.connect(g).connect(actx.destination); o.start(t); o.stop(t + dur + 0.02); t += dur * 0.8; });
+    } catch (e) {}
+  }
+  const ding = () => tones([660, 880], 0.16, "sine");
+  const bonk = () => tones([200, 160], 0.18, "triangle");
+
+  // ---------- tabs ----------
+  const tabL = document.getElementById("tab-learn"), tabP = document.getElementById("tab-practice");
+  const secL = document.getElementById("learn"), secP = document.getElementById("practice");
+  function showTab(name) {
+    const l = name === "learn";
+    tabL.setAttribute("aria-selected", l); tabP.setAttribute("aria-selected", !l);
+    secL.hidden = !l; secP.hidden = l; secP.style.display = l ? "" : "flex";
+    store.set("tab", name);
+  }
+  tabL.onclick = () => showTab("learn");
+  tabP.onclick = () => showTab("practice");
+
+  // ---------- learn examples ----------
+  function chip(article, rest) {
+    const b = el("button");
+    const first = rest[0], tail = rest.slice(1);
+    if (article) b.appendChild(el("span", article === "an" ? "c-an" : "c-a", article + " "));
+    b.appendChild(el("b", null, first));
+    b.appendChild(document.createTextNode(tail));
+    b.onclick = () => speak((article ? article + " " : "") + rest);
+    return b;
+  }
+  [["a", "pencil"], ["a", "book"], ["a", "school bag"], ["a", "backpack"], ["a", "student"], ["a", "robot"]].forEach(([a, w]) => document.getElementById("ex-a").appendChild(chip(a, w)));
+  [["an", "apple"], ["an", "orange"], ["an", "egg"], ["an", "umbrella"], ["an", "ice cream"], ["an", "owl"]].forEach(([a, w]) => document.getElementById("ex-an").appendChild(chip(a, w)));
+  [["", "pencils"], ["", "apples"], ["", "books"], ["", "oranges"], ["", "friends"]].forEach(([a, w]) => document.getElementById("ex-no").appendChild(chip(a, w)));
+  [["a", "big apple"], ["an", "amazing watch"], ["a", "small orange"], ["an", "old book"], ["a", "new eraser"], ["an", "interesting book"]].forEach(([a, w]) => document.getElementById("ex-adj").appendChild(chip(a, w)));
+
+  // ---------- question generator ----------
+  function adjFor(n) {
+    let list = ADJ[n.g];
+    if (!INTERESTING_OK.includes(n.s)) list = list.filter(a => a !== "interesting");
+    return pick(list.filter(a => a !== n.s));
+  }
+  function makeQ(m) {
+    const n = pick(NOUNS);
+    const useAdj = m === "adj" ? true : m === "simple" ? false : Math.random() < 0.5;
+    const plural = m === "all" && Math.random() < 0.3;
+    const adj = useAdj ? adjFor(n) : null;
+    const noun = plural ? n.pl : n.s;
+    const after = adj ? adj + " " + noun : noun;
+    const keyWord = adj || noun;
+    const answer = plural ? "no" : an(keyWord);
+    // frame
+    let before = "", end = "";
+    const r = Math.random();
+    if (plural) { before = pick(["They're ", "Look! They're ", ""]); end = before ? "." : ""; }
+    else if (n.g === "p" && r < 0.5) { before = pick(["It's ", "She's ", "He's "]); if (["student", "teacher", "friend", "actor"].includes(n.s)) before = pick(["She's ", "He's "]); else before = "It's "; end = "."; }
+    else if (r < 0.65) { before = pick(n.g === "p" ? ["It's ", "This is "] : ["It's ", "This is ", "I've got "]); end = "."; }
+    return { before, after, end, answer, keyWord, plural, emoji: n.e, full: (before + (answer === "no" ? "" : answer + " ") + after + end).trim() };
+  }
+
+  // ---------- practice ----------
+  const ROUND = 10;
+  const quiz = document.getElementById("quiz");
+  const FORMS = [["a", "a", "spółgłoska"], ["an", "an", "a e i o u"], ["no", "–", "nic"]];
+  let mode = store.get("mode", "simple"); if (!["simple", "adj", "all"].includes(mode)) mode = "simple";
+  let state;
+  function newRound() { state = { qs: Array.from({ length: ROUND }, () => makeQ(mode)), i: 0, res: [], wrong: [] }; renderQuestion(); }
+  const modeBtns = document.querySelectorAll("#modes button");
+  function markModes() { modeBtns.forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode)); }
+  modeBtns.forEach(b => b.onclick = () => { mode = b.dataset.mode; store.set("mode", mode); markModes(); newRound(); });
+  markModes();
+  function dotsEl() {
+    const d = el("div", "dots");
+    for (let i = 0; i < ROUND; i++) { const s = el("span"); if (i < state.res.length) s.className = state.res[i] ? "ok" : "no"; else if (i === state.i) s.className = "now"; d.appendChild(s); }
+    return d;
+  }
+  function renderQuestion() {
+    const q = state.qs[state.i];
+    let done = false;
+    quiz.replaceChildren(dotsEl());
+    const card = el("div", "q");
+    card.appendChild(el("div", "pic", q.emoji));
+    const sent = el("div", "sentence");
+    const slot = el("span", "slot", q.answer === "no" ? "–" : q.answer);
+    const key = el("span", "key", q.keyWord);
+    const rest = q.after.slice(q.keyWord.length);
+    sent.append(document.createTextNode(q.before), slot, document.createTextNode(" "), key, document.createTextNode(rest + q.end));
+    card.appendChild(sent);
+    const why = el("div", "why"); why.hidden = true;
+    const replay = el("button", "replay", "🔊 Posłuchaj"); replay.hidden = true; replay.onclick = () => speak(q.full);
+    card.append(why, replay);
+    quiz.appendChild(card);
+
+    const fb = el("div", "feedback");
+    const answers = el("div", "answers");
+    const btns = {};
+    const allowed = mode === "all" ? FORMS : FORMS.filter(f => f[0] !== "no");
+    if (mode !== "all") answers.style.gridTemplateColumns = "repeat(2, minmax(0, 1fr))";
+    allowed.forEach(([k, label, small]) => {
+      const b = el("button", k);
+      b.append(document.createTextNode(label), el("small", null, small));
+      b.onclick = () => {
+        if (done) return; done = true;
+        const ok = k === q.answer;
+        state.res.push(ok);
+        Object.values(btns).forEach(x => x.disabled = true);
+        if (ok) { b.classList.add("picked-ok"); fb.textContent = pick(["Brawo!", "Super!", "Świetnie!", "Tak jest!"]); fb.className = "feedback ok"; ding(); }
+        else { b.classList.add("picked-bad"); btns[q.answer].classList.add("show-ok"); fb.textContent = "Prawie!"; fb.className = "feedback no"; bonk(); state.wrong.push(q.full); }
+        slot.classList.add("filled", q.answer);
+        key.classList.add("show");
+        why.hidden = false;
+        if (q.answer === "no") why.innerHTML = "<b class='c-no'>Nic</b>, bo jest ich kilka: <b>" + q.keyWord + "</b> ma -s na końcu.";
+        else why.innerHTML = "<b class='c-" + q.answer + "'>" + q.answer + "</b>, bo <b>" + q.keyWord + "</b> zaczyna się na <b>" + q.keyWord[0] + "</b>" + (q.answer === "an" ? " (samogłoska)." : " (spółgłoska).");
+        replay.hidden = false;
+        quiz.firstChild.replaceWith(dotsEl());
+        setTimeout(() => speak(q.full), 300);
+        next.hidden = false; next.focus({ preventScroll: true });
+      };
+      btns[k] = b; answers.appendChild(b);
+    });
+    const next = el("button", "big-btn", state.i === ROUND - 1 ? "Zobacz wynik →" : "Dalej →"); next.hidden = true;
+    next.onclick = () => { state.i++; state.i >= ROUND ? renderResult() : renderQuestion(); };
+    quiz.append(answers, fb, next);
+  }
+  function renderResult() {
+    const score = state.res.filter(Boolean).length;
+    const k = "best-" + mode; const best = Math.max(store.get(k, 0), score); store.set(k, best);
+    quiz.replaceChildren();
+    const r = el("div", "q result");
+    r.appendChild(el("div", "score", score + " / " + ROUND));
+    const stars = el("div", "stars"); for (let i = 0; i < ROUND; i++) stars.appendChild(el("span", i < score ? null : "off", "★")); r.appendChild(stars);
+    r.appendChild(el("div", "msg", score === ROUND ? "Perfekcyjnie!" : score >= 7 ? "Super!" : score >= 4 ? "Dobrze idzie!" : "Poćwiczmy jeszcze!"));
+    if (state.wrong.length) { const rev = el("div", "review"); rev.appendChild(el("div", "label", "Do powtórki")); const list = el("div", "list"); state.wrong.forEach(w => list.appendChild(el("span", null, w))); rev.appendChild(list); r.appendChild(rev); }
+    r.appendChild(el("p", "note", "Najlepszy wynik w tym trybie: " + best + " / " + ROUND));
+    quiz.appendChild(r);
+    const again = el("button", "big-btn", "Jeszcze raz"); again.onclick = newRound;
+    const learn = el("button", "big-btn ghost", "Wróć do zasad"); learn.onclick = () => showTab("learn");
+    quiz.append(again, learn);
+    if (score >= 7) ding();
+  }
+
+  newRound();
+  showTab(store.get("tab", "learn"));
+})();
+</script>
+
+</body>
+</html>
