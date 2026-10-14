@@ -13,14 +13,14 @@
 <title>Ćwiczymy!</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&family=Lexend:wght@400&display=swap">
 <style>
-:root{--bg:#EEF3FA;--card:#FFFFFF;--ink:#1B2540;--muted:#5B6785;--line:#D6DEEC;--en:#2F5FD0;--math:#1E8A5F;--pl:#D2621C}
-@media (prefers-color-scheme:dark){:root{--bg:#121827;--card:#1C2438;--ink:#EDF1F9;--muted:#9AA6C2;--line:#2C3752;--en:#86A7FF;--math:#4FCB95;--pl:#FF9B5C;color-scheme:dark}}
+:root{--bg:#EEF3FA;--card:#FFFFFF;--ink:#1B2540;--muted:#5B6785;--line:#D6DEEC;--en:#2F5FD0;--math:#1E8A5F;--pl:#D2621C;--fun:#7B4FD0}
+@media (prefers-color-scheme:dark){:root{--bg:#121827;--card:#1C2438;--ink:#EDF1F9;--muted:#9AA6C2;--line:#2C3752;--en:#86A7FF;--math:#4FCB95;--pl:#FF9B5C;--fun:#B596FF;color-scheme:dark}}
 body{background:var(--bg);color:var(--ink);font-family:"Lexend",system-ui,sans-serif;padding-inline:16px}
 .app{max-width:520px;margin:0 auto;padding-block:24px 40px;display:flex;flex-direction:column;gap:12px}
 h1{font-family:"Baloo 2","Trebuchet MS",sans-serif;font-size:40px;line-height:1;margin:0 0 4px}
 h2{font-family:"Baloo 2","Trebuchet MS",sans-serif;font-weight:800;font-size:24px;line-height:1;margin:18px 0 2px;display:flex;align-items:center;gap:10px}
 h2::before{content:"";width:12px;height:12px;border-radius:4px;background:var(--c)}
-.sec-en{--c:var(--en)} .sec-math{--c:var(--math)} .sec-pl{--c:var(--pl)}
+.sec-en{--c:var(--en)} .sec-math{--c:var(--math)} .sec-pl{--c:var(--pl)} .sec-fun{--c:var(--fun)}
 a.tile{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:18px;padding:14px 16px;text-decoration:none;color:var(--ink)}
 a.tile:active{transform:scale(.98)}
 a.tile:focus-visible{outline:3px solid var(--c);outline-offset:2px}
@@ -45,6 +45,9 @@ a.tile:focus-visible{outline:3px solid var(--c);outline-offset:2px}
 
   <h2 class="sec-pl">Polski</h2>
   <a class="tile sec-pl" href="o-czy-u.html"><span class="ico">✏️</span><span><span class="t">ó czy u?</span><br><span class="d">pisownia wyrazów</span></span></a>
+
+  <h2 class="sec-fun">Gry</h2>
+  <a class="tile sec-fun" href="maszynista.html"><span class="ico">🚆</span><span><span class="t">Maszynista</span><br><span class="d">poprowadź pociąg i stań przy peronie</span></span></a>
 </div>
 </body>
 </html>
