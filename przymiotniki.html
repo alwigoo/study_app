@@ -128,6 +128,17 @@ h2 { font-family: var(--font-display); font-weight: 800; font-size: 24px; line-h
 .review { width: 100%; text-align: left; display: flex; flex-direction: column; gap: 6px; }
 .review .list { display: flex; flex-wrap: wrap; gap: 6px; }
 .review .list span { background: var(--bad-soft); border-radius: 8px; padding: 2px 8px; font-family: var(--font-display); font-weight: 800; font-size: 16px; }
+.qa { display: flex; flex-direction: column; gap: 6px; }
+.qa button { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2px 10px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 8px 12px; text-align: left; }
+.qa .en { font-family: var(--font-display); font-weight: 800; font-size: 18px; line-height: 1.2; }
+.qa .ans { color: var(--accent); }
+.qa .pl { font-size: 13px; color: var(--muted); }
+.qa button.playing { outline: 3px solid var(--accent); }
+.mini-table { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 10px 14px; }
+.mini-table .en { font-family: var(--font-display); font-weight: 800; font-size: 18px; text-align: left; }
+.mini-table .pl { color: var(--muted); font-size: 15px; align-self: center; }
+.opts.col1 { grid-template-columns: 1fr; }
+.opt.long { font-size: 19px; padding: 12px 10px 9px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
@@ -135,7 +146,7 @@ h2 { font-family: var(--font-display); font-weight: 800; font-size: 24px; line-h
   <a class="home-link" href="index.html">← Strona główna</a>
   <header>
     <h1><span class="r">big</span>, <span class="b">blue</span>,<br><span class="g">cool</span> &amp; <span class="y">great</span></h1>
-    <div class="sub">przymiotniki<br>i kolory</div>
+    <div class="sub">przymiotniki,<br>kolory, pytania</div>
   </header>
 
   <nav class="tabs" role="tablist">
@@ -161,15 +172,35 @@ h2 { font-family: var(--font-display); font-weight: 800; font-size: 24px; line-h
       <div><b>young</b>: ou w środku · <b>great</b>: ea w środku</div>
       <div><s>an big</s> → <b>a big</b> · <b>an amazing</b>, <b>an interesting</b>, <b>an old</b>, <b>an orange</b></div>
     </div>
+
+    <h2>Pytania o siebie</h2>
+    <p class="note">Pięć pytań i odpowiedzi. Dotknij, żeby usłyszeć.</p>
+    <div class="qa" id="qa-list"></div>
+    <div class="label">your i my</div>
+    <div class="mini-table">
+      <button class="en" id="say-your">your</button><span class="pl">twój, twoja: What's <b>your</b> name?</span>
+      <button class="en" id="say-my">my</button><span class="pl">mój, moja: <b>My</b> name's Lena.</span>
+    </div>
+    <div class="label">Formularz</div>
+    <div class="mini-table" id="form-list"></div>
+    <div class="label">Krótkie zwroty</div>
+    <div class="mini-table" id="phrase-list"></div>
+    <div class="traps">
+      <div class="label">Uwaga, częste błędy</div>
+      <div><s>What's you name?</s> → <b>What's your name?</b></div>
+      <div><s>I have ten years.</s> → <b>I'm ten.</b></div>
+      <div><s>I'm from Polish.</s> → <b>I'm from Poland.</b> albo <b>I'm Polish.</b></div>
+    </div>
   </section>
 
   <section id="practice" hidden style="flex-direction:column;gap:14px">
     <div class="modes" id="modes">
-      <button id="mode-test" data-mode="test">📝 Test (15 pytań)</button>
+      <button id="mode-test" data-mode="test">📝 Test (18 pytań)</button>
       <button id="mode-pick" data-mode="pick">Wybierz</button>
       <button id="mode-adj" data-mode="adj">✏️ Przymiotniki</button>
       <button id="mode-col" data-mode="col">✏️ Kolory</button>
       <button id="mode-pl" data-mode="pl">✏️ Z polskiego</button>
+      <button id="mode-me" data-mode="me">✏️ Pytania o siebie</button>
     </div>
     <div id="quiz" style="display:flex;flex-direction:column;gap:14px"></div>
   </section>
@@ -204,6 +235,50 @@ h2 { font-family: var(--font-display); font-weight: 800; font-size: 24px; line-h
     ["white", "{wh}ite", "biały", "#FFFFFF", ["🐑", "sheep"]]
   ].map(r => ({ w: r[0], m: r[1], pl: r[2], hex: r[3], obj: r[4], kind: "col" }));
   const ALL = ADJ.concat(COL);
+
+  // ---------- about me ----------
+  const NAMES = ["Lena", "Tom", "Harry", "Mia", "Joe", "Ana", "Piotr", "Emma"];
+  const FROM = [["Poland", "Polish"], ["Spain", "Spanish"], ["the UK", "British"], ["France", "French"], ["the USA", "American"], ["Brazil", "Brazilian"], ["Turkey", "Turkish"], ["China", "Chinese"]];
+  const AGES = ["nine", "ten", "eleven", "twelve"];
+  const QA = [
+    { id: "name", q: "What's your name?", qpl: "Jak się nazywasz?", gap: ["What's your ", "name", "?"], ans: () => "My name's " + pick(NAMES) + "." },
+    { id: "spell", q: "How do you spell Lena?", qpl: "Jak przeliterujesz Lena?", gap: ["How do you ", "spell", " Lena?"], ans: () => "L-E-N-A." },
+    { id: "from", q: "Where are you from?", qpl: "Skąd jesteś?", gap: ["Where are you ", "from", "?"], ans: () => "I'm from " + pick(FROM)[0] + "." },
+    { id: "nat", q: "What's your nationality?", qpl: "Jaka jest twoja narodowość?", gap: ["What's your ", "nationality", "?"], ans: () => "I'm " + pick(FROM)[1] + "." },
+    { id: "age", q: "How old are you?", qpl: "Ile masz lat?", gap: ["How ", "old", " are you?"], ans: () => "I'm " + pick(AGES) + "." }
+  ];
+  const YOURMY = [
+    ["What's ", "your", " name?", "Jak masz na imię?"], ["", "My", " name's Lena.", "Mam na imię Lena."],
+    ["What's ", "your", " nationality?", "Jaka jest twoja narodowość?"], ["Hi! ", "My", " name's Harry.", "Cześć! Mam na imię Harry."],
+    ["What's ", "your", " surname?", "Jakie jest twoje nazwisko?"], ["", "My", " friend is from Spain.", "Mój przyjaciel jest z Hiszpanii."]
+  ];
+  const FORM = [["First name", "imię"], ["Surname", "nazwisko"], ["Age", "wiek"], ["Nationality", "narodowość"], ["Country", "państwo"]];
+  const PHRASES = [["What a mess!", "Jaki bałagan!"], ["Don't worry. It's OK.", "Nie martw się. Wszystko w porządku."], ["You're amazing!", "Jesteś wspaniały!"]];
+  function meQuestion(kind) {
+    if (kind === "match") {
+      const x = pick(QA), others = shuffle(QA.filter(o => o !== x)).slice(0, 2);
+      return { me: true, kind: "mc", label: "Wybierz dobrą odpowiedź", prompt: x.q, sub: x.qpl, answer: x.ans(), options: null, others: others.map(o => o.ans()), speakText: x.q };
+    }
+    if (kind === "matchRev") {
+      const x = pick(QA), a = x.ans(), others = shuffle(QA.filter(o => o !== x)).slice(0, 2);
+      return { me: true, kind: "mc", label: "Do jakiej odpowiedzi pasuje pytanie?", prompt: a, sub: "Wybierz pytanie", answer: x.q, others: others.map(o => o.q), speakText: a };
+    }
+    if (kind === "gap") {
+      const x = pick(QA), a = x.ans();
+      return { me: true, kind: "type", label: "Uzupełnij pytanie", before: x.gap[0], after: x.gap[2], answer: x.gap[1], sub: "Odpowiedź: " + a, speakText: x.q, caseless: true };
+    }
+    if (kind === "yourmy") {
+      const y = pick(YOURMY);
+      return { me: true, kind: "type", label: "Wpisz your albo my", before: y[0], after: y[2], answer: y[1], sub: y[3], speakText: y[0] + y[1] + y[2], caseless: true };
+    }
+    if (kind === "form") {
+      const f = pick(FORM);
+      return { me: true, kind: "type", label: "Formularz: napisz po angielsku", prompt: f[1], answer: f[0], sub: "", speakText: f[0], caseless: true };
+    }
+    const ph = pick(PHRASES), others = PHRASES.filter(p => p !== ph).map(p => p[0]);
+    return { me: true, kind: "mc", label: "Jak to powiedzieć po angielsku?", prompt: ph[1], sub: "", answer: ph[0], others, speakText: ph[0] };
+  }
+  const ME_KINDS = ["match", "matchRev", "gap", "yourmy", "form", "phrase", "gap", "yourmy"];
 
   const store = {
     get(k, d) { try { const v = localStorage.getItem("adjcol-" + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
@@ -288,6 +363,21 @@ h2 { font-family: var(--font-display); font-weight: 800; font-size: 24px; line-h
     colCards.appendChild(b);
   });
 
+  const qaList = document.getElementById("qa-list");
+  QA.forEach(x => {
+    const b = el("button"); b.id = "qa-" + x.id;
+    const a = x.id === "name" ? "My name's Lena." : x.id === "from" ? "I'm from Poland." : x.id === "nat" ? "I'm Polish." : x.id === "age" ? "I'm ten." : "L-E-N-A.";
+    b.append(el("span", "en", x.q), el("span", "en ans", a), el("span", "pl", x.qpl), el("span", "pl", ""));
+    b.onclick = () => speak(x.q + " " + a.replace(/-/g, ", "), b);
+    qaList.appendChild(b);
+  });
+  document.getElementById("say-your").onclick = () => speak("your. What's your name?");
+  document.getElementById("say-my").onclick = () => speak("my. My name's Lena.");
+  const formList = document.getElementById("form-list");
+  FORM.forEach(([en, pl]) => { const b = el("button", "en", en); b.onclick = () => speak(en); formList.append(b, el("span", "pl", pl)); });
+  const phraseList = document.getElementById("phrase-list");
+  PHRASES.forEach(([en, pl]) => { const b = el("button", "en", en); b.onclick = () => speak(en); phraseList.append(b, el("span", "pl", pl)); });
+
   // ---------- questions ----------
   // types: pick (picture -> choose), write (picture -> type), pl (polish -> type), sent (sentence with picture -> type)
   function q(type, it) { return { type, it }; }
@@ -295,13 +385,15 @@ h2 { font-family: var(--font-display); font-weight: 800; font-size: 24px; line-h
     if (mode === "test") {
       const a = shuffle(ADJ), c = shuffle(COL);
       const list = [
-        ...a.slice(0, 5).map(it => q("write", it)),
-        ...c.slice(0, 5).map(it => q("write", it)),
-        ...shuffle([...a.slice(5), ...c.slice(5)]).slice(0, 3).map(it => q("pl", it)),
-        q("sent", pick(a.slice(5).length ? a.slice(5) : a)), q("sent", pick(c.slice(5)))
+        ...a.slice(0, 3).map(it => q("write", it)),
+        ...c.slice(0, 3).map(it => q("write", it)),
+        q("pl", a[3]), q("pl", c[3]),
+        q("sent", a[4]), q("sent", c[4]),
+        ...ME_KINDS.map(k => meQuestion(k))
       ];
       return shuffle(list);
     }
+    if (mode === "me") return shuffle(ME_KINDS.concat(["match", "form"])).map(k => meQuestion(k));
     if (mode === "pick") return shuffle(ALL).slice(0, 10).map(it => q("pick", it));
     if (mode === "adj") return shuffle(ADJ).concat(shuffle(ADJ).slice(0, 2)).map((it, i) => q(i % 3 === 2 ? "sent" : "write", it));
     if (mode === "col") return shuffle(COL).slice(0, 10).map((it, i) => q(i % 3 === 2 ? "sent" : "write", it));
@@ -309,7 +401,7 @@ h2 { font-family: var(--font-display); font-weight: 800; font-size: 24px; line-h
   }
 
   const quiz = document.getElementById("quiz");
-  let mode = store.get("mode", "test"); if (!["test", "pick", "adj", "col", "pl"].includes(mode)) mode = "test";
+  let mode = store.get("mode", "test"); if (!["test", "pick", "adj", "col", "pl", "me"].includes(mode)) mode = "test";
   let state;
   function newRound() { const qs = buildRound(mode); state = { qs, n: qs.length, i: 0, res: [], wrong: [] }; renderQuestion(); }
   const modeBtns = document.querySelectorAll("#modes button");
@@ -328,7 +420,94 @@ h2 { font-family: var(--font-display); font-weight: 800; font-size: 24px; line-h
     return "It's " + a + " " + it.w + " " + it.obj[1] + ".";
   }
 
+  function renderMe(Q) {
+    let done = false;
+    quiz.replaceChildren(dotsEl());
+    const card = el("div", "q");
+    const fb = el("div", "feedback");
+    const corr = el("div", "correction"); corr.hidden = true;
+    const next = el("button", "big-btn", state.i === state.n - 1 ? "Zobacz wynik →" : "Dalej →"); next.hidden = true;
+    next.onclick = () => { state.i++; state.i >= state.n ? renderResult() : renderQuestion(); };
+    const replay = el("button", "replay", "🔊 Posłuchaj"); replay.hidden = true;
+    const sayFull = () => speak(Q.kind === "mc" && Q.label.startsWith("Wybierz dobrą") ? Q.prompt + " " + Q.answer.replace(/-/g, ", ") : Q.speakText.replace(/-/g, ", "));
+    replay.onclick = sayFull;
+    card.appendChild(el("div", "label", Q.label));
+    let gapEl = null;
+    if (Q.before !== undefined) {
+      const p = el("div", "prompt"); p.style.fontSize = "28px";
+      gapEl = el("span", "gap", "\u00a0");
+      const wrap = el("span"); wrap.style.whiteSpace = "nowrap"; wrap.appendChild(gapEl);
+      const m = Q.after.match(/^[.!?,]+/); if (m) wrap.appendChild(document.createTextNode(m[0]));
+      p.append(document.createTextNode(Q.before), wrap, document.createTextNode(m ? Q.after.slice(m[0].length) : Q.after));
+      card.appendChild(p);
+    } else {
+      const p = el("div", "prompt", Q.prompt); p.style.fontSize = Q.prompt.length > 18 ? "26px" : "30px";
+      card.appendChild(p);
+    }
+    if (Q.sub) card.appendChild(el("div", "ask", Q.sub));
+    card.appendChild(replay);
+    quiz.appendChild(card);
+    function finish(ok) {
+      quiz.firstChild.replaceWith(dotsEl());
+      if (gapEl) { gapEl.textContent = Q.answer; gapEl.classList.add("filled"); }
+      replay.hidden = false;
+      if (ok) { fb.textContent = pick(["Brawo!", "Super!", "Świetnie!", "Tak jest!"]); fb.className = "feedback ok"; ding(); }
+      else { bonk(); state.wrong.push(Q.before !== undefined ? Q.before + Q.answer + Q.after : Q.answer); }
+      setTimeout(sayFull, 250);
+    }
+    if (Q.kind === "mc") {
+      const opts = shuffle([Q.answer, ...Q.others]);
+      const box = el("div", "opts col1");
+      const btns = opts.map(o => {
+        const b = el("button", "opt long", o);
+        b.onclick = () => {
+          if (done) return; done = true;
+          const ok = o === Q.answer; state.res.push(ok);
+          btns.forEach(x => x.disabled = true);
+          if (ok) b.classList.add("picked-ok"); else { b.classList.add("picked-bad"); btns[opts.indexOf(Q.answer)].classList.add("show-ok"); fb.textContent = "Prawie!"; fb.className = "feedback no"; }
+          finish(ok); next.hidden = false; next.focus({ preventScroll: true });
+        };
+        box.appendChild(b); return b;
+      });
+      quiz.append(box, fb, next);
+      return;
+    }
+    const row = el("div", "type-row");
+    const inp = document.createElement("input");
+    inp.id = "answer-input";
+    inp.setAttribute("autocomplete", "off"); inp.setAttribute("autocorrect", "off"); inp.setAttribute("autocapitalize", "none"); inp.spellcheck = false;
+    inp.placeholder = "wpisz słowo";
+    const go = el("button", null, "Sprawdź");
+    row.append(inp, go);
+    quiz.append(row, fb, corr, next);
+    const same = v => clean(v) === clean(Q.answer);
+    function check() {
+      if (!inp.value.trim()) { inp.focus(); return; }
+      if (done) return; done = true;
+      const ok = same(inp.value);
+      state.res.push(ok);
+      inp.classList.add(ok ? "ok" : "no");
+      finish(ok);
+      if (ok) { inp.disabled = true; go.disabled = true; next.hidden = false; next.focus({ preventScroll: true }); return; }
+      let why = "Prawie!";
+      if (clean(inp.value) === "you" && clean(Q.answer) === "your") why = "Nie you, tylko your (twój)!";
+      fb.textContent = why; fb.className = "feedback no";
+      corr.hidden = false;
+      corr.replaceChildren(el("div", "label", "Twoja odpowiedź"), el("div", "yours", inp.value), el("div", "label", "Poprawnie"), el("div", "right", Q.answer), el("div", "note", "Przepisz poprawnie, żeby przejść dalej."));
+      inp.value = ""; inp.classList.remove("no"); inp.placeholder = "przepisz: " + Q.answer;
+      go.textContent = "OK"; go.onclick = retype; inp.focus();
+    }
+    function retype() {
+      if (same(inp.value)) { inp.classList.remove("no"); inp.classList.add("ok"); inp.disabled = true; go.disabled = true; next.hidden = false; next.focus({ preventScroll: true }); }
+      else inp.classList.add("no");
+    }
+    go.onclick = check;
+    inp.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); if (!next.hidden) next.click(); else go.click(); } });
+    setTimeout(() => inp.focus({ preventScroll: true }), 50);
+  }
+
   function renderQuestion() {
+    if (state.qs[state.i].me) return renderMe(state.qs[state.i]);
     const Q = state.qs[state.i], it = Q.it;
     let done = false;
     quiz.replaceChildren(dotsEl());
