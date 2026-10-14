@@ -16,7 +16,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Lexend:wght@400;600&display=swap">
 <style>
-/* One phone column: scene on top, route strip, then the cab desk (gauge + lever), then big buttons. */
+/* Layout: pixel-art scene on top, route strip, cab desk (gauge, limits, signal, lever), big buttons.
+   Menu and consist editor are overlays. */
 :root {
   --bg: #EEF3FA; --card: #FFFFFF; --ink: #1B2540; --muted: #5B6785; --line: #D6DEEC;
   --go: #1E8A5F; --go-soft: #DDF3E9;
@@ -56,52 +57,57 @@ body {
 }
 button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
 button:focus-visible { outline: 3px solid var(--info); outline-offset: 2px; }
-.app { max-width: 720px; margin: 0 auto; padding-block: 10px 24px; display: flex; flex-direction: column; gap: 8px; }
+canvas.pix, .scene canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
+.app { max-width: 760px; margin: 0 auto; padding-block: 10px 24px; display: flex; flex-direction: column; gap: 8px; }
 
 header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 h1 { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-height: 1; margin: 0; }
-.lvl { font-size: 13px; color: var(--muted); }
-.hbtns { display: flex; gap: 6px; }
+.lvl { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 62vw; }
+.hbtns { display: flex; gap: 6px; flex: none; }
 .icon-btn { width: 42px; height: 42px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); font-size: 20px; display: grid; place-items: center; }
-.icon-btn[aria-pressed="false"] { opacity: .5; }
 
-.scene { position: relative; height: clamp(190px, 34vh, 340px); border-radius: 18px; overflow: hidden; background: #CDEBFF; border: 1px solid var(--line); }
+.scene { position: relative; height: clamp(210px, 36vh, 380px); border-radius: 16px; overflow: hidden; background: #0B1020; border: 1px solid var(--line); }
 .scene canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.toast { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); max-width: calc(100% - 20px); padding: 6px 14px 4px; border-radius: 999px; font-family: var(--font-display); font-weight: 800; font-size: 17px; line-height: 1.2; text-align: center; background: var(--card); color: var(--ink); box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+.toast { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100% - 16px); padding: 5px 14px 3px; border-radius: 12px; font-family: var(--font-display); font-weight: 800; font-size: 17px; line-height: 1.2; text-align: center; background: var(--card); color: var(--ink); box-shadow: 0 4px 14px rgba(0,0,0,.25); }
 .toast.good { background: var(--go); color: var(--on-color); }
-.toast.bad { background: var(--bad); color: var(--on-color); }
-.toast.warn { background: var(--brake); color: var(--on-color); }
-.hint { position: absolute; left: 10px; bottom: 10px; max-width: calc(100% - 20px); padding: 5px 12px 3px; border-radius: 12px; font-family: var(--font-display); font-weight: 800; font-size: 17px; line-height: 1.2; background: rgba(27,37,64,.82); color: #fff; }
+.toast.bad { background: var(--bad); color: #fff; }
+.toast.warn { background: var(--brake); color: #fff; }
+.hint { position: absolute; left: 8px; bottom: 8px; max-width: calc(100% - 16px); padding: 5px 12px 3px; border-radius: 12px; font-family: var(--font-display); font-weight: 800; font-size: 17px; line-height: 1.2; background: rgba(15,22,40,.86); color: #fff; }
 .hint:empty { display: none; }
-.hint.warn { background: var(--brake); color: #fff; }
-.hint.good { background: var(--go); color: #fff; }
+.hint.warn { background: var(--brake); }
+.hint.good { background: var(--go); }
 
 .route { width: 100%; height: 30px; display: block; }
 
 /* Cab desk */
-.desk { background: var(--desk); color: var(--desk-ink); border-radius: 18px; padding: 10px; display: grid; grid-template-columns: minmax(0, 1fr) 92px; gap: 10px; }
+.desk { background: var(--desk); color: var(--desk-ink); border-radius: 18px; padding: 10px; display: grid; grid-template-columns: minmax(0, 1fr) 88px; gap: 10px; }
 .panel { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .gauge-row { display: flex; align-items: center; gap: 8px; }
-.gauge { width: 132px; flex: none; }
+.gauge { width: 128px; flex: none; }
 .gauge text { font-family: var(--font-display); font-weight: 800; }
-.limit { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-.sign { width: 46px; height: 46px; border-radius: 50%; background: #fff; border: 5px solid #D0392F; color: #1B2540; display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 19px; line-height: 1; padding-top: 3px; }
-.limit small { font-size: 11px; color: var(--desk-muted); text-align: center; line-height: 1.15; }
-.next-lab { font-size: 12px; color: var(--desk-muted); text-transform: uppercase; letter-spacing: .5px; }
-.next-name { font-family: var(--font-display); font-weight: 800; font-size: 20px; line-height: 1.05; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.dist { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-height: 1; }
-.dist small { font-family: var(--font-body); font-weight: 400; font-size: 13px; color: var(--desk-muted); }
+.limit { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; }
+.lim-cap { font-size: 10px; letter-spacing: 1px; color: var(--desk-muted); font-weight: 600; }
+.lim-num { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-height: 1; padding: 6px 10px 2px; border-radius: 10px; background: #0E1424; border: 1px solid var(--desk-line); color: #FFC83D; min-width: 64px; text-align: center; }
+.lim-src { font-size: 11px; color: var(--desk-muted); text-align: center; line-height: 1.15; }
+.lim-next { font-size: 12px; color: #FFC83D; text-align: center; line-height: 1.15; min-height: 14px; }
+.next-lab { font-size: 11px; color: var(--desk-muted); text-transform: uppercase; letter-spacing: .5px; }
+.next-name { font-family: var(--font-display); font-weight: 800; font-size: 19px; line-height: 1.05; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dist { font-family: var(--font-display); font-weight: 800; font-size: 28px; line-height: 1; }
+.dist small { font-family: var(--font-body); font-weight: 400; font-size: 12px; color: var(--desk-muted); }
 .dist.close { color: #FFC83D; }
+.sigrow { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.06); border: 1px solid var(--desk-line); border-radius: 12px; padding: 5px 8px; min-height: 52px; }
+.sigrow canvas { width: 14px; height: 42px; flex: none; }
+.sig-t1 { font-family: var(--font-display); font-weight: 800; font-size: 16px; line-height: 1.1; }
+.sig-t2 { font-size: 12px; color: var(--desk-muted); line-height: 1.2; }
 .chips { display: flex; flex-wrap: wrap; gap: 5px; }
 .chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px 2px; border-radius: 999px; background: rgba(255,255,255,.09); border: 1px solid var(--desk-line); font-size: 13px; white-space: nowrap; }
-.lamp { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
-.lamp.red { background: #FF4A3D; box-shadow: 0 0 6px #FF4A3D; }
-.lamp.green { background: #3DDC84; box-shadow: 0 0 6px #3DDC84; }
+.chip.ca-on { background: #FFC83D; color: #1B2540; border-color: #FFC83D; animation: blink .5s steps(1) infinite; }
+@keyframes blink { 50% { opacity: .35; } }
 
 /* Lever (nastawnik) */
 .lever-wrap { display: flex; flex-direction: column; align-items: stretch; gap: 3px; }
 .lv-cap { font-size: 10px; letter-spacing: 1px; text-align: center; color: var(--desk-muted); font-weight: 600; }
-.lever { position: relative; flex: 1; min-height: 216px; border-radius: 12px; background: #141B2E; border: 1px solid var(--desk-line); touch-action: none; cursor: ns-resize; display: grid; grid-template-rows: repeat(9, 1fr); outline: none; }
+.lever { position: relative; flex: 1; min-height: 230px; border-radius: 12px; background: #141B2E; border: 1px solid var(--desk-line); touch-action: none; cursor: ns-resize; display: grid; grid-template-rows: repeat(9, 1fr); outline: none; }
 .lever:focus-visible { outline: 3px solid var(--info); outline-offset: 2px; }
 .lv-row { display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 800; font-size: 15px; color: #9AA6C2; position: relative; z-index: 1; pointer-events: none; }
 .lv-row.j { color: #6FE0A8; } .lv-row.h { color: #FFB27A; } .lv-row.eh { color: #FF7A70; }
@@ -110,58 +116,99 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-h
 .lv-knob.h { background: linear-gradient(#FFC08F, #E9782F); color: #3A1A05; }
 .lv-knob.eh { background: linear-gradient(#FF8C82, #D0392F); color: #fff; }
 
-.actions { display: grid; grid-template-columns: minmax(0, 1fr) 64px 92px; gap: 8px; }
-.act { font-family: var(--font-display); font-weight: 800; font-size: 19px; line-height: 1.1; padding: 12px 10px 10px; border-radius: 16px; background: var(--card); border: 2px solid var(--line); box-shadow: 0 3px 0 var(--line); display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 56px; }
+.actions { display: grid; grid-template-columns: minmax(0, 1fr) 54px 58px 80px; gap: 8px; }
+.act { font-family: var(--font-display); font-weight: 800; font-size: 17px; line-height: 1.1; padding: 10px 8px 8px; border-radius: 16px; background: var(--card); border: 2px solid var(--line); box-shadow: 0 3px 0 var(--line); display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 56px; text-align: center; }
 .act:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--line); }
 .act:disabled { opacity: .4; cursor: default; }
 .act.doors.ready { background: var(--go); border-color: var(--go); color: var(--on-color); box-shadow: 0 3px 0 rgba(0,0,0,.25); animation: pulse 1s infinite; }
 .act.doors.close { background: var(--info); border-color: var(--info); color: var(--on-color); box-shadow: 0 3px 0 rgba(0,0,0,.25); }
-.act.horn { font-size: 26px; }
-.act.stop { background: var(--bad); border-color: var(--bad); color: #fff; box-shadow: 0 3px 0 rgba(0,0,0,.3); font-size: 20px; letter-spacing: 1px; }
-@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+.act.horn { font-size: 24px; }
+.act.ca { font-size: 19px; letter-spacing: .5px; }
+.act.ca.alarm { background: #FFC83D; border-color: #E9A400; color: #1B2540; animation: pulse .5s infinite; }
+.act.stop { background: var(--bad); border-color: var(--bad); color: #fff; box-shadow: 0 3px 0 rgba(0,0,0,.3); font-size: 19px; letter-spacing: 1px; }
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.04); } }
 
 /* Overlays */
-.overlay { position: fixed; inset: 0; z-index: 20; background: rgba(12,18,34,.55); display: flex; align-items: flex-start; justify-content: center; padding: 16px; overflow-y: auto; -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
-.card { width: 100%; max-width: 520px; margin-block: auto; background: var(--bg); color: var(--ink); border-radius: 24px; padding: 18px 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 10px 40px rgba(0,0,0,.3); }
-.card h2 { font-family: var(--font-display); font-weight: 800; font-size: 32px; line-height: 1; margin: 0; }
+.overlay { position: fixed; inset: 0; z-index: 20; background: rgba(12,18,34,.6); display: flex; align-items: flex-start; justify-content: center; padding: 14px 12px; overflow-y: auto; -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.card { width: 100%; max-width: 560px; margin-block: auto; background: var(--bg); color: var(--ink); border-radius: 24px; padding: 16px 14px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 10px 40px rgba(0,0,0,.3); }
+.card h2 { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-height: 1; margin: 0; }
+.card h3 { font-family: var(--font-display); font-weight: 800; font-size: 20px; line-height: 1; margin: 6px 0 0; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .card p { margin: 0; }
 .muted { color: var(--muted); font-size: 14px; }
-.levels { display: flex; flex-direction: column; gap: 8px; }
-.lvl-btn { display: flex; align-items: center; gap: 12px; text-align: left; background: var(--card); border: 1px solid var(--line); border-left: 6px solid var(--info); border-radius: 16px; padding: 10px 12px; }
-.lvl-btn:active { transform: scale(.98); }
-.lvl-btn .e { font-size: 32px; line-height: 1; }
-.lvl-btn .t { font-family: var(--font-display); font-weight: 800; font-size: 21px; line-height: 1.1; }
-.lvl-btn .d { font-size: 13px; color: var(--muted); }
-.lvl-btn .s { margin-left: auto; font-size: 18px; letter-spacing: 1px; white-space: nowrap; color: var(--gold); }
-.lvl-btn .s .off, .big-stars .off { color: var(--line); }
-.howto { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 10px 12px; font-size: 14px; }
+.box { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 10px 12px; }
+.consist-scroll { overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+.consist-scroll canvas { display: block; height: 40px; }
+.consist-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; }
+.consist-line b { font-family: var(--font-display); font-size: 18px; }
+.small-btn { font-family: var(--font-display); font-weight: 800; font-size: 16px; padding: 7px 14px 5px; border-radius: 12px; background: var(--ink); color: var(--bg); white-space: nowrap; }
+.small-btn.ghost { background: var(--card); color: var(--ink); border: 2px solid var(--line); }
+.routes { display: flex; flex-direction: column; gap: 8px; }
+.route-btn { display: flex; align-items: center; gap: 12px; text-align: left; background: var(--card); border: 1px solid var(--line); border-left: 6px solid var(--info); border-radius: 16px; padding: 10px 12px; width: 100%; }
+.route-btn:active { transform: scale(.98); }
+.route-btn.diesel { border-left-color: var(--brake); }
+.route-btn .e { font-size: 30px; line-height: 1; }
+.route-btn .t { font-family: var(--font-display); font-weight: 800; font-size: 20px; line-height: 1.1; }
+.route-btn .d { font-size: 13px; color: var(--muted); }
+.route-btn .s { margin-left: auto; font-size: 17px; letter-spacing: 1px; white-space: nowrap; color: var(--gold); }
+.route-btn .s .off, .big-stars .off, .res-row .st .off { color: var(--line); }
+.badge { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 999px; background: var(--info-soft); color: var(--info); font-weight: 600; margin-right: 4px; }
+.badge.diesel { background: var(--brake-soft); color: var(--brake); }
+.warnbox { background: var(--brake-soft); color: var(--ink); border-radius: 14px; padding: 10px 12px; font-size: 14px; display: flex; flex-direction: column; gap: 8px; }
+.warnbox .row { display: flex; gap: 8px; flex-wrap: wrap; }
+.setrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 0; border-top: 1px solid var(--line); font-size: 15px; }
+.setrow:first-child { border-top: 0; }
+.seg { display: inline-flex; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 3px; gap: 3px; }
+.seg button { font-size: 13px; padding: 5px 9px; border-radius: 9px; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
 .howto summary { font-family: var(--font-display); font-weight: 800; font-size: 18px; cursor: pointer; }
-.howto ul { margin: 6px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+.howto ul { margin: 6px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 5px; font-size: 14px; }
+.legend { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 8px; }
+.leg { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 1.2; }
+.leg canvas { flex: none; }
+.leg b { font-family: var(--font-display); font-size: 15px; }
+
+/* Consist editor */
+.loco-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.loco-card { display: flex; flex-direction: column; align-items: center; gap: 4px; background: var(--card); border: 2px solid var(--line); border-radius: 16px; padding: 10px 6px 8px; }
+.loco-card[aria-pressed="true"] { border-color: var(--go); box-shadow: 0 0 0 3px var(--go-soft); }
+.loco-card canvas { height: 54px; }
+.loco-card .n { font-family: var(--font-display); font-weight: 800; font-size: 20px; line-height: 1; }
+.loco-card .k { font-size: 12px; color: var(--muted); text-align: center; line-height: 1.2; }
+.coach-list { display: flex; flex-direction: column; gap: 6px; }
+.coach-row { display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 6px 8px; }
+.coach-row .num { font-family: var(--font-display); font-weight: 800; color: var(--muted); width: 16px; text-align: center; }
+.coach-row canvas { height: 32px; flex: none; }
+.coach-row .nm { font-size: 13px; line-height: 1.2; min-width: 0; }
+.coach-row .nm b { font-family: var(--font-display); font-size: 16px; }
+.coach-row .x { margin-left: auto; width: 36px; height: 36px; border-radius: 10px; background: var(--bad-soft); color: var(--bad); font-size: 18px; flex: none; }
+.add-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.add-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; background: var(--card); border: 2px dashed var(--line); border-radius: 12px; padding: 6px; font-size: 12px; line-height: 1.2; text-align: center; }
+.add-btn canvas { height: 22px; }
+.add-btn:disabled { opacity: .4; }
+.add-btn b { font-family: var(--font-display); font-size: 15px; }
+
 .big-stars { font-size: 46px; letter-spacing: 6px; color: var(--gold); text-align: center; line-height: 1; }
 .res-list { display: flex; flex-direction: column; gap: 6px; }
 .res-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; font-size: 15px; }
 .res-row .n { font-weight: 600; }
 .res-row .m { color: var(--muted); font-size: 13px; }
 .res-row .st { color: var(--gold); white-space: nowrap; }
-.res-row .st .off { color: var(--line); }
 .res-row.pen { background: var(--brake-soft); border-color: transparent; }
 .btns { display: flex; flex-direction: column; gap: 8px; }
 .big-btn { display: flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-display); font-weight: 800; font-size: 20px; padding: 12px 16px 10px; border-radius: 16px; background: var(--ink); color: var(--bg); width: 100%; }
 .big-btn.go { background: var(--go); color: var(--on-color); }
 .big-btn.ghost { background: var(--card); color: var(--ink); border: 2px solid var(--line); }
 .big-btn:active { transform: scale(.98); }
-.fail-ico { font-size: 56px; text-align: center; line-height: 1; }
+.fail-ico { display: flex; justify-content: center; }
 
-@media (min-width: 640px) {
-  .desk { grid-template-columns: minmax(0, 1fr) 110px; }
-}
+@media (min-width: 640px) { .desk { grid-template-columns: minmax(0, 1fr) 110px; } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 
 <div class="app">
   <a class="home-link" href="index.html">← Strona główna</a>
   <header>
-    <div>
+    <div style="min-width:0">
       <h1>Maszynista</h1>
       <div class="lvl" id="lvlName">&nbsp;</div>
     </div>
@@ -191,18 +238,27 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-h
           <text id="gNum" x="66" y="92" text-anchor="middle" font-size="24" fill="#FFFFFF">0</text>
         </svg>
         <div class="limit">
-          <div class="sign" id="limSign">100</div>
-          <small id="limNext">&nbsp;</small>
+          <div class="lim-cap">MAKS.</div>
+          <div class="lim-num" id="limNum">100</div>
+          <div class="lim-src" id="limSrc">linia</div>
         </div>
       </div>
+      <div class="lim-next" id="limNext"></div>
       <div>
         <div class="next-lab" id="nextLab">Następna stacja</div>
         <div class="next-name" id="nextName">—</div>
       </div>
       <div class="dist" id="dist">—</div>
+      <div class="sigrow" id="sigRow">
+        <canvas id="sigMini" class="pix" width="7" height="21"></canvas>
+        <div style="min-width:0">
+          <div class="sig-t1" id="sigT1">—</div>
+          <div class="sig-t2" id="sigT2"></div>
+        </div>
+      </div>
       <div class="chips">
-        <span class="chip" id="chSignal" hidden><span class="lamp red" id="chLamp"></span><span id="chSigTxt"></span></span>
         <span class="chip">🧍 <b id="pax">0</b></span>
+        <span class="chip" id="chCA">CA</span>
       </div>
     </div>
     <div class="lever-wrap">
@@ -210,7 +266,7 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-h
       <div class="lever" id="lever" role="slider" tabindex="0" aria-label="Nastawnik: jazda i hamowanie" aria-valuemin="-4" aria-valuemax="4" aria-valuenow="0">
         <div class="lv-row j">J4</div><div class="lv-row j">J3</div><div class="lv-row j">J2</div><div class="lv-row j">J1</div>
         <div class="lv-row">0</div>
-        <div class="lv-row h">H1</div><div class="lv-row h">H2</div><div class="lv-row h">H3</div><div class="lv-row eh">STOP</div>
+        <div class="lv-row h">H1</div><div class="lv-row h">H2</div><div class="lv-row h">H3</div><div class="lv-row eh">NAGŁE</div>
         <div class="lv-knob" id="knob">0</div>
       </div>
       <div class="lv-cap">▼ HAMULEC</div>
@@ -219,7 +275,8 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-h
 
   <div class="actions">
     <button class="act doors" id="btnDoors" disabled>🚪 Otwórz drzwi</button>
-    <button class="act horn" id="btnHorn" aria-label="Sygnał (trąbka)">📯</button>
+    <button class="act horn" id="btnHorn" aria-label="Sygnał Rp1 (trąbka)">📯</button>
+    <button class="act ca" id="btnCA" aria-label="Czuwak">CA</button>
     <button class="act stop" id="btnStop" aria-label="Hamowanie nagłe">STOP</button>
   </div>
 </div>
@@ -228,19 +285,67 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-h
 <div class="overlay" id="ovMenu">
   <div class="card">
     <h2>🚆 Maszynista</h2>
-    <p class="muted">Prowadzisz pociąg. Zatrzymaj się dokładnie przy znaku STOP na peronie, otwórz drzwi i wpuść pasażerów.</p>
-    <div class="levels" id="levels"></div>
-    <details class="howto" open>
+    <p class="muted">Prowadzisz pociąg po polskich liniach. Zatrzymaj się przed wskaźnikiem <b>W4</b>, wpuść pasażerów i słuchaj semaforów.</p>
+
+    <h3>Twój skład <button class="small-btn" id="btnEdit">✏️ Zmień</button></h3>
+    <div class="box">
+      <div class="consist-scroll"><canvas id="menuConsist" class="pix"></canvas></div>
+      <div class="consist-line"><b id="menuConsistTxt"></b><span class="muted" id="menuConsistSub"></span></div>
+    </div>
+
+    <h3>Trasy</h3>
+    <div class="warnbox" id="warnElec" hidden>
+      <div>⚡ Na tej linii nie ma sieci trakcyjnej. EU07 i EP09 tu nie pojadą. Wybierz lokomotywę spalinową:</div>
+      <div class="row">
+        <button class="small-btn" id="btnUseSM42">SM42</button>
+        <button class="small-btn" id="btnUseSP42">SP42</button>
+        <button class="small-btn ghost" id="btnElecCancel">Anuluj</button>
+      </div>
+    </div>
+    <div class="routes" id="routes"></div>
+
+    <h3>Ustawienia</h3>
+    <div class="box">
+      <div class="setrow"><span>Pora dnia</span>
+        <div class="seg" id="segSky">
+          <button data-v="auto">auto</button><button data-v="day">dzień</button><button data-v="dusk">zmierzch</button><button data-v="night">noc</button>
+        </div>
+      </div>
+      <div class="setrow"><span>Podpowiedzi</span>
+        <div class="seg" id="segHints"><button data-v="1">wł.</button><button data-v="0">wył.</button></div>
+      </div>
+      <div class="setrow"><span>Czuwak (CA)</span>
+        <div class="seg" id="segCA"><button data-v="1">wł.</button><button data-v="0">wył.</button></div>
+      </div>
+    </div>
+
+    <details class="howto box">
       <summary>Jak jeździć?</summary>
       <ul>
-        <li><b>Nastawnik w górę (J1–J4)</b>: pociąg rusza i przyspiesza. J4 = najmocniej.</li>
-        <li><b>Nastawnik w dół (H1–H3)</b>: hamujesz. <b>0</b>: pociąg toczy się sam.</li>
-        <li>Stań przy <b>znaku STOP</b> na peronie i naciśnij <b>Otwórz drzwi</b>. Im bliżej znaku, tym więcej gwiazdek.</li>
-        <li><span class="lamp red"></span> <b>Czerwony semafor</b> = stój przed nim! <span class="lamp green"></span> Zielony = jedź.</li>
-        <li>Pilnuj <b>ograniczenia prędkości</b> (okrągły znak). Za szybka jazda zabiera gwiazdkę.</li>
-        <li>Pociąg hamuje długo. Zacznij hamować wcześnie!</li>
+        <li><b>Nastawnik w górę (J1–J4)</b>: jazda. <b>W dół (H1–H3)</b>: hamowanie. <b>NAGŁE</b>: hamowanie nagłe.</li>
+        <li>Ciężki skład rusza wolniej i dłużej hamuje. Zacznij hamować wcześnie!</li>
+        <li>Stań <b>przed wskaźnikiem W4</b> (czarna tabliczka z białym krzyżem) i otwórz drzwi. Do 3 m przed W4 = ★★★.</li>
+        <li>Kierownik pociągu da sygnał odjazdu. Zamknij drzwi i poczekaj, aż semafor wyjazdowy pokaże światło zielone lub pomarańczowe.</li>
+        <li><b>W8</b> (biały trójkąt z cyfrą) = ograniczenie prędkości. Cyfra × 10 km/h, np. 6 = 60 km/h. <b>W9</b> = koniec ograniczenia.</li>
+        <li><b>Czuwak</b>: gdy zapali się lampka CA, naciśnij CA. Inaczej pociąg sam zahamuje.</li>
       </ul>
+      <div class="legend" id="legend"></div>
     </details>
+  </div>
+</div>
+
+<!-- Consist editor -->
+<div class="overlay" id="ovEdit" hidden>
+  <div class="card">
+    <h2>✏️ Skład</h2>
+    <div class="box"><div class="consist-scroll"><canvas id="editConsist" class="pix"></canvas></div></div>
+    <h3>Lokomotywa</h3>
+    <div class="loco-grid" id="locoGrid"></div>
+    <h3>Wagony <span class="muted" id="coachCount"></span></h3>
+    <div class="coach-list" id="coachList"></div>
+    <p class="muted">Dotknij wagonu, żeby zmienić jego malowanie. Dodaj nowy:</p>
+    <div class="add-grid" id="addGrid"></div>
+    <button class="big-btn go" id="btnEditDone">Gotowe ✓</button>
   </div>
 </div>
 
@@ -251,7 +356,7 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-h
     <div class="btns">
       <button class="big-btn go" id="btnResume">▶ Jedziemy dalej</button>
       <button class="big-btn ghost" id="btnRestart">↺ Od początku</button>
-      <button class="big-btn ghost" id="btnToMenu">☰ Wybór trasy</button>
+      <button class="big-btn ghost" id="btnToMenu">☰ Wybór trasy i składu</button>
     </div>
   </div>
 </div>
@@ -266,7 +371,7 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-h
     <div class="btns">
       <button class="big-btn go" id="btnNext">Następna trasa ▶</button>
       <button class="big-btn ghost" id="btnAgain">↺ Jeszcze raz</button>
-      <button class="big-btn ghost" id="btnEndMenu">☰ Wybór trasy</button>
+      <button class="big-btn ghost" id="btnEndMenu">☰ Wybór trasy i składu</button>
     </div>
   </div>
 </div>
@@ -274,12 +379,12 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-h
 <!-- Fail -->
 <div class="overlay" id="ovFail" hidden>
   <div class="card">
-    <div class="fail-ico">🚦</div>
-    <h2 style="text-align:center">Ojej! Czerwony semafor!</h2>
-    <p class="muted" style="text-align:center">Przy czerwonym świetle pociąg musi stanąć <b>przed</b> semaforem. Spróbuj hamować wcześniej.</p>
+    <div class="fail-ico"><canvas id="failSig" class="pix" width="7" height="21" style="width:28px;height:84px"></canvas></div>
+    <h2 style="text-align:center">Ojej! Sygnał „Stój”!</h2>
+    <p class="muted" style="text-align:center">Semafor pokazywał <b>czerwone światło (S1)</b>. Pociąg musi stanąć <b>przed</b> takim semaforem i poczekać, aż zmieni światło. Poprzedni semafor ostrzegał pomarańczowym światłem.</p>
     <div class="btns">
       <button class="big-btn go" id="btnFailAgain">↺ Spróbuj jeszcze raz</button>
-      <button class="big-btn ghost" id="btnFailMenu">☰ Wybór trasy</button>
+      <button class="big-btn ghost" id="btnFailMenu">☰ Wybór trasy i składu</button>
     </div>
   </div>
 </div>
@@ -287,63 +392,361 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-h
 <script>
 (function () {
   "use strict";
-  // ---------- Data ----------
-  // Station x = position of the STOP sign (metres). Platform runs from x-145 to x+15.
-  const LEVELS = [
-    { name: "Pierwszy kurs", emoji: "🌞", desc: "2 stacje, nauka hamowania", sky: "day", helpers: true,
-      stations: [["Kolejowo", 0], ["Wagonice", 1100], ["Szynowo", 2300]], signals: [], limits: [] },
-    { name: "Semafory", emoji: "🚦", desc: "uważaj na czerwone światło", sky: "day", helpers: true,
-      stations: [["Szynowo", 0], ["Zwrotnica Dolna", 1500], ["Semaforki", 2900]],
-      signals: [{ x: 750, type: "timer", delay: 8 }, { x: 2250, type: "stop" }], limits: [] },
-    { name: "Most i tunel", emoji: "🌉", desc: "ograniczenia prędkości", sky: "dusk", helpers: true,
-      stations: [["Semaforki", 0], ["Torowisko Górne", 1500], ["Parowozów", 3100], ["Lokomotywka", 4300]],
-      signals: [{ x: 3650, type: "timer", delay: 7 }],
-      limits: [{ from: 500, to: 950, v: 40, f: "bridge" }, { from: 2100, to: 2600, v: 60, f: "tunnel" }] },
-    { name: "Nocny ekspres", emoji: "🌙", desc: "noc, bez podpowiedzi", sky: "night", helpers: false,
-      stations: [["Lokomotywka", 0], ["Gwizdkowo", 1600], ["Peronki", 3200], ["Kolejowo Wielkie", 5000], ["Stacja Końcowa", 6400]],
-      signals: [{ x: 1000, type: "timer", delay: 6 }, { x: 2650, type: "stop" }, { x: 4350, type: "timer", delay: 9 }],
-      limits: [{ from: 3600, to: 4100, v: 60, f: "bridge" }, { from: 5400, to: 5900, v: 40, f: "tunnel" }] }
-  ];
-  const LINE = 100;              // line speed limit km/h
-  const TRAIN_LEN = 52;          // loco 16 + gap 1 + coach 17 + gap 1 + coach 17
-  const PLAT_BEFORE = 145, PLAT_AFTER = 15;
-  const DOOR_OFF = [19.5, 31.5, 37.5, 49.5];
-  const NOTCHES = [4, 3, 2, 1, 0, -1, -2, -3, -4];
-  const NLABEL = { "4": "J4", "3": "J3", "2": "J2", "1": "J1", "0": "0", "-1": "H1", "-2": "H2", "-3": "H3", "-4": "STOP" };
-  const AXLES = [3.5, 12.5, 20.5, 30.5, 38.5, 48.5].flatMap(b => [b - 1.4, b + 1.4]);
-
-  const THEMES = {
-    day:   { skyTop: "#5DB7F0", skyBot: "#D3EEFF", far: "#9BCFB0", near: "#67B377", tree: "#3E8E4F", trunk: "#7A5233", ground: "#7CC062", ground2: "#69AD52",
-             ballast: "#A39A8C", sleeper: "#6B5640", rail: "#5B6070", rock: "#8A9A6A", rockDark: "#6E7D52", bore: "#2B2622", water: "#4A9BE0",
-             build: "#F3E6CC", roof: "#B5523B", plat: "#B9B4AA", platTop: "#D8D3C8", cloud: "rgba(255,255,255,.9)", pole: "#6B7280", wire: "#3D4350",
-             red: "#D63A2F", yellow: "#F2C230", blue: "#2F6FD6", cream: "#F4F1E8", roofT: "#7C8494", win: "#BFD9F0", text: "#1B2540", dim: 0 },
-    dusk:  { skyTop: "#4A5CA8", skyBot: "#F9B987", far: "#8A7BA8", near: "#5E7E66", tree: "#3F5E46", trunk: "#5C3F2A", ground: "#6E9A55", ground2: "#5E8848",
-             ballast: "#8F8678", sleeper: "#5A4836", rail: "#4A4F5E", rock: "#7A7560", rockDark: "#5E5A48", bore: "#231E1B", water: "#5A7FC0",
-             build: "#E9D6B8", roof: "#9B4433", plat: "#A8A296", platTop: "#C7C0B2", cloud: "rgba(255,226,200,.85)", pole: "#555B68", wire: "#2E333E",
-             red: "#C9362C", yellow: "#E8B92C", blue: "#2A63C0", cream: "#ECE6D8", roofT: "#6C7383", win: "#F6D7A8", text: "#1B2540", dim: 0 },
-    night: { skyTop: "#060B1E", skyBot: "#1E2A55", far: "#1A2445", near: "#15203A", tree: "#0F1A2C", trunk: "#141A26", ground: "#18283A", ground2: "#142233",
-             ballast: "#3A3C46", sleeper: "#2A2622", rail: "#7A8090", rock: "#232B3E", rockDark: "#1A2132", bore: "#0B0A0A", water: "#1C3460",
-             build: "#3A3F55", roof: "#4A2E2E", plat: "#4A4E5C", platTop: "#5E6372", cloud: "rgba(120,140,190,.25)", pole: "#4A5060", wire: "#6A7080",
-             red: "#9E2E28", yellow: "#B89325", blue: "#22468A", cream: "#8E8C86", roofT: "#3E4452", win: "#FFE08A", text: "#FFFFFF", dim: 1 }
-  };
-
-  // ---------- Helpers ----------
+  // =====================================================================
+  // Helpers
+  // =====================================================================
   const $ = id => document.getElementById(id);
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const hash = n => { const s = Math.sin(n * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); };
   const ri = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
-  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const pick = a => a[Math.floor(Math.random() * a.length)];
   const fmtM = d => (Math.abs(d) < 30 ? d.toFixed(1).replace(".", ",") : String(Math.round(d)));
+  const fmtKm = m => (m / 1000).toFixed(1).replace(".", ",") + " km";
   const starsHTML = (n, max) => { let s = ""; for (let i = 0; i < max; i++) s += i < n ? "★" : '<span class="off">★</span>'; return s; };
+  function hex(c) { const n = parseInt(c.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+  function mix(a, b, t) { const A = hex(a), B = hex(b); return "rgb(" + A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(",") + ")"; }
 
-  const SKEY = "maszynista-v1";
-  let best = {};
-  try { best = JSON.parse(localStorage.getItem(SKEY) || "{}") || {}; } catch (e) { best = {}; }
-  const saveBest = () => { try { localStorage.setItem(SKEY, JSON.stringify(best)); } catch (e) {} };
-  let muted = false;
-  try { muted = localStorage.getItem(SKEY + "-mute") === "1"; } catch (e) {}
+  const PX = 2;            // art pixels per metre (horizontal)
+  const PL = 175;          // platform length (m), ends at the W4 sign
+  const ART_H = 140;       // target art height in pixels
 
-  // ---------- Audio ----------
-  let ac = null, master = null, eng = null, engGain = null, hornNodes = null, noiseBuf = null;
+  // =====================================================================
+  // Pixel font 3x5 (+ Polish letters)
+  // =====================================================================
+  const GL = {
+    A:[".#.","#.#","###","#.#","#.#"], B:["##.","#.#","##.","#.#","##."], C:[".##","#..","#..","#..",".##"],
+    D:["##.","#.#","#.#","#.#","##."], E:["###","#..","##.","#..","###"], F:["###","#..","##.","#..","#.."],
+    G:[".##","#..","#.#","#.#",".##"], H:["#.#","#.#","###","#.#","#.#"], I:["###",".#.",".#.",".#.","###"],
+    J:["..#","..#","..#","#.#",".#."], K:["#.#","#.#","##.","#.#","#.#"], L:["#..","#..","#..","#..","###"],
+    M:["#...#","##.##","#.#.#","#...#","#...#"], N:["#..#","##.#","#.##","#..#","#..#"], O:[".#.","#.#","#.#","#.#",".#."],
+    P:["##.","#.#","##.","#..","#.."], Q:[".#.","#.#","#.#","##.",".##"], R:["##.","#.#","##.","#.#","#.#"],
+    S:[".##","#..",".#.","..#","##."], T:["###",".#.",".#.",".#.",".#."], U:["#.#","#.#","#.#","#.#","###"],
+    V:["#.#","#.#","#.#","#.#",".#."], W:["#...#","#...#","#.#.#","##.##","#...#"], X:["#.#","#.#",".#.","#.#","#.#"],
+    Y:["#.#","#.#",".#.",".#.",".#."], Z:["###","..#",".#.","#..","###"],
+    "Ł":[".#..",".#..",".##.","##..",".###"],
+    "0":["###","#.#","#.#","#.#","###"], "1":[".#.","##.",".#.",".#.","###"], "2":["##.","..#",".#.","#..","###"],
+    "3":["##.","..#",".#.","..#","##."], "4":["#.#","#.#","###","..#","..#"], "5":["###","#..","##.","..#","##."],
+    "6":[".##","#..","###","#.#","###"], "7":["###","..#",".#.",".#.",".#."], "8":["###","#.#","###","#.#","###"],
+    "9":["###","#.#","###","..#","##."], "-":["...","...","###","...","..."], ".":[".",".",".",".","#"],
+    " ":["..","..","..","..",".."]
+  };
+  const ACC = { "Ą":["A","o"], "Ć":["C","a"], "Ę":["E","o"], "Ń":["N","a"], "Ó":["O","a"], "Ś":["S","a"], "Ź":["Z","a"], "Ż":["Z","d"] };
+  function glyph(ch) { ch = ch.toUpperCase(); if (ACC[ch]) return { g: GL[ACC[ch][0]], a: ACC[ch][1] }; return { g: GL[ch] || GL[" "], a: null }; }
+  function textW(s) { let w = 0; for (const ch of s) w += glyph(ch).g[0].length + 1; return Math.max(0, w - 1); }
+  function pxText(c, s, x, y, col) {
+    c.fillStyle = col;
+    for (const ch of s) {
+      const { g, a } = glyph(ch), w = g[0].length;
+      for (let r = 0; r < 5; r++) for (let k = 0; k < w; k++) if (g[r][k] === "#") c.fillRect(x + k, y + 1 + r, 1, 1);
+      if (a === "a") c.fillRect(x + w - 1, y, 1, 1);
+      else if (a === "d") c.fillRect(x + Math.floor(w / 2), y, 1, 1);
+      else if (a === "o") c.fillRect(x + w - 1, y + 6, 1, 1);
+      x += w + 1;
+    }
+  }
+  function splitName(name, maxW) {
+    if (textW(name) <= maxW || name.indexOf(" ") < 0) return [name];
+    const words = name.split(" ");
+    let best = [name], bestW = 1e9;
+    for (let i = 1; i < words.length; i++) {
+      const a = words.slice(0, i).join(" "), b = words.slice(i).join(" ");
+      const w = Math.max(textW(a), textW(b));
+      if (w < bestW) { bestW = w; best = [a, b]; }
+    }
+    return best;
+  }
+
+  // =====================================================================
+  // Rolling stock (pixel sprites, 16 px tall, wheels drawn separately)
+  // =====================================================================
+  const C = { dark: "#1b1d24", frame: "#2c2f39", bogie: "#3b3e48", roofL: "#a3aab4", roof: "#8b929d", roof2: "#6c7380",
+    glass: "#26354f", glassHi: "#5878a6", cream: "#ebe2c6", creamD: "#d2c6a2", yellow: "#e5c02b", buffer: "#4a4e58", lampW: "#fff6cc" };
+  function mk(w, h, fn) {
+    const c = document.createElement("canvas"); c.width = w; c.height = h;
+    const x = c.getContext("2d");
+    fn((X, Y, W, H, col) => { x.fillStyle = col; x.fillRect(X, Y, W == null ? 1 : W, H == null ? 1 : H); }, x);
+    return c;
+  }
+  function win(p, x, y, w, h) { p(x, y, w, h, C.glass); p(x, y, 1, 1, C.glassHi); }
+
+  const LOCOS = {
+    SM42: { id: "SM42", name: "SM42", kind: "diesel", type: "spalinowa manewrowa", vmax: 90, P: 900, F: 95, mass: 72, w: 28,
+      body: "#df7a22", bodyD: "#b55f16", stripe: "#f0dcae", wheels: [3, 7, 17, 21], stack: [21, 2], horn: [370, 466] },
+    SP42: { id: "SP42", name: "SP42", kind: "diesel", type: "spalinowa pasażerska", vmax: 90, P: 920, F: 95, mass: 74, w: 28,
+      body: "#b5392c", bodyD: "#8f2b20", stripe: "#f0dcae", boiler: true, wheels: [3, 7, 17, 21], stack: [21, 2], steam: [3, 2], horn: [392, 494] },
+    EU07: { id: "EU07", name: "EU07", kind: "electric", type: "elektryczna", vmax: 125, P: 2400, F: 120, mass: 80, w: 32,
+      wheels: [4, 8, 20, 24], panto: [7, 19], horn: [330, 392] },
+    EP09: { id: "EP09", name: "EP09", kind: "electric", type: "elektryczna pospieszna", vmax: 160, P: 3200, F: 145, mass: 84, w: 34,
+      wheels: [4, 8, 22, 26], panto: [9, 20], horn: [415, 523] }
+  };
+  const COACHES = {
+    "112A-zk": { id: "112A-zk", name: "112A", sub: "2 kl. · zielono-kremowy", up: C.cream, upD: C.creamD, low: "#2f6a46", lowD: "#245338", band: null, win: 9, mass: 40, seats: 54 },
+    "112A-kc": { id: "112A-kc", name: "112A", sub: "1 kl. · kremowo-czerwony", up: C.cream, upD: C.creamD, low: "#a3312a", lowD: "#82261f", band: C.yellow, win: 9, mass: 40, seats: 54 },
+    "112A-ol": { id: "112A-ol", name: "112A", sub: "1 kl. · oliwkowy", up: "#5d6b3c", upD: "#4b5830", low: "#5d6b3c", lowD: "#4b5830", band: C.yellow, win: 9, mass: 40, seats: 54 },
+    "111A-zk": { id: "111A-zk", name: "111A", sub: "2 kl. · zielono-kremowy", up: C.cream, upD: C.creamD, low: "#2f6a46", lowD: "#245338", band: null, win: 10, mass: 40, seats: 80 }
+  };
+  const COACH_ORDER = ["112A-zk", "112A-kc", "112A-ol", "111A-zk"];
+  const COACH_W = 48, COACH_WHEELS = [5, 9, 35, 39];
+  function coachWindows(d) { const r = []; if (d.win === 9) for (let i = 0; i < 9; i++) r.push([7 + i * 4, 4, 3, 3]); else for (let i = 0; i < 10; i++) r.push([8 + i * 3, 4, 2, 3]); return r; }
+
+  function drawCoach(p, d, open) {
+    p(3, 0, 42, 1, C.roofL); p(1, 1, 46, 1, C.roof); p(0, 2, 48, 1, C.roof2);
+    p(0, 3, 48, 5, d.up); p(0, 8, 48, 2, d.low); p(0, 10, 48, 1, d.lowD);
+    if (d.band) p(1, 3, 46, 1, d.band);
+    p(0, 3, 1, 7, C.frame); p(47, 3, 1, 7, C.frame);
+    for (const w of coachWindows(d)) win(p, w[0], w[1], w[2], w[3]);
+    for (const dx of [2, 43]) {
+      if (open) { p(dx, 3, 3, 8, "#15161b"); p(dx, 10, 3, 1, "#3b3e48"); }
+      else { p(dx, 3, 3, 5, d.upD); p(dx, 8, 3, 3, d.lowD); p(dx + 1, 4, 1, 2, C.glass); p(dx, 3, 1, 8, "#00000033"); }
+    }
+    p(3, 11, 42, 1, C.frame); p(5, 11, 8, 2, C.bogie); p(35, 11, 8, 2, C.bogie);
+    p(2, 11, 1, 1, C.buffer); p(45, 11, 1, 1, C.buffer);
+  }
+  function drawSM42(p, d) {
+    p(0, 10, 28, 2, C.frame);
+    p(0, 10, 1, 1, C.yellow); p(1, 11, 1, 1, C.yellow); p(27, 10, 1, 1, C.yellow); p(26, 11, 1, 1, C.yellow);
+    p(2, 4, 4, 1, d.body); p(1, 5, 6, 5, d.body);                 // short hood (rear)
+    p(8, 0, 5, 1, "#5b6270"); p(7, 1, 7, 9, d.body);              // cab
+    win(p, 8, 2, 2, 3); win(p, 11, 2, 2, 3);
+    p(7, 5, 1, 4, d.bodyD); p(13, 5, 1, 4, d.bodyD);
+    p(15, 3, 11, 1, d.body); p(14, 4, 13, 6, d.body);             // long hood (front)
+    for (let x = 15; x <= 24; x += 2) p(x, 5, 1, 3, d.bodyD);
+    for (let x = 2; x <= 5; x += 2) p(x, 6, 1, 2, d.bodyD);
+    p(1, 8, 26, 1, d.stripe);
+    p(21, 2, 2, 1, C.dark);
+    if (d.boiler) { p(3, 2, 2, 2, C.dark); p(2, 4, 1, 1, "#7a7f8a"); }
+    p(26, 4, 1, 1, C.lampW); p(27, 9, 1, 1, C.lampW);
+    p(2, 11, 10, 2, C.bogie); p(16, 11, 10, 2, C.bogie);
+  }
+  function drawEU07(p) {
+    const G = "#2e6b3f", GD = "#245533", Y = "#e3bf2a";
+    p(3, 0, 26, 1, C.roofL); p(1, 1, 30, 1, C.roof2);
+    p(0, 2, 32, 8, G); p(0, 10, 32, 1, GD);
+    p(0, 8, 32, 1, Y);
+    p(0, 2, 2, 9, Y); p(30, 2, 2, 9, Y);
+    p(0, 3, 1, 3, C.glass); p(31, 3, 1, 3, C.glass);
+    win(p, 2, 3, 2, 3); win(p, 28, 3, 2, 3);
+    p(5, 3, 1, 7, GD); p(7, 3, 1, 7, GD); p(24, 3, 1, 7, GD); p(26, 3, 1, 7, GD);
+    for (let x = 9; x <= 22; x += 2) p(x, 3, 1, 4, GD);
+    win(p, 12, 3, 1, 1); win(p, 19, 3, 1, 1);
+    p(2, 11, 28, 1, C.frame); p(3, 11, 10, 2, C.bogie); p(19, 11, 10, 2, C.bogie);
+    p(0, 9, 1, 2, C.buffer); p(31, 9, 1, 2, C.buffer);
+    p(31, 7, 1, 1, C.lampW); p(31, 2, 1, 1, C.lampW);
+  }
+  function drawEP09(p) {
+    const O = "#d8642a", OD = "#b04f20", BR = "#6a3a24", CR = "#efd9a8";
+    p(5, 0, 24, 1, C.roofL);
+    const rows = [[4, 26], [3, 28], [2, 30], [1, 32]];
+    rows.forEach((r, i) => p(r[0], 1 + i, r[1], 1, O));
+    p(0, 5, 34, 3, O); p(0, 8, 34, 1, CR); p(0, 9, 34, 2, BR);
+    p(28, 1, 2, 1, C.glass); p(29, 2, 2, 1, C.glass); p(30, 3, 2, 1, C.glass); p(31, 4, 2, 1, C.glass);
+    p(4, 1, 2, 1, C.glass); p(3, 2, 2, 1, C.glass); p(2, 3, 2, 1, C.glass); p(1, 4, 2, 1, C.glass);
+    win(p, 6, 3, 2, 2); win(p, 26, 3, 2, 2);
+    p(9, 3, 1, 5, OD); p(24, 3, 1, 5, OD);
+    for (let x = 11; x <= 22; x += 2) p(x, 3, 1, 4, OD);
+    p(2, 11, 30, 1, C.frame); p(3, 11, 10, 2, C.bogie); p(21, 11, 10, 2, C.bogie);
+    p(0, 9, 1, 2, C.buffer); p(33, 9, 1, 2, C.buffer);
+    p(33, 7, 1, 1, C.lampW); p(32, 5, 1, 1, C.lampW);
+  }
+  const spriteCache = {};
+  function sprite(def, open) {
+    const key = def.id + (open ? "o" : "c");
+    if (spriteCache[key]) return spriteCache[key];
+    let s;
+    if (def.win) s = mk(COACH_W, 16, p => drawCoach(p, def, open));
+    else if (def.id === "EU07") s = mk(def.w, 16, p => drawEU07(p));
+    else if (def.id === "EP09") s = mk(def.w, 16, p => drawEP09(p));
+    else s = mk(def.w, 16, p => drawSM42(p, def));
+    return (spriteCache[key] = s);
+  }
+  function wheel(c, x, y, ph) {
+    c.fillStyle = "#1d1f26";
+    c.fillRect(x + 1, y, 2, 1); c.fillRect(x, y + 1, 4, 2); c.fillRect(x + 1, y + 3, 2, 1);
+    c.fillStyle = "#9aa0aa";
+    const pos = [[1, 1], [2, 1], [2, 2], [1, 2]][ph & 3];
+    c.fillRect(x + pos[0], y + pos[1], 1, 1);
+  }
+  function line(c, x0, y0, x1, y1) {
+    x0 |= 0; y0 |= 0; x1 |= 0; y1 |= 0;
+    const dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+    let err = dx + dy;
+    for (let i = 0; i < 400; i++) {
+      c.fillRect(x0, y0, 1, 1);
+      if (x0 === x1 && y0 === y1) break;
+      const e2 = 2 * err;
+      if (e2 >= dy) { err += dy; x0 += sx; }
+      if (e2 <= dx) { err += dx; y0 += sy; }
+    }
+  }
+  function pantograph(c, x, roofY, wireY, up) {
+    c.fillStyle = "#2c2f39";
+    c.fillRect(x, roofY - 1, 6, 1);
+    if (!up) { c.fillRect(x + 1, roofY - 2, 5, 1); return; }
+    const mid = Math.round((roofY + wireY) / 2);
+    line(c, x + 1, roofY - 1, x + 4, mid); line(c, x + 4, mid, x + 2, wireY + 1);
+    c.fillRect(x, wireY + 1, 6, 1);
+  }
+  // Draws a whole consist on a small canvas (menu / editor previews)
+  function drawConsistCanvas(cv, cons) {
+    const L = LOCOS[cons.loco];
+    const w = L.w + cons.coaches.length * (COACH_W + 1) + 4, h = 20;
+    cv.width = w; cv.height = h;
+    const c = cv.getContext("2d"); c.clearRect(0, 0, w, h);
+    c.fillStyle = "#8f877b"; c.fillRect(0, 17, w, 3); c.fillStyle = "#a0a6b0"; c.fillRect(0, 16, w, 1);
+    let x = w - 2 - L.w;
+    L.wheels.forEach(wx => wheel(c, x + wx, 12, 0));
+    c.drawImage(sprite(L, false), x, 0);
+    for (const id of cons.coaches) {
+      x -= COACH_W + 1;
+      const d = COACHES[id];
+      COACH_WHEELS.forEach(wx => wheel(c, x + wx, 12, 0));
+      c.drawImage(sprite(d, false), x, 0);
+    }
+    cv.style.width = (w * 2) + "px"; cv.style.height = (h * 2) + "px";
+  }
+
+  // =====================================================================
+  // Signals (Polish light signals, subset of S1–S13)
+  // =====================================================================
+  const LAMP = { g: "#3ddc6a", o: "#ffae2b", r: "#ff3b30", off: "#3a3f4c" };
+  // aspect: {red, top: 'G'|'Gb'|'O'|'Ob', low: bool, stripe: null|'g'|'o', code, txt1, txt2}
+  function aspectOf(sg) {
+    if (!G || !sg) return null;
+    if (sg.red) return { red: true, code: "S1", lim: 0, next: null };
+    const n = G.signals[sg.i + 1];
+    let top = "G", nextTxt = "";
+    if (n) {
+      if (n.red) { top = "O"; nextTxt = "następny: STÓJ"; }
+      else if (n.lim === 40 || n.lim === 60) { top = "Ob"; nextTxt = "następny: 40 lub 60"; }
+      else if (n.lim === 100) { top = "Gb"; nextTxt = "następny: 100"; }
+      else nextTxt = "następny: wolna droga";
+    }
+    const low = !!sg.lim, stripe = sg.lim === 60 ? "o" : sg.lim === 100 ? "g" : null;
+    let code;
+    if (!low) code = top === "G" ? "S2" : top === "Gb" ? "S3" : top === "Ob" ? "S4" : "S5";
+    else if (sg.lim === 100) code = top === "G" ? "S6" : top === "Gb" ? "S7" : top === "Ob" ? "S8" : "S9";
+    else { const base = top === "G" ? "S10" : top === "Gb" ? "S11" : top === "Ob" ? "S12" : "S13"; code = base + (sg.lim === 60 ? "a" : ""); }
+    return { red: false, top, low, stripe, code, lim: sg.lim || 0, next: nextTxt };
+  }
+  // draws a signal head into ctx c at (x,y)=top-left of head (5x15 + stripe), blink phase on/off
+  function drawSignalHead(c, x, y, asp, blinkOn, offOnly) {
+    c.fillStyle = "#14161c"; c.fillRect(x, y, 5, 10); c.fillRect(x, y + 11, 5, 5);
+    c.fillStyle = "#2a2d36"; c.fillRect(x + 2, y + 10, 1, 1);
+    const lamp = (ly, col) => { c.fillStyle = col; c.fillRect(x + 1, ly, 3, 2); };
+    lamp(y + 1, LAMP.off); lamp(y + 4, LAMP.off); lamp(y + 7, LAMP.off); lamp(y + 12, LAMP.off);
+    const on = [];
+    if (asp) {
+      if (asp.red) on.push([y + 7, LAMP.r]);
+      else {
+        if ((asp.top === "G") || (asp.top === "Gb" && blinkOn)) on.push([y + 1, LAMP.g]);
+        if ((asp.top === "O") || (asp.top === "Ob" && blinkOn)) on.push([y + 4, LAMP.o]);
+        if (asp.low) on.push([y + 12, LAMP.o]);
+      }
+      if (asp.stripe) { c.fillStyle = asp.stripe === "g" ? "#2fbf55" : "#f39a1e"; c.fillRect(x, y + 17, 5, 2); }
+    }
+    if (!offOnly) on.forEach(l => lamp(l[0], l[1]));
+    return on.map(l => [x + 1, l[0], 3, 2, l[1]]);
+  }
+  function drawSignalMini(cv, asp, blinkOn) {
+    const c = cv.getContext("2d"); c.clearRect(0, 0, cv.width, cv.height);
+    drawSignalHead(c, 1, 0, asp, blinkOn, false);
+  }
+
+  // =====================================================================
+  // Routes (real Polish lines, distances compressed)
+  // =====================================================================
+  const DIFF = {
+    easy:   { entryRed: 0.15, entryLim: 0.35, exitLim: 0.2, block: 2000, blockRed: 0.12 },
+    medium: { entryRed: 0.25, entryLim: 0.35, exitLim: 0.3, block: 1500, blockRed: 0.25 },
+    hard:   { entryRed: 0.32, entryLim: 0.4, exitLim: 0.4, block: 1200, blockRed: 0.35 }
+  };
+  const ROUTES = [
+    { id: "r1", name: "Pierwszy kurs", emoji: "🎓", line: "linia 447", sky: "day", elec: true, lineV: 80, tutorial: true,
+      stations: [["Warszawa Zachodnia", 0, 1], ["Warszawa Włochy", 2000], ["Warszawa Ursus", 4200]],
+      zones: [[-1e9, "city"], [2700, "suburb"]], landmarks: [{ x: -300, k: "pkin" }],
+      w8: [{ from: 2900, to: 3300, v: 60 }], crossings: [], bridges: [], tunnels: [],
+      fixed: { entry: { 1: null, 2: 40 }, exit: {}, blocks: false } },
+    { id: "r2", name: "Osobowy do Grodziska", emoji: "🏙️", line: "linia 447", sky: "day", elec: true, lineV: 100, diff: "medium",
+      stations: [["Warszawa Zachodnia", 0, 1], ["Warszawa Włochy", 2000], ["Warszawa Ursus", 4200], ["Piastów", 6300], ["Pruszków", 8600, 1],
+        ["Brwinów", 11400], ["Milanówek", 13900], ["Grodzisk Mazowiecki", 16600, 1]],
+      zones: [[-1e9, "city"], [5000, "suburb"], [12200, "town"]], landmarks: [{ x: -300, k: "pkin" }],
+      w8: [{ from: 7200, to: 7650, v: 60 }], crossings: [10200, 15200], bridges: [], tunnels: [] },
+    { id: "r3", name: "Kraków – Bochnia", emoji: "🏰", line: "linia 91", sky: "day", elec: true, lineV: 120, diff: "hard",
+      stations: [["Kraków Główny", 0, 1], ["Kraków Płaszów", 3000, 1], ["Kraków Bieżanów", 6000], ["Podłęże", 9600], ["Kłaj", 13000], ["Bochnia", 16800, 1]],
+      zones: [[-1e9, "city"], [3800, "industrial"], [7400, "country"]], landmarks: [{ x: -200, k: "mariacki" }, { x: 5600, k: "chimneys" }],
+      w8: [], crossings: [11200, 15000], bridges: [{ from: 1300, to: 1640, v: 60, t: "truss" }], tunnels: [] },
+    { id: "r4", name: "Przez Tunel", emoji: "⛰️", line: "linia 8", sky: "dusk", elec: true, lineV: 100, diff: "medium",
+      stations: [["Kozłów", 0], ["Tunel", 2700], ["Miechów", 6600, 1], ["Słomniki", 11000]],
+      zones: [[-1e9, "country"], [6000, "town"], [7400, "country"]], landmarks: [{ x: 6500, k: "church" }],
+      w8: [], crossings: [4600, 9000], bridges: [], tunnels: [{ from: 1720, to: 2484, v: 80, eagle: true }] },
+    { id: "r5", name: "Pod Małym Wołowcem", emoji: "🌲", line: "linia 286 · Dolny Śląsk", sky: "day", elec: false, lineV: 70, diff: "hard",
+      stations: [["Wałbrzych Główny", 0, 1], ["Jedlina-Zdrój", 3600], ["Jedlina Górna", 5600], ["Głuszyca", 8400, 1], ["Głuszyca Górna", 10000]],
+      zones: [[-1e9, "mine"], [900, "mountain"]], landmarks: [{ x: -150, k: "mine" }, { x: 350, k: "mine" }],
+      w8: [], crossings: [7200], bridges: [{ from: 4300, to: 4480, v: 50, t: "viaduct" }], tunnels: [{ from: 1300, to: 2901, v: 60 }] }
+  ];
+  ROUTES.forEach(R => {
+    R.len = R.stations[R.stations.length - 1][1];
+    R.tunnels.forEach(t => R.w8.push({ from: t.from - 60, to: t.to + 10, v: t.v, tunnel: true }));
+    R.bridges.forEach(b => R.w8.push({ from: b.from - 40, to: b.to + 10, v: b.v }));
+    R.w8.sort((a, b) => a.from - b.from);
+  });
+  const AMP = { city: 4, suburb: 6, town: 9, country: 11, industrial: 6, mountain: 40, mine: 26 };
+  function zoneAt(R, m) { let z = R.zones[0][1]; for (const q of R.zones) if (m >= q[0]) z = q[1]; return z; }
+
+  function genSignals(R) {
+    const D = DIFF[R.diff || "easy"], S = [], st = R.stations, fx = R.fixed;
+    for (let i = 0; i < st.length; i++) {
+      const s = st[i][1];
+      if (i > 0) {
+        const sg = { x: s - PL - 260, kind: "wjazdowy", st: i, red: false, lim: null, until: s + 40 };
+        if (fx) sg.lim = fx.entry[i] || null;
+        else {
+          const r = Math.random();
+          if (r < D.entryRed) { sg.red = true; sg.trig = { type: "approach", near: 900, t: 8 + Math.random() * 8, stopNear: 450, acc: 0 }; sg.limAfter = Math.random() < 0.5 ? pick([40, 60]) : null; }
+          else if (r < D.entryRed + D.entryLim) sg.lim = pick([40, 60]);
+        }
+        S.push(sg);
+      }
+      if (i < st.length - 1) {
+        S.push({ x: s + 30, kind: "wyjazdowy", st: i, red: true, lim: null, trig: { type: "doors", clearAt: i === 0 ? 3 : null },
+          limAfter: (!fx && Math.random() < D.exitLim) ? pick([40, 60]) : null, until: s + 30 + 380 });
+        if (!fx || fx.blocks) {
+          const a = s + 30 + 800, b = st[i + 1][1] - PL - 260 - 700;
+          const n = Math.max(0, Math.floor((b - a) / D.block));
+          for (let k = 1; k <= n; k++) {
+            const sg = { x: a + (b - a) * k / (n + 1), kind: "SBL", red: false, lim: null };
+            if (Math.random() < D.blockRed) { sg.red = true; sg.trig = { type: "approach", near: 1000, t: 6 + Math.random() * 9, stopNear: 400, acc: 0 }; }
+            S.push(sg);
+          }
+        }
+      }
+    }
+    for (const s of S) for (const t of R.tunnels) if (s.x > t.from - 40 && s.x < t.to + 20) s.x = t.from - 90;
+    S.sort((a, b) => a.x - b.x);
+    S.forEach((s, i) => { s.i = i; if (s.until == null) { const n = S[i + 1]; s.until = n ? n.x : s.x + 500; } });
+    return S;
+  }
+
+  // =====================================================================
+  // Settings and saved data
+  // =====================================================================
+  const SKEY = "maszynista-v2";
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(SKEY + "-" + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(SKEY + "-" + k, JSON.stringify(v)); } catch (e) {} }
+  };
+  let best = store.get("best", {}) || {};
+  let cons = store.get("consist", null);
+  if (!cons || !LOCOS[cons.loco] || !Array.isArray(cons.coaches)) cons = { loco: "EU07", coaches: ["112A-zk", "112A-zk", "112A-zk"] };
+  cons.coaches = cons.coaches.filter(c => COACHES[c]).slice(0, 6);
+  if (!cons.coaches.length) cons.coaches = ["112A-zk"];
+  let settings = Object.assign({ sky: "auto", hints: true, ca: true }, store.get("settings", {}));
+  let muted = store.get("mute", false);
+
+  // =====================================================================
+  // Audio
+  // =====================================================================
+  let ac = null, master = null, eng = null, hornNodes = null, noiseBuf = null;
   function ensureAudio() {
     try {
       if (!ac) {
@@ -351,16 +754,33 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-h
         if (!AC) return;
         ac = new AC();
         master = ac.createGain(); master.gain.value = muted ? 0 : 0.7; master.connect(ac.destination);
-        eng = ac.createOscillator(); eng.type = "sawtooth"; eng.frequency.value = 50;
-        const lp = ac.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 380;
-        engGain = ac.createGain(); engGain.gain.value = 0;
-        eng.connect(lp); lp.connect(engGain); engGain.connect(master); eng.start();
         noiseBuf = ac.createBuffer(1, Math.floor(ac.sampleRate * 0.05), ac.sampleRate);
         const d = noiseBuf.getChannelData(0);
         for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 3);
       }
       if (ac.state === "suspended") ac.resume();
+      if (G && running && !eng) setupEngine();
     } catch (e) { ac = null; }
+  }
+  function stopEngine() { if (!eng) return; try { eng.nodes.forEach(n => n.stop && n.stop()); eng.g.disconnect(); } catch (e) {} eng = null; }
+  function setupEngine() {
+    if (!ac || !G) return;
+    stopEngine();
+    const g = ac.createGain(); g.gain.value = 0; g.connect(master);
+    if (G.loco.kind === "diesel") {
+      const o = ac.createOscillator(); o.type = "sawtooth"; o.frequency.value = 36;
+      const lp = ac.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 280;
+      const am = ac.createGain(); am.gain.value = 0.6;
+      const lfo = ac.createOscillator(); lfo.frequency.value = 7; const lg = ac.createGain(); lg.gain.value = 0.4;
+      lfo.connect(lg); lg.connect(am.gain); o.connect(lp); lp.connect(am); am.connect(g); o.start(); lfo.start();
+      eng = { kind: "diesel", g, o, lfo, nodes: [o, lfo] };
+    } else {
+      const o = ac.createOscillator(); o.type = "triangle"; o.frequency.value = 90;
+      const bp = ac.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 700; bp.Q.value = 1.5;
+      const h = ac.createOscillator(); h.type = "sine"; h.frequency.value = 100; const hg = ac.createGain(); hg.gain.value = 0.35;
+      o.connect(bp); bp.connect(g); h.connect(hg); hg.connect(g); o.start(); h.start();
+      eng = { kind: "electric", g, o, nodes: [o, h] };
+    }
   }
   function tone(freq, dur, type, vol, when) {
     if (!ac || muted) return;
@@ -374,19 +794,20 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-h
   function clack(vol) {
     if (!ac || muted || !noiseBuf) return;
     const s = ac.createBufferSource(); s.buffer = noiseBuf;
-    const f = ac.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = 1800; f.Q.value = 1.2;
-    const g = ac.createGain(); g.gain.value = vol;
+    const f = ac.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = G && G.inTunnel ? 900 : 1800; f.Q.value = 1.2;
+    const g = ac.createGain(); g.gain.value = vol * (G && G.inTunnel ? 1.6 : 1);
     s.connect(f); f.connect(g); g.connect(master); s.start();
   }
   function hornStart() {
     ensureAudio();
-    if (!ac || muted || hornNodes) return;
-    const g = ac.createGain(); g.gain.setValueAtTime(0, ac.currentTime); g.gain.linearRampToValueAtTime(0.16, ac.currentTime + 0.04);
+    if (!ac || muted || hornNodes || !G) return;
+    const g = ac.createGain(); g.gain.setValueAtTime(0, ac.currentTime); g.gain.linearRampToValueAtTime(0.15, ac.currentTime + 0.04);
     const lp = ac.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 1800;
     const o1 = ac.createOscillator(), o2 = ac.createOscillator();
-    o1.type = o2.type = "sawtooth"; o1.frequency.value = 311; o2.frequency.value = 370;
+    o1.type = o2.type = "sawtooth"; o1.frequency.value = G.loco.horn[0]; o2.frequency.value = G.loco.horn[1];
     o1.connect(lp); o2.connect(lp); lp.connect(g); g.connect(master); o1.start(); o2.start();
     hornNodes = { g, o1, o2 };
+    if (G) G.hornT = G.time;
   }
   function hornStop() {
     if (!hornNodes || !ac) return;
@@ -395,184 +816,328 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-h
     g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(g.gain.value, t); g.gain.linearRampToValueAtTime(0, t + 0.08);
     o1.stop(t + 0.1); o2.stop(t + 0.1);
   }
-  const ding = () => { tone(988, 0.5, "sine", 0.22); tone(784, 0.7, "sine", 0.22, 0.28); };
-  const chime = () => { tone(659, 0.2, "triangle", 0.2); tone(880, 0.25, "triangle", 0.2, 0.12); tone(1175, 0.4, "triangle", 0.2, 0.24); };
+  function whistle() {
+    if (!ac || muted) return;
+    const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain(), lfo = ac.createOscillator(), lg = ac.createGain();
+    o.type = "sine"; o.frequency.value = 2600; lfo.frequency.value = 28; lg.gain.value = 140;
+    lfo.connect(lg); lg.connect(o.frequency);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.09, t + 0.03); g.gain.setValueAtTime(0.09, t + 0.7); g.gain.linearRampToValueAtTime(0, t + 0.8);
+    o.connect(g); g.connect(master); o.start(t); lfo.start(t); o.stop(t + 0.85); lfo.stop(t + 0.85);
+  }
+  const ding = () => { tone(988, 0.5, "sine", 0.2); tone(784, 0.7, "sine", 0.2, 0.28); };
+  const chime = () => { tone(659, 0.18, "triangle", 0.16); tone(880, 0.22, "triangle", 0.16, 0.12); };
 
-  // ---------- DOM refs ----------
-  const cv = $("cv"), ctx = cv.getContext("2d");
+  // =====================================================================
+  // DOM refs and state
+  // =====================================================================
+  const cv = $("cv"), cx = cv.getContext("2d");
   const rcv = $("route"), rctx = rcv.getContext("2d");
-  const lever = $("lever"), knob = $("knob");
-  const btnDoors = $("btnDoors");
+  const lever = $("lever"), knob = $("knob"), btnDoors = $("btnDoors");
+  const buf = document.createElement("canvas"), bx = buf.getContext("2d");
+  const scn = document.createElement("canvas"), sc = scn.getContext("2d");
+  let IW = 200, IH = 140, S = 2, yR = 125, yH = 91, dpr = 1, RW = 0, RH = 0;
+  let G = null, running = false, paused = false, routeIdx = 0, lastT = 0, alarmT = 0;
+  let camPx = 0, frontFrac = 0.62;
+  const lights = [];
 
-  // ---------- State ----------
-  let G = null, running = false, paused = false, levelIdx = 0;
-  let ppm = 3, frontFrac = 0.66, lastT = 0, alarmT = 0;
-
-  function buildPax(L) {
+  function trainLayout(c) {
+    const veh = []; let off = 0;
+    const L = LOCOS[c.loco];
+    veh.push({ def: L, off, len: L.w / PX, loco: true }); off += L.w / PX + 0.5;
+    c.coaches.forEach(id => { const d = COACHES[id]; veh.push({ def: d, off, len: COACH_W / PX, coach: true }); off += COACH_W / PX + 0.5; });
+    return { veh, len: off - 0.5 };
+  }
+  function doorPositions() {
     const out = [];
-    const skins = ["#F2C9A4", "#E0A97E", "#B97A53", "#8A5A3B", "#F6D8BE"];
-    const shirts = ["#E8513B", "#2F9E6B", "#F2B632", "#7B5BD6", "#E46FA8", "#2F7BD6", "#F08A2C", "#27A3B5"];
-    L.stations.forEach((st, k) => {
-      if (k === 0 || k === L.stations.length - 1) return;
-      const n = ri(3, 7);
-      for (let i = 0; i < n; i++) {
-        out.push({ k, x: st[1] - 62 + Math.random() * 56, state: "wait", kind: "board", tx: 0, delay: 0, alpha: 1,
-          skin: skins[ri(0, skins.length - 1)], shirt: shirts[ri(0, shirts.length - 1)], h: 1.3 + Math.random() * 0.5,
-          hat: Math.random() < 0.3, phase: Math.random() * 6, face: Math.random() < 0.5 ? 1 : -1 });
-      }
+    for (const v of G.train.veh) if (v.coach) { const left = G.x - v.off - v.len; out.push(left + 1.75, left + 22.25); }
+    return out;
+  }
+
+  const SKIN = ["#f1c7a1", "#e0a97e", "#c48a62", "#8a5a3b", "#f6d8be"];
+  const SHIRT = ["#d9473a", "#2f9e6b", "#e8b433", "#7b5bd6", "#e46fa8", "#2f7bd6", "#e8892c", "#27a3b5", "#6d7480", "#8b4a2f"];
+  const HAIR = ["#2b1d14", "#5a3a22", "#c9a35a", "#1b1b1b", "#8a8a8a", "#a8502a"];
+  function newPerson(k, x, extra) {
+    return Object.assign({ k, x, state: "wait", tx: x, delay: 0, alpha: 1, skin: pick(SKIN), shirt: pick(SHIRT), hair: pick(HAIR),
+      h: Math.random() < 0.2 ? 5 : 7, bag: Math.random() < 0.3, hat: Math.random() < 0.15, phase: Math.random() * 6 }, extra || {});
+  }
+  function buildPax(R, trainLen) {
+    const out = [];
+    R.stations.forEach((st, k) => {
+      if (k === 0 || k === R.stations.length - 1) return;
+      const n = st[2] ? ri(6, 11) : ri(2, 6);
+      const span = Math.min(PL - 10, trainLen + 10);
+      for (let i = 0; i < n; i++) out.push(newPerson(k, st[1] - 6 - Math.random() * span));
     });
     return out;
   }
 
-  function startLevel(i) {
-    levelIdx = i;
-    const L = LEVELS[i];
+  function skyFor(R) { return settings.sky === "auto" ? R.sky : settings.sky; }
+
+  function startRoute(i) {
+    routeIdx = i;
+    const R = ROUTES[i];
+    if (!R.elec && LOCOS[cons.loco].kind === "electric") { showMenu(); showElecWarn(i); return; }
+    const train = trainLayout(cons);
+    const loco = LOCOS[cons.loco];
+    const mass = loco.mass + cons.coaches.reduce((a, id) => a + COACHES[id].mass, 0);
+    const seats = cons.coaches.reduce((a, id) => a + COACHES[id].seats, 0);
     G = {
-      L, theme: THEMES[L.sky], x: L.stations[0][1], v: 0, notch: 0, doors: "closed", next: 1,
-      results: [], over: 0, overState: false, overT: 0, inTrain: ri(6, 12), carried: 0,
-      signals: L.signals.map(s => ({ ...s, state: "red", t: 0 })), pax: buildPax(L),
-      lastJoint: AXLES.map(() => null), time: 0, boardK: -1, doorAnim: 0
+      R, loco, train, mass, seats, sky: skyFor(R), hints: settings.hints, caOn: settings.ca && !R.tutorial,
+      x: R.stations[0][1] - 2, v: 0, notch: 0, brake: 0, rpm: 0, doors: "closed", next: 1,
+      results: [], over: 0, overState: false, overT: 0, inTrain: ri(8, 16), carried: 0,
+      signals: genSignals(R), sigLim: null, pax: buildPax(R, train.len), time: 0, doorAnim: 0,
+      smoke: [], lastJoint: [], ca: { t: 0, state: "idle", next: 50 + Math.random() * 25, lampT: 0 },
+      cond: null, inTunnel: false, hornT: -99, emerg: false, finished: false
     };
     G.carried = G.inTrain;
     setNotch(0, true);
-    $("lvlName").textContent = L.emoji + " " + L.name;
+    rebuildGauge();
+    $("lvlName").textContent = R.emoji + " " + R.name + " · " + loco.name + " + " + cons.coaches.length + " wag.";
     hideAll(); paused = false; running = true;
-    showToast("Odjazd! Przesuń nastawnik w górę ▲", "good", 3);
+    showToast("Czekaj na sygnał na semaforze wyjazdowym", "", 3);
     ensureAudio();
-    drawRouteStatic = null;
+    if (ac) setupEngine();
   }
 
-  // ---------- Lever ----------
+  // =====================================================================
+  // Lever and buttons
+  // =====================================================================
+  const NOTCHES = [4, 3, 2, 1, 0, -1, -2, -3, -4];
+  const NLABEL = { "4": "J4", "3": "J3", "2": "J2", "1": "J1", "0": "0", "-1": "H1", "-2": "H2", "-3": "H3", "-4": "NAGŁE" };
   function setNotch(n, silent) {
     n = clamp(n, -4, 4);
-    if (G && G.notch === n && !silent) return;
-    if (G) G.notch = n;
-    const idx = NOTCHES.indexOf(n);
-    const rh = lever.clientHeight / 9;
-    knob.style.height = (rh - 4) + "px";
+    const changed = !G || G.notch !== n;
+    if (G) { G.notch = n; if (changed && !silent) caActivity(); }
+    const idx = NOTCHES.indexOf(n), rh = lever.clientHeight / 9;
+    knob.style.height = Math.max(10, rh - 4) + "px";
     knob.style.transform = "translateY(" + (idx * rh + 2) + "px)";
     knob.textContent = NLABEL[n];
     knob.className = "lv-knob" + (n > 0 ? " j" : n === -4 ? " eh" : n < 0 ? " h" : "");
-    lever.setAttribute("aria-valuenow", n);
-    lever.setAttribute("aria-valuetext", NLABEL[n]);
-    if (!silent) tone(n > 0 ? 420 : n < 0 ? 300 : 360, 0.05, "square", 0.05);
+    lever.setAttribute("aria-valuenow", n); lever.setAttribute("aria-valuetext", NLABEL[n]);
+    if (changed && !silent) tone(n > 0 ? 420 : n < 0 ? 300 : 360, 0.05, "square", 0.05);
   }
   let dragging = false;
-  function notchFromY(clientY) {
-    const r = lever.getBoundingClientRect();
-    const idx = clamp(Math.floor((clientY - r.top) / (r.height / 9)), 0, 8);
-    return NOTCHES[idx];
-  }
+  function notchFromY(y) { const r = lever.getBoundingClientRect(); return NOTCHES[clamp(Math.floor((y - r.top) / (r.height / 9)), 0, 8)]; }
   lever.addEventListener("pointerdown", e => { ensureAudio(); dragging = true; try { lever.setPointerCapture(e.pointerId); } catch (_) {} setNotch(notchFromY(e.clientY)); e.preventDefault(); });
   lever.addEventListener("pointermove", e => { if (dragging) setNotch(notchFromY(e.clientY)); });
-  const endDrag = () => { dragging = false; };
-  lever.addEventListener("pointerup", endDrag); lever.addEventListener("pointercancel", endDrag);
+  lever.addEventListener("pointerup", () => { dragging = false; }); lever.addEventListener("pointercancel", () => { dragging = false; });
   lever.addEventListener("keydown", e => {
     if (e.key === "ArrowUp") { setNotch((G ? G.notch : 0) + 1); e.preventDefault(); }
     if (e.key === "ArrowDown") { setNotch((G ? G.notch : 0) - 1); e.preventDefault(); }
   });
-  window.addEventListener("resize", () => { if (G) setNotch(G.notch, true); });
+  window.addEventListener("resize", () => { if (G) setNotch(G.notch, true); resize(); });
 
-  // ---------- Buttons ----------
   const hornBtn = $("btnHorn");
-  hornBtn.addEventListener("pointerdown", e => { hornStart(); e.preventDefault(); });
+  hornBtn.addEventListener("pointerdown", e => { hornStart(); caActivity(); e.preventDefault(); });
   ["pointerup", "pointerleave", "pointercancel"].forEach(ev => hornBtn.addEventListener(ev, hornStop));
   $("btnStop").addEventListener("click", () => { ensureAudio(); setNotch(-4); });
+  $("btnCA").addEventListener("click", () => { ensureAudio(); caPress(); });
   btnDoors.addEventListener("click", () => { ensureAudio(); doorAction(); });
-  $("btnSound").addEventListener("click", () => {
-    muted = !muted; ensureAudio();
-    if (master) master.gain.value = muted ? 0 : 0.7;
-    $("btnSound").setAttribute("aria-pressed", String(!muted)); $("btnSound").textContent = muted ? "🔇" : "🔊";
-    try { localStorage.setItem(SKEY + "-mute", muted ? "1" : "0"); } catch (e) {}
-  });
-  $("btnSound").setAttribute("aria-pressed", String(!muted)); $("btnSound").textContent = muted ? "🔇" : "🔊";
+  function syncSound() { $("btnSound").setAttribute("aria-pressed", String(!muted)); $("btnSound").textContent = muted ? "🔇" : "🔊"; }
+  $("btnSound").addEventListener("click", () => { muted = !muted; ensureAudio(); if (master) master.gain.value = muted ? 0 : 0.7; syncSound(); store.set("mute", muted); });
+  syncSound();
   $("btnMenu").addEventListener("click", () => { if (running) pause(true); else showMenu(); });
   $("btnResume").addEventListener("click", () => pause(false));
-  $("btnRestart").addEventListener("click", () => startLevel(levelIdx));
+  $("btnRestart").addEventListener("click", () => startRoute(routeIdx));
   $("btnToMenu").addEventListener("click", showMenu);
-  $("btnAgain").addEventListener("click", () => startLevel(levelIdx));
-  $("btnNext").addEventListener("click", () => startLevel(Math.min(levelIdx + 1, LEVELS.length - 1)));
+  $("btnAgain").addEventListener("click", () => startRoute(routeIdx));
+  $("btnNext").addEventListener("click", () => startRoute(Math.min(routeIdx + 1, ROUTES.length - 1)));
   $("btnEndMenu").addEventListener("click", showMenu);
-  $("btnFailAgain").addEventListener("click", () => startLevel(levelIdx));
+  $("btnFailAgain").addEventListener("click", () => startRoute(routeIdx));
   $("btnFailMenu").addEventListener("click", showMenu);
   document.addEventListener("visibilitychange", () => { if (document.hidden && running && !paused) pause(true); });
   document.addEventListener("keydown", e => {
-    if (!running || paused) return;
-    if (e.target === lever) return;
+    if (!running || paused || e.target === lever) return;
     if (e.key === "ArrowUp" || e.key === "w") { setNotch(G.notch + 1); e.preventDefault(); }
     else if (e.key === "ArrowDown" || e.key === "s") { setNotch(G.notch - 1); e.preventDefault(); }
     else if (e.key === " ") { hornStart(); e.preventDefault(); }
+    else if (e.key === "c") caPress();
     else if (e.key === "d" || e.key === "Enter") { if (!btnDoors.disabled) doorAction(); }
     else if (e.key === "Escape") pause(true);
   });
   document.addEventListener("keyup", e => { if (e.key === " ") hornStop(); });
 
-  function hideAll() { ["ovMenu", "ovPause", "ovEnd", "ovFail"].forEach(id => { $(id).hidden = true; }); }
-  function pause(p) {
-    paused = p; hornStop();
-    $("ovPause").hidden = !p;
-    if (!p) lastT = performance.now();
+  function hideAll() { ["ovMenu", "ovPause", "ovEnd", "ovFail", "ovEdit"].forEach(id => { $(id).hidden = true; }); }
+  function pause(p) { paused = p; hornStop(); $("ovPause").hidden = !p; if (!p) lastT = performance.now(); }
+
+  // =====================================================================
+  // Menu and consist editor
+  // =====================================================================
+  function consistText(c) {
+    const groups = {};
+    c.coaches.forEach(id => { const n = COACHES[id].name; groups[n] = (groups[n] || 0) + 1; });
+    return LOCOS[c.loco].name + " + " + Object.keys(groups).map(k => groups[k] + "× " + k).join(" + ");
+  }
+  function refreshMenuConsist() {
+    drawConsistCanvas($("menuConsist"), cons);
+    $("menuConsistTxt").textContent = consistText(cons);
+    const L = LOCOS[cons.loco];
+    $("menuConsistSub").textContent = L.type + " · " + L.vmax + " km/h";
+    const sc1 = $("menuConsist").parentNode; requestAnimationFrame(() => { sc1.scrollLeft = sc1.scrollWidth; });
   }
   function showMenu() {
-    running = false; paused = false; hornStop(); hideAll();
-    const box = $("levels"); box.innerHTML = "";
-    LEVELS.forEach((L, i) => {
+    running = false; paused = false; hornStop(); stopEngine(); hideAll();
+    $("warnElec").hidden = true;
+    refreshMenuConsist();
+    const box = $("routes"); box.innerHTML = "";
+    ROUTES.forEach((R, i) => {
       const b = document.createElement("button");
-      b.className = "lvl-btn";
-      b.innerHTML = '<span class="e"></span><span><span class="t"></span><br><span class="d"></span></span><span class="s"></span>';
-      b.querySelector(".e").textContent = L.emoji;
-      b.querySelector(".t").textContent = (i + 1) + ". " + L.name;
-      b.querySelector(".d").textContent = L.desc;
-      b.querySelector(".s").innerHTML = starsHTML(best[i] || 0, 3);
-      b.addEventListener("click", () => startLevel(i));
+      b.className = "route-btn" + (R.elec ? "" : " diesel");
+      b.innerHTML = '<span class="e"></span><span style="min-width:0"><span class="t"></span><br><span class="d"></span></span><span class="s"></span>';
+      b.querySelector(".e").textContent = R.emoji;
+      b.querySelector(".t").textContent = (i + 1) + ". " + R.name;
+      const d = b.querySelector(".d");
+      d.innerHTML = '<span class="badge' + (R.elec ? "" : " diesel") + '">' + (R.elec ? "⚡ sieć" : "⛽ bez sieci") + "</span>";
+      d.appendChild(document.createTextNode(R.line + " · " + R.stations.length + " stacje · " + fmtKm(R.len)));
+      b.querySelector(".s").innerHTML = starsHTML(best[R.id] || 0, 3);
+      b.addEventListener("click", () => startRoute(i));
       box.appendChild(b);
     });
+    syncSeg();
     $("ovMenu").hidden = false;
-    if (!G) previewLevel(0);
+    if (!G) previewRoute(0);
   }
-  function previewLevel(i) {
-    const L = LEVELS[i];
-    G = { L, theme: THEMES[L.sky], x: L.stations[0][1], v: 0, notch: 0, doors: "closed", next: 1, results: [], over: 0,
-          signals: L.signals.map(s => ({ ...s, state: "red", t: 0 })), pax: buildPax(L), inTrain: 0, lastJoint: AXLES.map(() => null), time: 0, boardK: -1, doorAnim: 0 };
-    $("lvlName").textContent = L.emoji + " " + L.name;
+  function previewRoute(i) {
+    const R = ROUTES[i];
+    G = { R, loco: LOCOS[cons.loco], train: trainLayout(cons), sky: skyFor(R), x: 90, v: 0, notch: 0, doors: "closed", next: 1, results: [],
+      signals: genSignals(R), pax: buildPax(R, 100), inTrain: 0, time: 0, doorAnim: 0, smoke: [], lastJoint: [], ca: { state: "idle" }, rpm: 0, preview: true };
+  }
+  let warnRoute = -1;
+  function showElecWarn(i) { warnRoute = i; $("warnElec").hidden = false; $("warnElec").scrollIntoView({ block: "nearest" }); }
+  $("btnUseSM42").addEventListener("click", () => { cons.loco = "SM42"; saveCons(); startRoute(warnRoute); });
+  $("btnUseSP42").addEventListener("click", () => { cons.loco = "SP42"; saveCons(); startRoute(warnRoute); });
+  $("btnElecCancel").addEventListener("click", () => { $("warnElec").hidden = true; });
+  function saveCons() { store.set("consist", cons); }
+
+  function segBind(id, key, conv) {
+    $(id).addEventListener("click", e => {
+      const b = e.target.closest("button"); if (!b) return;
+      settings[key] = conv(b.dataset.v); store.set("settings", settings); syncSeg();
+      if (G && G.preview) G.sky = skyFor(G.R);
+    });
+  }
+  segBind("segSky", "sky", v => v); segBind("segHints", "hints", v => v === "1"); segBind("segCA", "ca", v => v === "1");
+  function syncSeg() {
+    document.querySelectorAll("#segSky button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === settings.sky)));
+    document.querySelectorAll("#segHints button").forEach(b => b.setAttribute("aria-pressed", String((b.dataset.v === "1") === settings.hints)));
+    document.querySelectorAll("#segCA button").forEach(b => b.setAttribute("aria-pressed", String((b.dataset.v === "1") === settings.ca)));
   }
 
-  // ---------- Toast / hint ----------
+  $("btnEdit").addEventListener("click", openEditor);
+  $("btnEditDone").addEventListener("click", () => { saveCons(); $("ovEdit").hidden = true; showMenu(); });
+  function spriteCanvas(def, scale, cls) {
+    const c = document.createElement("canvas"); c.className = "pix" + (cls ? " " + cls : "");
+    const w = def.w || COACH_W; c.width = w; c.height = 18;
+    const x = c.getContext("2d");
+    x.fillStyle = "#a0a6b0"; x.fillRect(0, 16, w, 1); x.fillStyle = "#8f877b"; x.fillRect(0, 17, w, 1);
+    (def.wheels || COACH_WHEELS).forEach(wx => wheel(x, wx, 12, 0));
+    x.drawImage(sprite(def, false), 0, 0);
+    c.style.width = (w * scale) + "px"; c.style.height = (18 * scale) + "px";
+    return c;
+  }
+  function openEditor() {
+    $("ovMenu").hidden = true; $("ovEdit").hidden = false;
+    const lg = $("locoGrid"); lg.innerHTML = "";
+    Object.values(LOCOS).forEach(L => {
+      const b = document.createElement("button");
+      b.className = "loco-card"; b.setAttribute("aria-pressed", String(cons.loco === L.id));
+      b.appendChild(spriteCanvas(L, 3));
+      const n = document.createElement("div"); n.className = "n"; n.textContent = L.name;
+      const k = document.createElement("div"); k.className = "k"; k.textContent = L.type + " · " + L.vmax + " km/h";
+      b.appendChild(n); b.appendChild(k);
+      b.addEventListener("click", () => { cons.loco = L.id; renderEditor(); openEditorRefresh(); });
+      lg.appendChild(b);
+    });
+    const ag = $("addGrid"); ag.innerHTML = "";
+    COACH_ORDER.forEach(id => {
+      const d = COACHES[id], b = document.createElement("button");
+      b.className = "add-btn"; b.dataset.id = id;
+      b.appendChild(spriteCanvas(d, 1.2));
+      const t = document.createElement("div"); t.innerHTML = "<b>+ " + d.name + "</b><br>" + d.sub;
+      b.appendChild(t);
+      b.addEventListener("click", () => { if (cons.coaches.length < 6) { cons.coaches.push(id); renderEditor(); } });
+      ag.appendChild(b);
+    });
+    renderEditor();
+  }
+  function openEditorRefresh() { document.querySelectorAll(".loco-card").forEach((b, i) => b.setAttribute("aria-pressed", String(Object.keys(LOCOS)[i] === cons.loco))); }
+  function renderEditor() {
+    drawConsistCanvas($("editConsist"), cons);
+    const sc2 = $("editConsist").parentNode; requestAnimationFrame(() => { sc2.scrollLeft = sc2.scrollWidth; });
+    $("coachCount").textContent = cons.coaches.length + " / 6";
+    const list = $("coachList"); list.innerHTML = "";
+    cons.coaches.forEach((id, i) => {
+      const d = COACHES[id], row = document.createElement("div");
+      row.className = "coach-row";
+      const num = document.createElement("span"); num.className = "num"; num.textContent = i + 1;
+      const sel = document.createElement("button"); sel.style.display = "flex"; sel.style.alignItems = "center"; sel.style.gap = "8px"; sel.style.textAlign = "left"; sel.style.minWidth = "0";
+      sel.appendChild(spriteCanvas(d, 2));
+      const nm = document.createElement("span"); nm.className = "nm"; nm.innerHTML = "<b>" + d.name + "</b><br>" + d.sub;
+      sel.appendChild(nm);
+      sel.setAttribute("aria-label", "Zmień malowanie wagonu " + (i + 1));
+      sel.addEventListener("click", () => { const k = COACH_ORDER.indexOf(id); cons.coaches[i] = COACH_ORDER[(k + 1) % COACH_ORDER.length]; renderEditor(); });
+      const x = document.createElement("button"); x.className = "x"; x.textContent = "✕"; x.setAttribute("aria-label", "Usuń wagon " + (i + 1));
+      x.disabled = cons.coaches.length <= 1;
+      x.addEventListener("click", () => { if (cons.coaches.length > 1) { cons.coaches.splice(i, 1); renderEditor(); } });
+      row.appendChild(num); row.appendChild(sel); row.appendChild(x);
+      list.appendChild(row);
+    });
+    document.querySelectorAll(".add-btn").forEach(b => { b.disabled = cons.coaches.length >= 6; });
+    openEditorRefresh();
+  }
+  (function buildLegend() {
+    const items = [
+      [{ red: true }, "S1", "Stój!"],
+      [{ top: "G" }, "S2", "Jedź, największa prędkość"],
+      [{ top: "O" }, "S5", "Następny semafor: stój"],
+      [{ top: "G", low: true }, "S10", "Jedź 40 km/h"],
+      [{ top: "G", low: true, stripe: "o" }, "S10a", "Jedź 60 km/h (pas pomarańczowy)"],
+      [{ top: "O", low: true }, "S13", "40 km/h, następny: stój"]
+    ];
+    const box = $("legend");
+    items.forEach(it => {
+      const d = document.createElement("div"); d.className = "leg";
+      const c = document.createElement("canvas"); c.className = "pix"; c.width = 7; c.height = 21; c.style.width = "14px"; c.style.height = "42px";
+      drawSignalMini(c, Object.assign({ red: false, low: false, stripe: null }, it[0]), true);
+      const t = document.createElement("div"); t.innerHTML = "<b>" + it[1] + "</b><br>" + it[2];
+      d.appendChild(c); d.appendChild(t); box.appendChild(d);
+    });
+    [["W4", "Stań przed nim na stacji", (c) => { c.fillStyle = "#14161c"; c.fillRect(1, 6, 5, 5); c.fillStyle = "#fff"; c.fillRect(3, 6, 1, 5); c.fillRect(1, 8, 5, 1); c.fillStyle = "#5f6672"; c.fillRect(3, 11, 1, 10); }],
+     ["W8", "Ograniczenie: 6 = 60 km/h", (c) => { drawW8(c, 0, 5, 6); c.fillStyle = "#5f6672"; c.fillRect(3, 13, 1, 8); }]].forEach(it => {
+      const d = document.createElement("div"); d.className = "leg";
+      const c = document.createElement("canvas"); c.className = "pix"; c.width = 9; c.height = 21; c.style.width = "18px"; c.style.height = "42px";
+      it[2](c.getContext("2d"));
+      const t = document.createElement("div"); t.innerHTML = "<b>" + it[0] + "</b><br>" + it[1];
+      d.appendChild(c); d.appendChild(t); box.appendChild(d);
+    });
+  })();
+
+  // =====================================================================
+  // Toast / hint
+  // =====================================================================
   let toastTimer = 0;
-  function showToast(text, kind, sec) {
-    const t = $("toast");
-    t.textContent = text; t.className = "toast" + (kind ? " " + kind : ""); t.hidden = false;
-    toastTimer = sec || 2.5;
-  }
+  function showToast(text, kind, sec) { const t = $("toast"); t.textContent = text; t.className = "toast" + (kind ? " " + kind : ""); t.hidden = false; toastTimer = sec || 2.5; }
   let hintCache = "";
-  function setHint(text, kind) {
-    const key = text + "|" + (kind || "");
-    if (key === hintCache) return;
-    hintCache = key;
-    const h = $("hint"); h.textContent = text; h.className = "hint" + (kind ? " " + kind : "");
-  }
+  function setHint(text, kind) { const k = text + "|" + (kind || ""); if (k === hintCache) return; hintCache = k; const h = $("hint"); h.textContent = text; h.className = "hint" + (kind ? " " + kind : ""); }
 
-  // ---------- Game logic ----------
-  function limitAt(x) {
-    for (const z of G.L.limits) if (x >= z.from && x <= z.to) return z.v;
-    return LINE;
+  // =====================================================================
+  // Game logic
+  // =====================================================================
+  const rear = () => G.x - G.train.len;
+  function currentStation() { return G.next < G.R.stations.length ? G.R.stations[G.next] : null; }
+  function limitNow() {
+    let v = Math.min(G.R.lineV, G.loco.vmax), src = G.loco.vmax < G.R.lineV ? "lokomotywa" : "linia";
+    if (G.sigLim && G.sigLim.v < v) { v = G.sigLim.v; src = "semafor"; }
+    for (const z of G.R.w8) if (G.x > z.from && rear() < z.to && z.v < v) { v = z.v; src = z.tunnel ? "W8 · tunel" : "W8"; }
+    return { v, src };
   }
-  function nextLimitAhead(x) {
-    let bestZ = null;
-    for (const z of G.L.limits) if (z.from > x && (!bestZ || z.from < bestZ.from)) bestZ = z;
-    return bestZ;
-  }
-  function currentStation() { return G.next < G.L.stations.length ? G.L.stations[G.next] : null; }
-  function nextRedSignal() {
-    const st = currentStation();
-    let s0 = null;
-    for (const s of G.signals) if (s.x > G.x && (!st || s.x < st[1] + PLAT_AFTER) && (!s0 || s.x < s0.x)) s0 = s;
-    return s0;
-  }
+  function nextSignalAhead() { for (const s of G.signals) if (s.x > G.x) return s; return null; }
   function canOpen() {
     const st = currentStation();
-    return !!st && G.doors === "closed" && G.v < 0.05 && G.notch <= 0 && G.x >= st[1] - 30 && G.x <= st[1] + PLAT_AFTER;
+    return !!st && G.doors === "closed" && G.v < 0.05 && G.notch <= 0 && G.x >= st[1] - 30 && G.x <= st[1] + 8;
   }
+  function caActivity() { if (G && G.ca && G.ca.state !== "idle") { G.ca.state = "idle"; } if (G && G.ca) G.ca.t = 0; }
+  function caPress() { if (!G || !running) return; if (G.ca.state !== "idle") tone(880, 0.06, "square", 0.06); G.ca.state = "idle"; G.ca.t = 0; G.ca.next = 45 + Math.random() * 30; }
 
   function doorAction() {
     if (!running || paused) return;
@@ -580,676 +1145,976 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-h
     else if (G.doors === "open") closeDoors();
   }
   function openDoors() {
-    const st = currentStation(), k = G.next, last = k === G.L.stations.length - 1;
-    const off = Math.abs(G.x - st[1]);
-    const stars = off <= 3 ? 3 : off <= 10 ? 2 : 1;
-    G.results.push({ name: st[0], stars, off: G.x - st[1] });
-    G.doors = "boarding"; G.boardK = k;
-    ding();
-    showToast(stars === 3 ? "Idealnie! ★★★" : stars === 2 ? "Dobrze! ★★" : "Jest! ★", "good", 2.2);
-    // people get off
-    const nOut = last ? G.inTrain : Math.min(G.inTrain, ri(1, 5));
-    const skins = ["#F2C9A4", "#E0A97E", "#B97A53", "#8A5A3B"], shirts = ["#E8513B", "#2F9E6B", "#F2B632", "#7B5BD6", "#E46FA8", "#2F7BD6"];
+    const st = currentStation(), k = G.next, last = k === G.R.stations.length - 1;
+    const off = G.x - st[1];
+    let stars = 1;
+    if (off >= -3 && off <= 1) stars = 3; else if (off >= -10 && off <= 3) stars = 2;
+    G.results.push({ name: st[0], stars, off });
+    G.doors = "boarding"; G.boardK = k; G.boardStart = G.time;
+    ding(); caActivity();
+    showToast(off > 1 ? "Za W4! ★" : stars === 3 ? "Idealnie! ★★★" : stars === 2 ? "Dobrze! ★★" : "Jest! ★", off > 1 ? "warn" : "good", 2.2);
+    const platA = st[1] - PL + 1;
+    const doors = doorPositions().filter(d => d > platA && d < st[1] - 0.5);
+    if (!doors.length) doors.push(G.x - 3);
+    const nOut = last ? G.inTrain : Math.min(G.inTrain, ri(2, 6));
     for (let i = 0; i < nOut; i++) {
-      const dx = G.x - DOOR_OFF[i % 4];
-      G.pax.push({ k, x: dx, state: "walkOut", kind: "exit", tx: dx - 6 - Math.random() * 10, delay: i * 0.18, alpha: 0,
-        skin: skins[ri(0, 3)], shirt: shirts[ri(0, 5)], h: 1.3 + Math.random() * 0.5, hat: Math.random() < 0.3, phase: 0, face: -1 });
+      const dx = doors[i % doors.length];
+      G.pax.push(newPerson(k, dx, { state: "walkOut", tx: dx - 4 - Math.random() * 12, delay: i * 0.25, alpha: 0 }));
     }
     G.inTrain -= nOut;
-    // people get on
     let j = 0;
-    for (const p of G.pax) if (p.k === k && p.kind === "board" && p.state === "wait") {
-      let bestD = null;
-      for (const o of DOOR_OFF) { const dx = G.x - o; if (bestD === null || Math.abs(dx - p.x) < Math.abs(bestD - p.x)) bestD = dx; }
-      p.tx = bestD; p.state = "walkIn"; p.delay = 0.6 + nOut * 0.12 + j * 0.2; j++;
+    for (const p of G.pax) if (p.k === k && p.state === "wait") {
+      let bd = doors[0]; for (const d of doors) if (Math.abs(d - p.x) < Math.abs(bd - p.x)) bd = d;
+      p.tx = bd; p.state = "walkIn"; p.delay = 0.6 + nOut * 0.15 + j * 0.22; j++;
     }
   }
   function closeDoors() {
-    G.doors = "closed"; G.next++;
-    tone(660, 0.12, "square", 0.08); tone(660, 0.12, "square", 0.08, 0.2);
-    showToast("Drzwi zamknięte. Odjazd! ▲", "good", 2);
+    G.doors = "closed"; G.next++; G.cond = null;
+    tone(520, 0.1, "square", 0.06); tone(390, 0.12, "square", 0.06, 0.12);
+    const ex = G.signals.find(s => s.kind === "wyjazdowy" && s.st === G.next - 1);
+    if (ex && ex.trig) ex.trig.clearAt = G.time + 2.5 + Math.random() * 2;
+    showToast("Czekaj na sygnał na semaforze wyjazdowym", "", 2.5);
+    caActivity();
   }
   function missStation(st) {
     G.results.push({ name: st[0], stars: 0, missed: true });
+    const ex = G.signals.find(s => s.kind === "wyjazdowy" && s.st === G.next);
+    if (ex && ex.red) { ex.red = false; ex.lim = ex.limAfter || null; }
     for (const p of G.pax) if (p.k === G.next && p.state === "wait") p.state = "sad";
-    showToast("Ups! Przejechałeś stację 😬", "bad", 3);
+    showToast("Ups! Przejechałeś stację " + st[0], "bad", 3);
     tone(220, 0.4, "square", 0.1);
     G.next++;
-    if (G.next >= G.L.stations.length) setTimeout(finish, 1200);
+    if (G.next >= G.R.stations.length) setTimeout(finish, 1200);
+  }
+  function clearSignal(s) {
+    s.red = false; s.lim = s.limAfter || null;
+    const d = s.x - G.x;
+    if (d > 0 && d < 900) { showToast(s.lim ? "Semafor: jedź " + s.lim + " km/h 🟠" : "Semafor: wolna droga 🟢", "good", 2.2); chime(); }
   }
 
   function update(dt) {
     G.time += dt;
-    // physics
-    let a = 0;
+    const L = G.loco;
+    // traction / brakes
     const n = G.notch;
-    if (n > 0) { if (G.doors === "closed") a = n * 0.24 * Math.max(0, 1 - G.v / 34); }
-    else if (n < 0) a = n === -4 ? -1.5 : n * 0.33;
-    const res = G.v > 0 ? 0.015 + 0.00025 * G.v * G.v : 0;
+    const rpmT = n > 0 && G.doors === "closed" ? n / 4 : 0;
+    G.rpm += (rpmT - G.rpm) * Math.min(1, dt * (L.kind === "diesel" ? 1.2 : 4));
+    const brakeT = n < 0 ? (n === -4 ? 1.25 : [0, 0.3, 0.55, 0.85][-n]) : 0;
+    G.brake += (brakeT - G.brake) * Math.min(1, dt * (brakeT > G.brake ? 1.6 : 2.5));
+    let a = 0;
+    if (G.rpm > 0.01 && G.v * 3.6 < L.vmax) a += G.rpm * Math.min(L.F, L.P / Math.max(G.v, 1)) / G.mass;
+    a -= G.brake;
+    const res = G.v > 0 ? 0.008 + 0.00006 * G.v * G.v : 0;
     G.v = Math.max(0, G.v + (a - res) * dt);
-    if (G.v < 0.02 && a <= 0) G.v = 0;
+    if (G.v < 0.03 && a <= 0) G.v = 0;
     const prevX = G.x;
     G.x += G.v * dt;
 
-    // rail joints sound
+    // rail joints
     if (G.v > 0.5) {
-      const vol = Math.min(0.35, G.v / 60);
-      AXLES.forEach((o, i) => { const j = Math.floor((G.x - o) / 25); if (G.lastJoint[i] !== null && j !== G.lastJoint[i]) clack(vol); G.lastJoint[i] = j; });
-    }
-
-    // signals
-    for (const s of G.signals) {
-      if (s.state === "red") {
-        const d = s.x - G.x;
-        if (s.type === "timer" && d < 450) { s.t += dt; if (s.t >= s.delay) { s.state = "green"; if (d < 600) { showToast("Zielone światło! Jedź 🟢", "good", 2); chime(); } } }
-        if (s.type === "stop" && G.v < 0.05 && d > 0 && d < 220) { s.t += dt; if (s.t >= 1.5) { s.state = "green"; showToast("Zielone światło! Jedź 🟢", "good", 2); chime(); } }
-        if (prevX <= s.x && G.x > s.x) { fail(); return; }
+      const vol = Math.min(0.32, G.v / 60);
+      let ai = 0;
+      for (const v of G.train.veh) for (const w of (v.def.wheels || COACH_WHEELS)) {
+        const pos = G.x - v.off - v.len + (w + 2) / PX;
+        const j = Math.floor(pos / 25);
+        if (G.lastJoint[ai] != null && j !== G.lastJoint[ai]) clack(vol);
+        G.lastJoint[ai] = j; ai++;
       }
     }
 
+    // tunnel flag
+    G.inTunnel = G.R.tunnels.some(t => G.x > t.from && G.x - 10 < t.to);
+
+    // signals
+    for (const s of G.signals) {
+      if (s.red && s.trig) {
+        const t = s.trig, d = s.x - G.x;
+        if (t.type === "approach") {
+          if (d > 0 && d < t.near) { t.acc += dt; if (G.v < 0.05 && d < t.stopNear) t.acc += dt * 1.5; if (t.acc >= t.t) clearSignal(s); }
+        } else if (t.type === "doors" && t.clearAt != null && G.time >= t.clearAt) clearSignal(s);
+      }
+      if (prevX <= s.x && G.x > s.x) {
+        if (s.red) { fail(); return; }
+        G.sigLim = s.lim ? { v: s.lim, until: s.until } : null;
+      }
+    }
+    if (G.sigLim && rear() > G.sigLim.until) G.sigLim = null;
+
     // stations
     const st = currentStation();
-    if (st && G.doors === "closed" && G.x > st[1] + PLAT_AFTER) missStation(st);
+    if (st && G.doors === "closed" && G.x > st[1] + 14) missStation(st);
 
     // speed limits
-    const kmh = G.v * 3.6, lim = limitAt(G.x);
-    if (kmh > lim + 2) {
+    const kmh = G.v * 3.6, lim = limitNow().v;
+    if (kmh > lim + 3) {
       G.overT += dt;
-      if (G.overT > 0.8 && !G.overState) { G.overState = true; G.over++; showToast("Za szybko! Max " + lim + " km/h", "warn", 2.5); }
-      alarmT -= dt;
-      if (alarmT <= 0) { tone(1100, 0.12, "square", 0.07); alarmT = 0.5; }
+      if (G.overT > 1 && !G.overState) { G.overState = true; G.over++; showToast("Za szybko! Maks. " + lim + " km/h", "warn", 2.5); }
+      alarmT -= dt; if (alarmT <= 0) { tone(1100, 0.12, "square", 0.07); alarmT = 0.5; }
     } else if (kmh <= lim) { G.overState = false; G.overT = 0; }
+
+    // czuwak (CA)
+    if (G.caOn) {
+      const ca = G.ca;
+      if (G.v > 0.5) ca.t += dt;
+      if (ca.state === "idle" && ca.t > ca.next) { ca.state = "lamp"; ca.lampT = 0; }
+      if (ca.state !== "idle") {
+        ca.lampT += dt;
+        if (ca.lampT > 2.5 && Math.floor(ca.lampT * 4) % 2 === 0 && Math.floor((ca.lampT - dt) * 4) % 2 === 1) tone(1500, 0.12, "square", 0.08);
+        if (ca.lampT > 7) {
+          ca.state = "idle"; ca.t = 0; ca.next = 45 + Math.random() * 30;
+          if (G.v > 0.5) { setNotch(-4, true); G.emerg = true; showToast("Czuwak! Hamowanie nagłe. Naciskaj CA, gdy mruga.", "bad", 4); tone(300, 0.6, "sawtooth", 0.1); }
+        }
+      }
+    }
+    if (G.emerg && G.v === 0) G.emerg = false;
 
     // passengers
     let busy = false;
     for (const p of G.pax) {
       if (p.state !== "walkIn" && p.state !== "walkOut") continue;
-      busy = busy || p.k === G.boardK;
+      if (p.k === G.boardK) busy = true;
       if (p.delay > 0) { p.delay -= dt; continue; }
       const dir = Math.sign(p.tx - p.x);
-      p.x += dir * Math.min(Math.abs(p.tx - p.x), 7 * dt); p.phase += dt * 14; p.face = dir || p.face;
+      p.x += dir * Math.min(Math.abs(p.tx - p.x), (p.h === 5 ? 6 : 5) * dt); p.phase += dt * 12; p.face = dir || p.face;
       if (p.state === "walkOut") p.alpha = Math.min(1, p.alpha + dt * 4);
-      if (Math.abs(p.tx - p.x) < 0.5) {
-        if (p.state === "walkIn") { p.state = "gone"; G.inTrain++; G.carried++; tone(1300 + Math.random() * 300, 0.04, "sine", 0.04); }
-        else { p.state = "leaving"; }
+      if (Math.abs(p.tx - p.x) < 0.3) {
+        if (p.state === "walkIn") { p.state = "gone"; G.inTrain++; G.carried++; tone(1300 + Math.random() * 300, 0.04, "sine", 0.03); }
+        else { p.state = "leaving"; p.leaveT = 1.6; }
       }
     }
-    for (const p of G.pax) if (p.state === "leaving") { p.alpha -= dt * 1.5; if (p.alpha <= 0) p.state = "gone"; }
-    if (G.doors === "boarding" && !busy) {
-      if (G.boardK === G.L.stations.length - 1) { G.doors = "done"; setTimeout(finish, 900); }
-      else { G.doors = "open"; showToast("Wszyscy wsiedli. Zamknij drzwi!", "", 2.5); }
+    for (const p of G.pax) if (p.state === "leaving") { p.leaveT -= dt; if (p.leaveT < 0) { p.alpha -= dt * 1.5; if (p.alpha <= 0) p.state = "gone"; } }
+    if (G.doors === "boarding" && !busy && G.time - G.boardStart > 1) {
+      if (G.boardK === G.R.stations.length - 1) { G.doors = "done"; setTimeout(finish, 900); }
+      else {
+        // conductor gives the departure signal
+        const ds = doorPositions(); const st2 = G.R.stations[G.boardK];
+        const cand = ds.filter(d => d > st2[1] - PL + 1 && d < st2[1]);
+        G.cond = { x: (cand.length ? cand[Math.floor(cand.length / 2)] : G.x - 20) - 1.2, t: 0 };
+        G.doors = "signal"; whistle();
+      }
     }
-    const targetDoor = (G.doors === "boarding" || G.doors === "open" || G.doors === "done") ? 1 : 0;
-    G.doorAnim += (targetDoor - G.doorAnim) * Math.min(1, dt * 6);
+    if (G.cond && G.doors === "signal") { G.cond.t += dt; if (G.cond.t > 1.2) { G.doors = "open"; showToast("Kierownik pociągu: odjazd! Zamknij drzwi", "", 2.5); } }
+    const tgt = (G.doors === "boarding" || G.doors === "signal" || G.doors === "open" || G.doors === "done") ? 1 : 0;
+    G.doorAnim += (tgt - G.doorAnim) * Math.min(1, dt * 6);
+
+    // smoke / steam
+    if (L.kind === "diesel") {
+      const loco = G.train.veh[0];
+      const lx = G.x - loco.len;
+      const rate = 3 + G.rpm * 22;
+      G.smokeAcc = (G.smokeAcc || 0) + rate * dt;
+      while (G.smokeAcc > 1) {
+        G.smokeAcc -= 1;
+        const dark = G.rpm > 0.4;
+        G.smoke.push({ x: lx + (L.stack[0] + 1) / PX, y: yR - 16 + L.stack[1] - 1, vx: -0.6 + Math.random() * 0.4, vy: -(8 + Math.random() * 6) * (0.6 + G.rpm),
+          life: 1.2 + Math.random() * 1.2, age: 0, c: dark ? (Math.random() < 0.5 ? "#3a3a3f" : "#55555c") : "#8a8d94" });
+        if (L.steam && Math.random() < 0.25) G.smoke.push({ x: lx + (L.steam[0] + 1) / PX, y: yR - 16 + L.steam[1] - 1, vx: -0.3, vy: -6 - Math.random() * 4, life: 1.6, age: 0, c: "#f2f2f2" });
+      }
+    }
+    for (const s of G.smoke) { s.age += dt; s.x += s.vx * dt; s.y += s.vy * dt; s.vy *= 1 - dt * 0.6; }
+    G.smoke = G.smoke.filter(s => s.age < s.life && s.y > -10);
   }
 
   function fail() {
     running = false; hornStop(); G.v = 0;
     tone(196, 0.6, "sawtooth", 0.12); tone(147, 0.8, "sawtooth", 0.12, 0.3);
+    drawSignalMini($("failSig"), { red: true }, true);
     setTimeout(() => { $("ovFail").hidden = false; }, 500);
   }
-
   function finish() {
-    if (!running) return;
-    running = false; hornStop();
+    if (!running || G.finished) return;
+    G.finished = true; running = false; hornStop();
     const r = G.results;
     const total = r.reduce((a, x) => a + x.stars, 0);
     const avg = r.length ? total / r.length : 0;
-    const pen = G.over;
     const served = r.some(x => !x.missed);
-    const stars = clamp(Math.round(avg) - pen, served ? 1 : 0, 3);
-    if (stars > (best[levelIdx] || 0)) { best[levelIdx] = stars; saveBest(); }
+    const stars = clamp(Math.round(avg) - G.over, served ? 1 : 0, 3);
+    if (stars > (best[G.R.id] || 0)) { best[G.R.id] = stars; store.set("best", best); }
     $("endStars").innerHTML = starsHTML(stars, 3);
-    $("endTitle").textContent = "Koniec trasy!";
     $("endMsg").textContent = stars === 3 ? "Super maszynista! 🏆" : stars === 2 ? "Bardzo dobrze! 👍" : stars === 1 ? "Dojechałeś! Spróbuj dokładniej." : "Spróbuj jeszcze raz!";
     const list = $("endList"); list.innerHTML = "";
+    const row = (html, cls) => { const d = document.createElement("div"); d.className = "res-row" + (cls ? " " + cls : ""); d.innerHTML = html; list.appendChild(d); return d; };
     for (const x of r) {
-      const row = document.createElement("div"); row.className = "res-row";
-      const left = document.createElement("div");
-      const nm = document.createElement("div"); nm.className = "n"; nm.textContent = x.name;
-      const m = document.createElement("div"); m.className = "m";
-      m.textContent = x.missed ? "przejechana 😬" : Math.abs(x.off) < 0.05 ? "dokładnie przy znaku!" : fmtM(Math.abs(x.off)) + " m " + (x.off > 0 ? "za znakiem" : "przed znakiem");
-      left.appendChild(nm); left.appendChild(m);
-      const s = document.createElement("div"); s.className = "st"; s.innerHTML = starsHTML(x.stars, 3);
-      row.appendChild(left); row.appendChild(s); list.appendChild(row);
+      const d = row("<div><div class='n'></div><div class='m'></div></div><div class='st'>" + starsHTML(x.stars, 3) + "</div>");
+      d.querySelector(".n").textContent = x.name;
+      d.querySelector(".m").textContent = x.missed ? "przejechana 😬" : Math.abs(x.off) < 0.1 ? "dokładnie przy W4!" : fmtM(Math.abs(x.off)) + " m " + (x.off > 0 ? "za W4" : "przed W4");
     }
-    if (pen > 0) {
-      const row = document.createElement("div"); row.className = "res-row pen";
-      row.innerHTML = "<div><div class='n'>Za szybko: " + pen + "×</div><div class='m'>każde przekroczenie to −1 ★</div></div><div class='st'>−" + pen + " ★</div>";
-      list.appendChild(row);
-    }
-    const prow = document.createElement("div"); prow.className = "res-row";
-    prow.innerHTML = "<div class='n'>🧍 Przewiezieni pasażerowie</div><div style='font-family:var(--font-display);font-weight:800;font-size:20px'>" + G.carried + "</div>";
-    list.appendChild(prow);
-    $("btnNext").hidden = levelIdx >= LEVELS.length - 1;
+    if (G.over > 0) row("<div><div class='n'>Za szybko: " + G.over + "×</div><div class='m'>każde przekroczenie to −1 ★</div></div><div class='st'>−" + G.over + " ★</div>", "pen");
+    row("<div class='n'>🧍 Przewiezieni pasażerowie</div><div style='font-family:var(--font-display);font-weight:800;font-size:20px'>" + G.carried + "</div>");
+    row("<div class='n'>🛤️ Trasa</div><div style='font-family:var(--font-display);font-weight:800;font-size:18px'>" + fmtKm(G.R.len) + "</div>");
+    $("btnNext").hidden = routeIdx >= ROUTES.length - 1;
     chime();
     setTimeout(() => { $("ovEnd").hidden = false; }, 300);
   }
 
-  // ---------- HUD ----------
+  // =====================================================================
+  // HUD
+  // =====================================================================
   const hud = {};
   function setText(id, v) { if (hud[id] !== v) { hud[id] = v; $(id).textContent = v; } }
-  // gauge geometry
-  const GC = { x: 66, y: 58, r: 50 }, VMAX = 120;
+  const GC = { x: 66, y: 58, r: 50 };
+  let VMAX = 140;
   const ang = s => (150 + 240 * clamp(s, 0, VMAX) / VMAX) * Math.PI / 180;
   const pt = (a, r) => [GC.x + r * Math.cos(a), GC.y + r * Math.sin(a)];
   function arc(s0, s1) {
     if (s1 - s0 < 0.3) return "";
     const a0 = ang(s0), a1 = ang(s1), p0 = pt(a0, GC.r), p1 = pt(a1, GC.r);
-    const large = (a1 - a0) > Math.PI ? 1 : 0;
-    return "M" + p0[0].toFixed(1) + " " + p0[1].toFixed(1) + " A" + GC.r + " " + GC.r + " 0 " + large + " 1 " + p1[0].toFixed(1) + " " + p1[1].toFixed(1);
+    return "M" + p0[0].toFixed(1) + " " + p0[1].toFixed(1) + " A" + GC.r + " " + GC.r + " 0 " + ((a1 - a0) > Math.PI ? 1 : 0) + " 1 " + p1[0].toFixed(1) + " " + p1[1].toFixed(1);
   }
-  (function buildGauge() {
+  function rebuildGauge() {
+    VMAX = G && G.loco.vmax > 125 ? 180 : G && G.loco.vmax > 90 ? 140 : 100;
     $("gArc").setAttribute("d", arc(0, VMAX));
+    const step = VMAX > 140 ? 40 : 20;
     let t = "";
-    for (let s = 0; s <= VMAX; s += 20) {
+    for (let s = 0; s <= VMAX; s += step) {
       const a = ang(s), p0 = pt(a, GC.r - 9), p1 = pt(a, GC.r - 15), pl = pt(a, GC.r - 25);
       t += '<line x1="' + p0[0].toFixed(1) + '" y1="' + p0[1].toFixed(1) + '" x2="' + p1[0].toFixed(1) + '" y2="' + p1[1].toFixed(1) + '" stroke="#9AA6C2" stroke-width="2"/>';
-      if (s > 0 && s < VMAX) t += '<text x="' + pl[0].toFixed(1) + '" y="' + (pl[1] + 4).toFixed(1) + '" text-anchor="middle" font-size="10" fill="#9AA6C2">' + s + '</text>';
+      if (s > 0 && s < VMAX) t += '<text x="' + pl[0].toFixed(1) + '" y="' + (pl[1] + 4).toFixed(1) + '" text-anchor="middle" font-size="10" fill="#9AA6C2">' + s + "</text>";
     }
     $("gTicks").innerHTML = t;
-    $("gNeedle").setAttribute("transform", "translate(" + GC.x + " " + GC.y + ") rotate(150)");
-  })();
-
+    for (const k in hud) delete hud[k];
+  }
+  // upcoming restriction / stop ahead, for hints and HUD
+  function targetsAhead() {
+    const out = [];
+    const st = currentStation();
+    if (st && G.doors === "closed") out.push({ d: st[1] - 1 - G.x, v: 0, why: "stacja" });
+    for (const s of G.signals) {
+      const d = s.x - G.x;
+      if (d <= 0 || d > 2500) continue;
+      if (s.red) { out.push({ d: d - 15, v: 0, why: "semafor" }); break; }
+      if (s.lim) out.push({ d, v: s.lim, why: "semafor" });
+    }
+    for (const z of G.R.w8) { const d = z.from - G.x; if (d > 0 && d < 2500) out.push({ d, v: z.v, why: "W8" }); }
+    return out;
+  }
   function updateHUD() {
-    const kmh = G.v * 3.6, lim = limitAt(G.x);
+    const kmh = G.v * 3.6, L = limitNow(), lim = L.v;
     const kr = Math.round(kmh);
     if (hud.k !== kr) {
-      hud.k = kr;
-      $("gNum").textContent = kr;
+      hud.k = kr; $("gNum").textContent = kr;
       $("gNeedle").setAttribute("transform", "translate(" + GC.x + " " + GC.y + ") rotate(" + (ang(kmh) * 180 / Math.PI).toFixed(1) + ")");
       $("gVal").setAttribute("d", arc(0, Math.min(kmh, VMAX)));
     }
-    const over = kmh > lim + 2;
+    const over = kmh > lim + 3;
     if (hud.over !== over) { hud.over = over; $("gVal").setAttribute("stroke", over ? "#FF4A3D" : "#3DDC84"); $("gNum").setAttribute("fill", over ? "#FF7A70" : "#FFFFFF"); }
-    if (hud.lim !== lim) { hud.lim = lim; $("limSign").textContent = lim; $("gLim").setAttribute("d", arc(lim, VMAX)); }
-    const nz = nextLimitAhead(G.x);
-    const curZone = G.L.limits.find(z => G.x >= z.from && G.x <= z.to);
-    let ln = " ";
-    if (curZone) ln = "jeszcze " + Math.max(0, Math.round(curZone.to - G.x)) + " m";
-    else if (nz && nz.from - G.x < 1500) ln = nz.v + " za " + Math.round(nz.from - G.x) + " m";
-    setText("limNext", ln);
+    if (hud.lim !== lim) { hud.lim = lim; $("limNum").textContent = lim; $("gLim").setAttribute("d", arc(lim, VMAX)); }
+    setText("limSrc", L.src);
+    // next restriction
+    let nx = "";
+    const tg = targetsAhead().filter(t => t.v > 0 && t.v < lim).sort((a, b) => a.d - b.d)[0];
+    if (tg && tg.d < 1500) nx = "dalej " + tg.v + " za " + Math.round(tg.d) + " m";
+    setText("limNext", nx);
 
     const st = currentStation();
     if (st) {
-      setText("nextLab", "Następna stacja");
-      setText("nextName", st[0]);
+      setText("nextLab", "Następna stacja"); setText("nextName", st[0]);
       const d = st[1] - G.x;
-      const html = d >= 0 ? fmtM(d) + "<small> m do znaku STOP</small>" : fmtM(-d) + "<small> m za znakiem</small>";
+      const html = d >= 0 ? fmtM(d) + "<small> m do W4</small>" : fmtM(-d) + "<small> m za W4</small>";
       if (hud.distH !== html) { hud.distH = html; $("dist").innerHTML = html; }
-      const close = d < 60;
+      const close = d < 80;
       if (hud.close !== close) { hud.close = close; $("dist").classList.toggle("close", close); }
     } else {
       setText("nextLab", "Koniec trasy"); setText("nextName", "🏁");
       if (hud.distH !== "") { hud.distH = ""; $("dist").innerHTML = "&nbsp;"; }
     }
-    const s = nextRedSignal();
-    const show = !!s && s.x - G.x < 1200;
-    if (hud.sig !== show) { hud.sig = show; $("chSignal").hidden = !show; }
-    if (show) {
-      setText("chSigTxt", "semafor " + Math.round(s.x - G.x) + " m");
-      const cls = "lamp " + s.state;
-      if (hud.lampC !== cls) { hud.lampC = cls; $("chLamp").className = cls; }
+    // signal row
+    const s = nextSignalAhead();
+    const blinkOn = Math.floor(G.time * 2) % 2 === 0;
+    if (s && s.x - G.x < 2500) {
+      const asp = aspectOf(s);
+      const key = asp.code + blinkOn + (asp.red ? 1 : 0) + asp.top;
+      if (hud.sigKey !== key) { hud.sigKey = key; drawSignalMini($("sigMini"), asp, blinkOn); }
+      const kind = s.kind === "wjazdowy" ? "Wjazdowy" : s.kind === "wyjazdowy" ? "Wyjazdowy" : "Semafor SBL";
+      setText("sigT1", kind + " · " + Math.round(s.x - G.x) + " m");
+      setText("sigT2", asp.red ? "S1: STÓJ przed semaforem!" : asp.code + ": " + (asp.lim ? "jedź " + asp.lim + " km/h" : "jedź") + (asp.next ? " · " + asp.next : ""));
+    } else {
+      if (hud.sigKey !== "none") { hud.sigKey = "none"; drawSignalMini($("sigMini"), null, false); }
+      setText("sigT1", "Brak semafora w pobliżu"); setText("sigT2", "");
     }
     setText("pax", String(G.inTrain));
+    const caAl = G.caOn && G.ca.state !== "idle";
+    if (hud.ca !== caAl + "|" + G.caOn) {
+      hud.ca = caAl + "|" + G.caOn;
+      $("chCA").className = "chip" + (caAl ? " ca-on" : ""); $("chCA").textContent = G.caOn ? "CA czuwak" : "CA wył.";
+      $("btnCA").className = "act ca" + (caAl ? " alarm" : "");
+    }
 
     // doors button
     let label = "🚪 Otwórz drzwi", cls = "act doors", dis = true;
     if (G.doors === "closed" && canOpen()) { cls += " ready"; dis = false; }
     else if (G.doors === "boarding") label = "🧍 Wsiadanie…";
+    else if (G.doors === "signal") label = "🧍 Kierownik…";
     else if (G.doors === "open") { label = "🚪 Zamknij drzwi"; cls += " close"; dis = false; }
     else if (G.doors === "done") label = "🏁 Koniec trasy";
     if (hud.dl !== label + cls + dis) { hud.dl = label + cls + dis; btnDoors.textContent = label; btnDoors.className = cls; btnDoors.disabled = dis; }
 
     // hints
     let ht = "", hk = "";
-    if (G.doors === "open") { ht = "Zamknij drzwi, żeby ruszyć"; }
-    else if (G.doors === "boarding") { ht = "Pasażerowie wsiadają…"; }
+    const sig = nextSignalAhead();
+    if (caAl) { ht = "Naciśnij CA! (czuwak)"; hk = "warn"; }
+    else if (G.doors === "open") ht = "Zamknij drzwi";
+    else if (G.doors === "boarding") ht = "Pasażerowie wsiadają…";
+    else if (G.doors === "signal") ht = "Kierownik pociągu daje sygnał odjazdu";
     else if (G.notch > 0 && G.doors !== "closed") { ht = "Najpierw zamknij drzwi!"; hk = "warn"; }
     else if (canOpen()) { ht = "Otwórz drzwi! 🚪"; hk = "good"; }
-    else if (st && G.v < 0.05 && st[1] - G.x > 30 && G.x < st[1] && G.notch <= 0 && G.time > 1) {
-      const d = st[1] - G.x;
-      if (d < 120) { ht = "Podjedź jeszcze " + Math.round(d) + " m"; }
-      else if (G.L.helpers) {
-        const sg = nextRedSignal();
-        if (sg && sg.state === "red" && sg.x - G.x < 230) ht = "Czekaj na zielone światło…";
-        else ht = "Przesuń nastawnik w górę ▲";
+    else if (over) { ht = "Za szybko! Zwolnij do " + lim + " ▼"; hk = "warn"; }
+    else if (G.v < 0.05 && sig && sig.red && sig.x - G.x < 250) { ht = "Czekaj na sygnał na semaforze…"; }
+    else if (st && G.v < 0.05 && G.doors === "closed" && G.x > st[1] + 8 && G.x <= st[1] + 14) { ht = "Za daleko! Przejechałeś W4 😬"; hk = "warn"; }
+    else if (st && G.v < 0.05 && st[1] - G.x > 30 && st[1] - G.x < 200 && G.notch <= 0) ht = "Podjedź jeszcze " + Math.round(st[1] - G.x) + " m";
+    else if (G.hints && G.v < 0.05 && G.notch <= 0 && G.time > 1) ht = "Przesuń nastawnik w górę ▲";
+    else if (G.hints && G.v > 1) {
+      const vv = G.v;
+      for (const t of targetsAhead()) {
+        const vt = t.v / 3.6;
+        if (vt >= vv) continue;
+        const need = (vv * vv - vt * vt) / (2 * 0.62) + vv * 1.6 + 10;
+        if (t.d < need) { ht = t.v === 0 ? (t.why === "stacja" ? "Hamuj! Stacja ▼" : "Hamuj! Semafor STÓJ ▼") : "Zwolnij do " + t.v + "! ▼"; hk = "warn"; break; }
       }
-    } else if (G.L.helpers && G.v > 1) {
-      let target = st ? st[1] - G.x : Infinity;
-      const sg = nextRedSignal();
-      if (sg && sg.state === "red") target = Math.min(target, sg.x - 12 - G.x);
-      const brake = G.v * G.v / (2 * 0.66);
-      if (target < brake + G.v * 1.5 + 12) { ht = "Hamuj! ▼"; hk = "warn"; }
-      else {
-        const nz2 = nextLimitAhead(G.x);
-        if (nz2 && kmh > nz2.v) { const need = (G.v * G.v - Math.pow(nz2.v / 3.6, 2)) / (2 * 0.66); if (nz2.from - G.x < need + G.v * 2 + 20) { ht = "Zwolnij do " + nz2.v + "! ▼"; hk = "warn"; } }
+      if (!ht) {
+        const tn = G.R.tunnels.find(t => t.from - G.x > 0 && t.from - G.x < 350);
+        const cr = G.R.crossings.find(c => c - G.x > 0 && c - G.x < 350);
+        if ((tn || cr) && G.time - G.hornT > 6) ht = tn ? "Tunel! Zatrąb 📯" : "Przejazd! Zatrąb 📯";
       }
     }
     setHint(ht, hk);
   }
 
-  // ---------- Rendering ----------
-  let W = 0, H = 0, dpr = 1, RW = 0, RH = 0;
+  // =====================================================================
+  // Rendering (pixel art: draw into a small buffer, scale up crisp)
+  // =====================================================================
   function resize() {
-    dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    dpr = Math.min(window.devicePixelRatio || 1, 3);
     const r = cv.getBoundingClientRect();
-    W = r.width; H = r.height;
-    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    const Wd = Math.max(1, Math.round(r.width * dpr)), Hd = Math.max(1, Math.round(r.height * dpr));
+    cv.width = Wd; cv.height = Hd;
+    S = Math.max(1, Math.round(Hd / ART_H));
+    IW = Math.ceil(Wd / S); IH = Math.ceil(Hd / S);
+    buf.width = IW; buf.height = IH; scn.width = IW; scn.height = IH;
+    yR = IH - 15; yH = yR - 34;
     const rr = rcv.getBoundingClientRect();
     RW = rr.width; RH = rr.height;
     rcv.width = Math.round(RW * dpr); rcv.height = Math.round(RH * dpr);
   }
-  window.addEventListener("resize", resize);
-
-  let camX = 0, vs = 10, groundY = 100;
-  const sx = w => (w - camX) * ppm;
-  const sy = h => groundY - h * vs;
-  function rr(x, y, w, h, r) {
-    r = Math.min(r, w / 2, h / 2);
-    ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+  const P = (x, y, w, h, c) => { sc.fillStyle = c; sc.fillRect(x, y, w, h); };
+  const sxW = wx => Math.round(wx * PX) - camPx;
+  const vis = (a, b) => sxW(b) > -60 && sxW(a) < IW + 60;
+  // parallax: screen X for an anchor (world m) on a layer moving at factor f
+  const parX = (m, f) => Math.round(IW / 2 + (m * PX - (camPx + IW / 2)) * f);
+  function layerCells(f, cell, fn) {
+    const center = camPx + IW / 2, Lc = center * f, left = Lc - IW / 2;
+    const i0 = Math.floor(left / cell) - 2, i1 = Math.floor((left + IW) / cell) + 2;
+    for (let i = i0; i <= i1; i++) {
+      const X = Math.round(i * cell - left);
+      const m = (center + (X - IW / 2) / f) / PX;
+      fn(i, X, m);
+    }
   }
-  const visible = (a, b) => sx(b) > -40 && sx(a) < W + 40;
+  function light(x, y, w, h, c) { lights.push({ t: "r", x, y, w, h, c }); }
+  function glow(x, y, r, c, a) { lights.push({ t: "g", x, y, r, c, a }); }
+
+  const SKY = {
+    day:   { top: "#5aa9e6", bot: "#cfe9f7", cloud: "#ffffff", cloudS: "#d9e8f2", tint: null },
+    dusk:  { top: "#41508f", bot: "#f2a77c", cloud: "#f7d1c0", cloudS: "#c99aa6", tint: "rgba(110,60,120,0.22)" },
+    night: { top: "#060b24", bot: "#1d2a58", cloud: "#2a3566", cloudS: "#222c55", tint: "rgba(8,14,46,0.66)" }
+  };
+
+  function drawSky(sk, night) {
+    const T = SKY[sk], bands = 9;
+    for (let i = 0; i < bands; i++) {
+      bx.fillStyle = mix(T.top, T.bot, i / (bands - 1));
+      const y0 = Math.floor(i * (yH + 4) / bands), y1 = Math.floor((i + 1) * (yH + 4) / bands);
+      bx.fillRect(0, y0, IW, y1 - y0);
+      if (i < bands - 1) { bx.fillStyle = mix(T.top, T.bot, (i + 1) / (bands - 1)); for (let x = (y1 & 1); x < IW; x += 2) bx.fillRect(x, y1 - 1, 1, 1); }
+    }
+    bx.fillStyle = T.bot; bx.fillRect(0, yH + 4, IW, IH);
+    if (night) {
+      for (let i = 0; i < 70; i++) {
+        const x = Math.floor(hash(i) * IW), y = Math.floor(hash(i + 50) * yH * 0.8);
+        if ((Math.floor(G.time * 2 + i) % 7) === 0) continue;
+        bx.fillStyle = hash(i + 9) < 0.3 ? "#ffffff" : "#aab6dd"; bx.fillRect(x, y, 1, 1);
+      }
+      disc(bx, Math.round(IW * 0.82), 14, 5, "#f3efd2"); disc(bx, Math.round(IW * 0.82) + 3, 12, 4, mix(T.top, T.bot, 0.15));
+    } else if (sk === "dusk") disc(bx, Math.round(IW * 0.8), yH - 8, 9, "#ffc56a");
+    else disc(bx, Math.round(IW * 0.84), 14, 6, "#fff0a0");
+    // clouds
+    const off = camPx * 0.05 + G.time * 2, cell = 70;
+    for (let i = Math.floor(off / cell) - 1; i < Math.floor((off + IW) / cell) + 2; i++) {
+      if (hash(i + 3) < 0.45) continue;
+      const x = Math.round(i * cell - off + hash(i) * 30), y = 6 + Math.floor(hash(i + 5) * yH * 0.45), w = 14 + Math.floor(hash(i + 7) * 16);
+      bx.fillStyle = T.cloudS; bx.fillRect(x + 1, y + 4, w - 2, 1);
+      bx.fillStyle = T.cloud; bx.fillRect(x, y + 2, w, 2); bx.fillRect(x + 3, y, Math.floor(w / 2), 2); bx.fillRect(x + Math.floor(w / 2), y + 1, Math.floor(w / 3), 1);
+    }
+  }
+  function disc(c, x, y, r, col) { c.fillStyle = col; for (let dy = -r; dy <= r; dy++) { const w = Math.floor(Math.sqrt(r * r - dy * dy)); c.fillRect(x - w, y + dy, w * 2 + 1, 1); } }
+
+  // ---- far layer: hills, distant towns, landmarks
+  function drawFar() {
+    const f = 0.12, center = camPx + IW / 2;
+    const amps = {};
+    for (let X = 0; X < IW; X++) {
+      const m = (center + (X - IW / 2) / f) / PX;
+      const key = Math.round(m / 100);
+      let amp = amps[key];
+      if (amp == null) { amp = 0; for (let k = -2; k <= 2; k++) amp += AMP[zoneAt(G.R, m + k * 260)] || 8; amp = amps[key] = amp / 5; }
+      const u = center * f + (X - IW / 2);
+      const h = Math.round(amp * (0.55 + 0.3 * Math.sin(u * 0.031) + 0.2 * Math.sin(u * 0.077 + 1.3) + 0.1 * Math.sin(u * 0.19)));
+      const z = zoneAt(G.R, m);
+      P(X, yH + 2 - h, 1, h + 4, z === "mountain" || z === "mine" ? "#7f98ae" : z === "city" ? "#aab6c8" : "#97bb9a");
+      if (z === "mountain" && h > 20 && ((X + Math.floor(u)) & 3) === 0) P(X, yH + 2 - h + 2, 1, 1, "#6d879e");
+    }
+    // distant town / city silhouettes
+    layerCells(f, 20, (i, X, m) => {
+      const z = zoneAt(G.R, m);
+      if (z !== "city" && z !== "suburb" && z !== "industrial") return;
+      if (hash(i * 1.3) < 0.25) return;
+      const w = 6 + Math.floor(hash(i + 1) * 10), h = (z === "city" ? 10 : 5) + Math.floor(hash(i + 2) * (z === "city" ? 20 : 10));
+      P(X, yH + 2 - h, w, h, "#9ba6ba");
+      for (let yy = yH + 4 - h; yy < yH; yy += 3) for (let xx = X + 1; xx < X + w - 1; xx += 2) if (hash(i * 7 + xx + yy * 3) < 0.2) light(xx, yy, 1, 1, "#ffd98a");
+    });
+    for (const lm of G.R.landmarks) {
+      if (lm.k === "pkin") drawPKiN(parX(lm.x, f), yH + 2);
+      if (lm.k === "mariacki") drawMariacki(parX(lm.x, f), yH + 2);
+    }
+  }
+  function drawPKiN(x, b) {
+    const c = "#8f9ab0", d = "#7d889f";
+    P(x - 12, b - 14, 24, 14, c); P(x - 8, b - 30, 16, 16, c); P(x - 5, b - 44, 10, 14, c); P(x - 3, b - 52, 6, 8, c); P(x - 1, b - 64, 2, 12, d);
+    P(x - 12, b - 14, 2, 14, d); P(x - 8, b - 30, 2, 16, d); P(x - 5, b - 44, 2, 14, d); P(x - 15, b - 8, 3, 8, d); P(x + 12, b - 8, 3, 8, c);
+    for (let yy = b - 42; yy < b - 2; yy += 3) for (let xx = x - 6; xx < x + 6; xx += 2) if (hash(xx * 3 + yy) < 0.25) light(xx, yy, 1, 1, "#ffd98a");
+  }
+  function drawMariacki(x, b) {
+    const c = "#a07a6b", d = "#8a6556";
+    P(x - 14, b - 14, 22, 14, c); P(x - 14, b - 18, 22, 4, d);
+    P(x - 12, b - 40, 6, 26, c); P(x - 11, b - 46, 4, 6, d); P(x - 10, b - 52, 2, 6, "#5e6a52"); P(x - 13, b - 41, 8, 1, d);
+    P(x + 1, b - 34, 6, 20, c); P(x + 2, b - 38, 4, 4, "#5e6a52"); P(x + 3, b - 40, 2, 2, "#5e6a52");
+    P(x + 12, b - 12, 16, 12, "#b08a7a"); P(x + 12, b - 15, 16, 3, d);
+  }
+
+  // ---- ground band and mid layer (f=0.35): blocks of flats, houses, factories, forests, mines
+  function drawGround() {
+    const f = 0.5, center = camPx + IW / 2;
+    for (let X = 0; X < IW; X += 2) {
+      const m = (center + (X - IW / 2)) / PX;
+      const z = zoneAt(G.R, m);
+      const col = z === "city" ? "#9aa58c" : z === "industrial" ? "#8f9480" : z === "mountain" || z === "mine" ? "#5f8d4e" : z === "suburb" ? "#8bb06a" : "#8fbe5f";
+      P(X, yH + 2, 2, yR - yH, col);
+    }
+    // fields far away (country/town)
+    layerCells(f, 26, (i, X, m) => {
+      const z = zoneAt(G.R, m);
+      if (z !== "country" && z !== "town") return;
+      const cols = ["#d0bb5c", "#7fae4f", "#a08356", "#b9c45a"];
+      P(X, yH + 3, 26, 5, cols[Math.floor(hash(i * 2.1) * 4)]);
+      P(X, yH + 8, 26, 4, cols[Math.floor(hash(i * 3.7) * 4)]);
+    });
+    for (let X = 0; X < IW; X += 3) P(X + ((X >> 1) & 1), yR - 3 - (X % 5 === 0 ? 1 : 0), 1, 1, "#00000022");
+  }
+  function drawMid() {
+    const f = 0.35, base = yH + 12;
+    layerCells(f, 30, (i, X, m) => {
+      const z = zoneAt(G.R, m), r = hash(i * 1.7 + 4);
+      if (z === "city" || (z === "suburb" && r < 0.45)) {
+        if (r < 0.12) return;
+        const w = 22 + Math.floor(hash(i + 3) * 12), h = (z === "city" ? 22 : 14) + Math.floor(hash(i + 5) * (z === "city" ? 20 : 8));
+        const col = ["#d2cbbd", "#c6ccd2", "#d9c9a6", "#c9bfae"][Math.floor(hash(i + 8) * 4)];
+        P(X, base - h, w, h, col); P(X + w - 2, base - h, 2, h, "#00000022"); P(X, base - h, w, 1, "#7e8794");
+        for (let yy = base - h + 2; yy < base - 2; yy += 3) for (let xx = X + 2; xx < X + w - 3; xx += 3) {
+          P(xx, yy, 1, 1, "#6f7886");
+          if (hash(i * 13 + xx * 3 + yy) < 0.3) light(xx, yy, 1, 1, "#ffd98a");
+        }
+        if (hash(i + 11) < 0.3) P(X + 2, base - h - 3, 1, 3, "#5a606c");
+      } else if (z === "suburb" || z === "town" || (z === "country" && r < 0.45)) {
+        if (z === "country" && r < 0.12) { // barn
+          P(X + 4, base - 7, 14, 7, "#7a5233"); P(X + 3, base - 9, 16, 2, "#6a6e78"); return;
+        }
+        const w = 12 + Math.floor(hash(i + 3) * 5), h = 8 + Math.floor(hash(i + 4) * 3);
+        const kostka = z === "suburb" && hash(i + 9) < 0.5;
+        P(X + 4, base - h, w, h, ["#e8dcc4", "#d9c8a8", "#e3d3b8", "#cdbfa5"][Math.floor(hash(i + 6) * 4)]);
+        if (kostka) P(X + 3, base - h - 1, w + 2, 1, "#6a6e78");
+        else for (let k = 0; k < 5; k++) P(X + 3 + k, base - h - 1 - k, w + 2 - k * 2, 1, "#a8432f");
+        P(X + 6, base - h + 3, 2, 2, "#6f7886"); P(X + 4 + w - 4, base - h + 3, 2, 2, "#6f7886");
+        if (hash(i + 21) < 0.5) light(X + 6, base - h + 3, 2, 2, "#ffd98a");
+        if (z !== "suburb" && hash(i + 31) < 0.08) drawChurch(X + 20, base);
+      } else if (z === "industrial") {
+        if (r < 0.5) { P(X, base - 12, 28, 12, "#9b9486"); for (let k = 0; k < 4; k++) { P(X + k * 7, base - 15, 4, 3, "#7a7468"); P(X + k * 7 + 4, base - 14, 3, 2, "#a9b3c0"); } }
+        else drawChimney(X + 10, base, 34 + Math.floor(hash(i) * 10), i);
+      } else if (z === "mountain") {
+        for (let k = 0; k < 3; k++) { const tx = X + k * 10 + Math.floor(hash(i + k) * 6), th = 9 + Math.floor(hash(i * 3 + k) * 8); pine(tx, base, th, "#2f5a3c"); }
+      } else if (z === "mine") {
+        P(X + 2, base - 10, 20, 10, "#9b5a43"); P(X + 1, base - 12, 22, 2, "#5a5e68");
+        for (let k = 0; k < 3; k++) P(X + 5 + k * 6, base - 7, 2, 3, "#3b3e48");
+      }
+    });
+    for (const lm of G.R.landmarks) {
+      const X = parX(lm.x, f);
+      if (lm.k === "mine") drawHeadframe(X, base);
+      if (lm.k === "chimneys") { drawChimney(X, base, 46, 3); drawChimney(X + 12, base, 52, 4); drawChimney(X + 24, base, 46, 5); }
+      if (lm.k === "church") drawChurch(X, base, true);
+    }
+  }
+  function drawChurch(x, base, big) {
+    const h = big ? 36 : 26;
+    P(x - 8, base - 12, 16, 12, "#ede6d6"); P(x - 9, base - 14, 18, 2, "#7a3a2c");
+    P(x - 3, base - h, 6, h - 12, "#ede6d6"); P(x - 2, base - h - 6, 4, 6, "#3f5a4a"); P(x - 1, base - h - 9, 2, 3, "#3f5a4a");
+    P(x, base - h - 12, 1, 3, "#d9b84a"); P(x - 1, base - h - 11, 3, 1, "#d9b84a");
+    P(x - 1, base - h + 4, 2, 3, "#6f7886");
+  }
+  function drawChimney(x, base, h, seed) {
+    for (let y = 0; y < h; y++) P(x, base - y - 1, 3, 1, Math.floor(y / 5) % 2 ? "#d64c3c" : "#e9e3dc");
+    const t = G.time;
+    for (let k = 0; k < 5; k++) {
+      const age = (t * 0.6 + k / 5 + seed * 0.13) % 1;
+      const yy = base - h - 2 - age * 18, xx = x + 1 - age * 8 - k;
+      P(Math.round(xx), Math.round(yy), 2 + Math.floor(age * 3), 2 + Math.floor(age * 2), "#bdbdbd");
+    }
+  }
+  function drawHeadframe(x, base) {
+    sc.fillStyle = "#5a3a2c";
+    line(sc, x - 6, base, x - 1, base - 34); line(sc, x + 6, base, x + 1, base - 34);
+    line(sc, x - 6, base, x + 2, base - 22); line(sc, x + 6, base, x - 2, base - 22);
+    line(sc, x - 4, base - 12, x + 4, base - 12); line(sc, x + 6, base, x + 16, base - 26);
+    disc(sc, x - 1, base - 36, 3, "#3a2a22"); disc(sc, x - 1, base - 36, 1, "#8a8d94");
+    P(x - 4, base - 33, 8, 2, "#5a3a2c");
+    P(x - 16, base - 12, 12, 12, "#9b5a43"); P(x - 17, base - 14, 14, 2, "#5a5e68");
+  }
+  function pine(x, base, h, col) {
+    for (let k = 0; k < h; k++) { const w = Math.max(1, Math.floor((k / h) * (h * 0.55))); P(x - Math.floor(w / 2), base - h + k, w + 1, 1, col); }
+    P(x, base - 1, 1, 2, "#4a3526");
+  }
+  // ---- near layer (f=0.7): trees, fences, garages
+  function drawNear() {
+    const f = 0.7, base = yR - 4;
+    layerCells(f, 14, (i, X, m) => {
+      const z = zoneAt(G.R, m), r = hash(i * 2.3 + 1);
+      if (G.R.tunnels.some(t => m > t.from - 120 && m < t.to + 120)) return;
+      if (G.R.bridges.some(b => m > b.from - 20 && m < b.to + 20)) return;
+      if ((z === "city" || z === "suburb") && r < 0.35) {
+        // concrete fence panel
+        P(X, base - 7, 14, 6, "#b1ada3"); P(X, base - 7, 1, 7, "#8d8a82"); P(X + 7, base - 7, 1, 7, "#8d8a82");
+        for (let k = 0; k < 6; k += 2) P(X + 2 + k, base - 5, 1, 2, "#9a968d");
+        return;
+      }
+      if (z === "city" && r < 0.5) { P(X, base - 7, 12, 7, hash(i) < 0.5 ? "#6f8fa8" : "#7d9a73"); P(X, base - 8, 13, 1, "#5d6470"); P(X + 2, base - 6, 8, 5, "#00000022"); return; }
+      if (r < 0.3) return;
+      const kind = z === "mountain" || z === "mine" ? "pine" : hash(i + 7) < 0.25 ? "birch" : hash(i + 9) < 0.2 ? "pine" : "round";
+      const h = 10 + Math.floor(hash(i + 3) * 8), x = X + Math.floor(hash(i + 5) * 6);
+      if (kind === "pine") pine(x, base, h + 4, "#2d5a39");
+      else if (kind === "birch") { P(x, base - h, 1, h, "#e8e6df"); P(x, base - h + 3, 1, 1, "#333"); P(x - 3, base - h - 3, 7, 6, "#7cb04e"); P(x - 2, base - h - 5, 5, 2, "#8cc05a"); }
+      else { P(x, base - 5, 1, 5, "#5a3d28"); P(x - 4, base - h, 9, h - 4, "#4f8e3e"); P(x - 3, base - h - 2, 7, 2, "#5ea049"); P(x + 2, base - h + 2, 2, 2, "#3f7a33"); }
+    });
+  }
+
+  // ---- track-level objects (f=1)
+  function drawTunnelHills() {
+    for (const t of G.R.tunnels) {
+      if (!vis(t.from - 120, t.to + 120)) continue;
+      const a = sxW(t.from - 110), b = sxW(t.to + 110);
+      for (let X = Math.max(0, a); X <= Math.min(IW - 1, b); X++) {
+        const m = (X + camPx) / PX;
+        let h;
+        if (m < t.from) h = 42 * Math.sin(Math.PI / 2 * clamp((m - (t.from - 110)) / 110, 0, 1));
+        else if (m > t.to) h = 42 * Math.sin(Math.PI / 2 * clamp(((t.to + 110) - m) / 110, 0, 1));
+        else h = 42 + 6 * Math.sin(m * 0.02) + 3 * Math.sin(m * 0.07);
+        h = Math.round(h);
+        P(X, yR - h, 1, h + 3, "#6b6a4f");
+        P(X, yR - h, 1, 3, "#5d8f45");
+        if ((Math.floor(m) * 7) % 11 === 0 && h > 10) pine(X, yR - h + 1, 7, "#2d5a39");
+        if (m > t.from && m < t.to && ((X * 3 + Math.floor(h)) % 5) === 0) P(X, yR - h + 6 + (X % 7), 1, 1, "#5a5845");
+      }
+      // tunnel interior
+      const ia = Math.max(0, sxW(t.from)), ib = Math.min(IW, sxW(t.to));
+      if (ib > ia) {
+        P(ia, yR - 31, ib - ia, 34, "#2b2724");
+        P(ia, yR - 32, ib - ia, 1, "#1a1816");
+        for (let y = yR - 29; y < yR; y += 4) for (let X = ia - ((y >> 2) & 1) * 3; X < ib; X += 6) if (X >= ia) P(X, y, 1, 3, "#34302c");
+        const l0 = Math.ceil(t.from / 40) * 40;
+        for (let m = l0; m < t.to; m += 40) { const X = sxW(m); if (X > -4 && X < IW + 4) { P(X, yR - 26, 2, 1, "#ffd86b"); light(X, yR - 26, 2, 1, "#ffe9a0"); glow(X + 1, yR - 26, 6, "255,220,140", 0.35); } }
+      }
+    }
+  }
+  function drawBridgesBack() {
+    for (const b of G.R.bridges) {
+      if (!vis(b.from - 60, b.to + 60)) continue;
+      const a = sxW(b.from), e = sxW(b.to), mid = (a + e) / 2;
+      if (b.t === "truss") {
+        for (let y = yH + 6; y < yR; y++) {
+          const hw = Math.round(((e - a) / 2 - 12) * (0.25 + 0.75 * (y - yH) / (yR - yH)));
+          P(Math.round(mid - hw), y, hw * 2, 1, (y & 3) === 0 ? "#5d97cf" : "#4a86c2");
+        }
+      }
+    }
+  }
+  function trussLines(a, e, col, off) {
+    sc.fillStyle = col;
+    const top = yR - 21 + off, bot = yR - 1;
+    line(sc, a, bot, a + 6, top); line(sc, e, bot, e - 6, top);
+    sc.fillRect(a + 6, top, e - a - 12, 1);
+    const n = Math.max(2, Math.round((e - a - 12) / 8)), stp = (e - a - 12) / n;
+    for (let k = 0; k <= n; k++) { const X = Math.round(a + 6 + k * stp); sc.fillRect(X, top, 1, bot - top); if (k < n) line(sc, X, top, Math.round(X + stp), bot); }
+  }
+  function drawBridgesFront(back) {
+    for (const b of G.R.bridges) {
+      if (!vis(b.from - 60, b.to + 60)) continue;
+      const a = sxW(b.from), e = sxW(b.to);
+      if (b.t === "truss") trussLines(a, e, back ? "#56606f" : "#7a8597", back ? -1 : 0);
+    }
+  }
+  function drawBridgeDecks() {
+    for (const b of G.R.bridges) {
+      if (!vis(b.from - 60, b.to + 60)) continue;
+      const a = sxW(b.from), e = sxW(b.to);
+      if (b.t === "truss") {
+        P(a, yR + 1, e - a, IH, "#4a86c2");
+        for (let y = yR + 6; y < IH; y += 3) for (let X = a + ((y * 5 + Math.floor(G.time * 4)) % 9); X < e; X += 9) P(X, y, 3, 1, "#7fb1e0");
+        P(a, yR + 1, e - a, 3, "#3b3f48");
+        for (const q of [0.33, 0.66]) { const X = Math.round(a + (e - a) * q); P(X - 3, yR + 4, 6, IH, "#9a9184"); P(X - 3, yR + 4, 1, IH, "#7d766a"); }
+        P(a - 8, yR + 1, 8, IH, "#9a9184"); P(e, yR + 1, 8, IH, "#9a9184");
+      } else {
+        P(a, yR + 1, e - a, IH, "#a39a8b");
+        for (let X = a + 4; X < e - 10; X += 16) {
+          P(X + 2, yR + 7, 10, IH, "#6f9b55");
+          P(X + 3, yR + 6, 8, 1, "#6f9b55"); P(X + 4, yR + 5, 6, 1, "#6f9b55");
+        }
+        for (let y = yR + 2; y < IH; y += 3) for (let X = a + ((y >> 1) & 1) * 2; X < e; X += 4) P(X, y, 1, 1, "#8d8577");
+        P(a, yR + 1, e - a, 2, "#7d766a");
+      }
+    }
+  }
+  function onBridge(m) { return G.R.bridges.some(b => m > b.from && m < b.to); }
+  function inTunnelM(m) { return G.R.tunnels.some(t => m > t.from - 2 && m < t.to + 2); }
+
+  function drawStationsBack() {
+    G.R.stations.forEach((st, k) => {
+      const s = st[1];
+      if (!vis(s - PL - 80, s + 60)) return;
+      const name = st[0].toUpperCase();
+      // station building
+      const lines = splitName(name, 54);
+      const tw = Math.max(...lines.map(textW));
+      const bw = Math.max(40, tw + 10), bxl = sxW(s - 115) - Math.floor(bw / 2), top = yR - 26;
+      P(bxl, top, bw, 24, "#a9533c");
+      for (let y = top + 1; y < yR - 2; y += 2) for (let X = bxl + ((y >> 1) & 1) * 2; X < bxl + bw; X += 4) P(X, y, 2, 1, "#984a33");
+      for (let r = 0; r < 6; r++) P(bxl - 2 + r, top - 1 - r, bw + 4 - r * 2, 1, "#4f5560");
+      const bandH = lines.length * 8 + 1;
+      P(bxl + Math.floor((bw - tw) / 2) - 2, top + 2, tw + 4, bandH, "#efe6cf");
+      lines.forEach((ln, j) => pxText(sc, ln, bxl + Math.floor((bw - textW(ln)) / 2), top + 2 + j * 8, "#1b1d24"));
+      const wy = top + 3 + bandH;
+      for (let X = bxl + 3; X < bxl + bw - 4; X += 6) {
+        if (Math.abs(X - (bxl + bw / 2)) < 4) continue;
+        P(X, wy, 3, yR - 6 - wy, "#3b4458"); P(X + 1, wy - 1, 1, 1, "#3b4458");
+        light(X, wy, 3, yR - 6 - wy, "#ffd98a");
+      }
+      P(bxl + Math.floor(bw / 2) - 2, yR - 9, 4, 7, "#4a2f22");
+      // dyżurny ruchu (red cap) when the train is near
+      if (Math.abs(G.x - s) < 400 && k !== 0) { const X = bxl + Math.floor(bw / 2) + 4; P(X, yR - 9, 3, 1, "#d0392f"); P(X, yR - 8, 3, 1, "#f1c7a1"); P(X, yR - 7, 3, 3, "#22305a"); P(X, yR - 4, 1, 2, "#22305a"); P(X + 2, yR - 4, 1, 2, "#22305a"); }
+      // RUCH kiosk at bigger stations
+      if (st[2]) {
+        const X = sxW(s - 70);
+        P(X, yR - 12, 18, 10, "#2f5fa8"); P(X - 1, yR - 15, 20, 4, "#e2c33a"); pxText(sc, "RUCH", X + 2, yR - 16, "#1b2a5a");
+        P(X + 2, yR - 9, 14, 4, "#a9c6e6"); light(X + 2, yR - 9, 14, 4, "#ffd98a");
+      }
+      // name board on posts
+      const bl = splitName(name, 60), bw2 = Math.max(...bl.map(textW)) + 6, bh = bl.length * 8 + 3;
+      const X = sxW(s - 30) - Math.floor(bw2 / 2), Y = yR - 34 - bh;
+      P(X + 2, Y + bh, 1, yR - 2 - (Y + bh), "#5f6672"); P(X + bw2 - 3, Y + bh, 1, yR - 2 - (Y + bh), "#5f6672");
+      P(X, Y, bw2, bh, "#1b1d24"); P(X + 1, Y + 1, bw2 - 2, bh - 2, "#f3f1ea");
+      bl.forEach((ln, j) => pxText(sc, ln, X + 3, Y + 1 + j * 8, "#1b1d24"));
+    });
+  }
+  function drawPoles(elec) {
+    const sp = elec ? 60 : 50, p0 = Math.floor(camPx / PX / sp) * sp - sp;
+    for (let m = p0; m < (camPx + IW) / PX + sp; m += sp) {
+      if (inTunnelM(m)) continue;
+      const X = sxW(m);
+      if (elec) {
+        P(X, yR - 33, 1, 32, "#8a8f99"); P(X + 1, yR - 33, 1, 32, "#6f747e");
+        P(X, yR - 30, 7, 1, "#5a606c"); sc.fillStyle = "#5a606c"; line(sc, X + 1, yR - 25, X + 6, yR - 30);
+      } else {
+        P(X, yR - 24, 1, 22, "#6b4e35"); P(X - 2, yR - 23, 5, 1, "#6b4e35"); P(X - 2, yR - 24, 1, 1, "#d9d6cc"); P(X + 2, yR - 24, 1, 1, "#d9d6cc");
+      }
+    }
+    if (!elec) { // telegraph wires
+      for (let X = 0; X < IW; X++) { const m = (X + camPx) / PX; const u = ((m % 50) + 50) % 50; const sag = Math.round(Math.sin(Math.PI * u / 50) * 2); if (!inTunnelM(m)) { P(X, yR - 24 + sag, 1, 1, "#3d4350"); } }
+    }
+  }
+  function drawWire() {
+    for (let X = 0; X < IW; X++) {
+      const m = (X + camPx) / PX;
+      P(X, yR - 27, 1, 1, "#33373f");
+      if (!inTunnelM(m)) { const u = ((m % 60) + 60) % 60; const sag = Math.round(Math.sin(Math.PI * u / 60) * 2); P(X, yR - 31 + sag, 1, 1, "#4a4f5a"); if ((Math.round(m) % 6) === 0) P(X, yR - 30 + sag, 1, 3 - sag, "#4a4f5a"); }
+    }
+  }
+  function drawTrack() {
+    P(0, yR + 1, IW, 3, "#8f877b");
+    for (let X = -((camPx) % 3); X < IW; X += 3) P(X, yR + 1, 2, 1, "#5d4b3a");
+    for (let X = 0; X < IW; X += 2) P(X + ((X >> 1) & 1), yR + 3, 1, 1, "#7a7266");
+    P(0, yR, IW, 1, "#a6acb6");
+    // near-side ground
+    for (let X = 0; X < IW; X += 2) {
+      const m = (X + camPx) / PX, z = zoneAt(G.R, m);
+      P(X, yR + 4, 2, IH - yR - 4, z === "city" || z === "industrial" ? "#8a9178" : z === "mountain" || z === "mine" ? "#5a8746" : "#7cb35a");
+    }
+    for (let X = 0; X < IW; X += 3) P(X, yR + 6 + ((X * 7 + camPx) % 5), 1, 1, "#00000022");
+  }
+  function drawCrossings(front) {
+    for (const c of G.R.crossings) {
+      if (!vis(c - 30, c + 30)) continue;
+      const X = sxW(c);
+      const down = G.preview ? false : (G.x > c - 600 && rear() < c + 8);
+      const blinkOn = Math.floor(G.time * 2.5) % 2 === 0;
+      if (!front) {
+        for (let y = yH + 6; y < yR; y++) { const hw = 2 + Math.round((y - yH) / (yR - yH) * 5); P(X - hw, y, hw * 2, 1, "#5c5f66"); }
+        P(X - 7, yR, 14, 4, "#6a6d74"); P(X - 7, yR, 14, 1, "#a6acb6");
+        // far barrier
+        P(X - 10, yR - 8, 1, 6, "#d9d6cc");
+        if (down) for (let k = 0; k < 14; k++) P(X - 9 + k, yR - 7, 1, 1, (k >> 1) % 2 ? "#d0392f" : "#f3f1ea");
+        else for (let k = 0; k < 12; k++) P(X - 10, yR - 9 - k, 1, 1, (k >> 1) % 2 ? "#d0392f" : "#f3f1ea");
+        if (down) { P(X - 4, yR - 12, 7, 4, "#c0392b"); P(X - 3, yR - 11, 5, 1, "#26354f"); }
+      } else {
+        for (let y = yR + 4; y < IH; y++) { const hw = 7 + Math.round((y - yR) / 2); P(X - hw, y, hw * 2, 1, "#5c5f66"); }
+        // St Andrew cross and lights
+        const px = X + 13;
+        P(px, yR - 6, 1, IH - yR + 6, "#d9d6cc");
+        for (let k = 0; k < 5; k++) { P(px - 2 + k, yR - 13 + k, 1, 1, k % 2 ? "#d0392f" : "#f3f1ea"); P(px + 2 - k, yR - 13 + k, 1, 1, k % 2 ? "#d0392f" : "#f3f1ea"); }
+        P(px - 3, yR - 6, 7, 2, "#14161c");
+        const l1 = down && blinkOn, l2 = down && !blinkOn;
+        P(px - 2, yR - 6, 2, 2, l1 ? "#ff3b30" : "#4a2b2b"); P(px + 1, yR - 6, 2, 2, l2 ? "#ff3b30" : "#4a2b2b");
+        if (l1) { light(px - 2, yR - 6, 2, 2, "#ff5a4f"); glow(px - 1, yR - 5, 5, "255,70,60", 0.45); }
+        if (l2) { light(px + 1, yR - 6, 2, 2, "#ff5a4f"); glow(px + 2, yR - 5, 5, "255,70,60", 0.45); }
+        // near barrier
+        const bxp = X + 9, by = yR + 9;
+        P(bxp, by, 2, 4, "#d9d6cc");
+        if (down) for (let k = 0; k < 18; k++) P(bxp - k, by, 1, 1, (k >> 1) % 2 ? "#d0392f" : "#f3f1ea");
+        else for (let k = 0; k < 14; k++) P(bxp, by - k, 1, 1, (k >> 1) % 2 ? "#d0392f" : "#f3f1ea");
+        if (down) { // a Fiat 126p waiting (front view)
+          const cx0 = X - 4, cy = by + 2;
+          P(cx0 + 1, cy, 8, 2, "#e6c229"); P(cx0, cy + 2, 10, 4, "#e6c229"); P(cx0 + 2, cy + 1, 6, 1, "#26354f");
+          P(cx0 + 1, cy + 3, 1, 1, "#fff6cc"); P(cx0 + 8, cy + 3, 1, 1, "#fff6cc"); P(cx0, cy + 6, 2, 1, "#1b1d24"); P(cx0 + 8, cy + 6, 2, 1, "#1b1d24");
+          light(cx0 + 1, cy + 3, 1, 1, "#fff6cc"); light(cx0 + 8, cy + 3, 1, 1, "#fff6cc");
+        }
+      }
+    }
+  }
+  function drawW8(c, x, y, digit) {
+    const rows = [9, 9, 9, 7, 7, 5, 3, 1];
+    rows.forEach((w, r) => { const o = Math.floor((9 - w) / 2); c.fillStyle = "#1b1d24"; c.fillRect(x + o, y + r, w, 1); if (r > 0 && w > 2) { c.fillStyle = "#f3f1ea"; c.fillRect(x + o + 1, y + r, w - 2, 1); } });
+    c.fillStyle = "#f3f1ea"; c.fillRect(x + 1, y + 1, 7, 1);
+    const g = GL[String(digit)];
+    if (g) for (let r = 0; r < 5; r++) for (let k = 0; k < 3; k++) if (g[r][k] === "#") { c.fillStyle = "#1b1d24"; c.fillRect(x + 3 + k, y + 1 + r, 1, 1); }
+  }
+  function drawSigns() {
+    for (const z of G.R.w8) {
+      if (vis(z.from - 5, z.from + 5)) { const X = sxW(z.from); P(X, yR - 11, 1, 15, "#5f6672"); drawW8(sc, X - 4, yR - 19, Math.round(z.v / 10)); }
+      if (vis(z.to - 5, z.to + 5)) { const X = sxW(z.to); P(X, yR - 9, 1, 13, "#5f6672"); P(X - 4, yR - 15, 9, 6, "#1b1d24"); P(X - 3, yR - 14, 7, 4, "#f3f1ea");
+        P(X - 3, yR - 13, 1, 1, "#1b1d24"); P(X - 2, yR - 12, 1, 1, "#1b1d24"); P(X - 1, yR - 13, 1, 1, "#1b1d24");
+        P(X + 1, yR - 12, 1, 1, "#1b1d24"); P(X + 2, yR - 13, 1, 1, "#1b1d24"); P(X + 3, yR - 12, 1, 1, "#1b1d24"); }
+    }
+    const blinkOn = Math.floor(G.time * 2) % 2 === 0;
+    for (const s of G.signals) {
+      if (!vis(s.x - 5, s.x + 5)) continue;
+      const X = sxW(s.x);
+      P(X, yR - 21, 1, 25, "#9aa0aa"); P(X + 1, yR - 21, 1, 25, "#7a808a");
+      for (let y = yR - 18; y < yR + 2; y += 3) P(X - 1, y, 3, 1, "#7a808a");
+      const asp = aspectOf(s);
+      const lit = drawSignalHead(sc, X - 2, yR - 40, asp, blinkOn, true);
+      for (const l of lit) { light(l[0], l[1], l[2], l[3], l[4]); glow(l[0] + 1, l[1] + 1, 5, l[4] === LAMP.r ? "255,60,50" : l[4] === LAMP.g ? "70,230,110" : "255,170,50", 0.4); }
+    }
+  }
+  function drawPlatforms() {
+    G.R.stations.forEach((st, k) => {
+      const s = st[1], a = sxW(s - PL), e = sxW(s);
+      if (e < -20 || a > IW + 20) return;
+      P(a, yR - 3, e - a, IH, "#a39c8f");
+      for (let X = a + 4; X < e; X += 8) P(X, yR, 1, IH, "#8e877b");
+      P(a, yR - 3, e - a, 2, "#cfc9bb"); P(a, yR - 3, e - a, 1, "#f2efe6");
+      for (let k2 = 0; k2 < 4; k2++) { P(a - k2 - 1, yR - 2 + k2, 1, IH, "#a39c8f"); P(e + k2, yR - 2 + k2, 1, IH, "#a39c8f"); }
+      // lamps and benches
+      for (let m = s - PL + 12; m < s - 5; m += 28) {
+        const X = sxW(m);
+        P(X, yR - 24, 1, 21, "#5f6672"); P(X - 1, yR - 25, 3, 1, "#d9dee6");
+        light(X - 1, yR - 25, 3, 1, "#fff2c4"); glow(X, yR - 24, 9, "255,226,150", 0.28);
+      }
+      for (let m = s - PL + 30; m < s - 20; m += 46) { const X = sxW(m); P(X, yR - 6, 6, 1, "#8a5a33"); P(X, yR - 8, 6, 1, "#8a5a33"); P(X, yR - 5, 1, 2, "#3b3e48"); P(X + 5, yR - 5, 1, 2, "#3b3e48"); }
+      // W4
+      if (k > 0) { const X = sxW(s + 1); P(X, yR - 13, 1, 10, "#5f6672"); P(X - 2, yR - 18, 5, 5, "#14161c"); P(X, yR - 18, 1, 5, "#f3f1ea"); P(X - 2, yR - 16, 5, 1, "#f3f1ea"); }
+    });
+  }
+  function drawPerson(p) {
+    const X = sxW(p.x), feet = yR - 4;
+    if (X < -4 || X > IW + 4) return;
+    if (p.alpha < 1) sc.globalAlpha = Math.max(0, p.alpha);
+    const walking = p.state === "walkIn" || p.state === "walkOut" || (p.state === "leaving");
+    const step = walking ? Math.floor(p.phase) % 2 : 0;
+    const top = feet - p.h + 1;
+    P(X, top, 2, 1, p.hat ? "#2b2f3a" : p.hair);
+    P(X, top + 1, 2, 1, p.skin);
+    const bodyH = p.h === 5 ? 2 : 3;
+    P(X - (p.h === 5 ? 0 : 0), top + 2, 3, bodyH, p.shirt);
+    P(X + (step ? 1 : 0), top + 2 + bodyH, 1, p.h - 2 - bodyH, "#2b2f3a"); P(X + (step ? 1 : 2), top + 2 + bodyH, 1, p.h - 2 - bodyH, "#2b2f3a");
+    if (p.bag) P(p.face > 0 ? X - 1 : X + 3, top + 3, 1, 2, "#7a5233");
+    if (p.state === "sad") P(X + 2, top, 1, 1, "#2f7bd6");
+    sc.globalAlpha = 1;
+  }
+  function drawConductor() {
+    if (!G.cond) return;
+    const X = sxW(G.cond.x), feet = yR - 4, top = feet - 6;
+    P(X, top - 1, 3, 1, "#22305a"); P(X, top - 1, 3, 1, "#22305a"); P(X, top, 2, 1, "#d0392f");
+    P(X, top + 1, 2, 1, "#f1c7a1"); P(X, top + 2, 3, 3, "#22305a"); P(X, top + 5, 1, 2, "#1b1d24"); P(X + 2, top + 5, 1, 2, "#1b1d24");
+    if (G.doors === "signal" || G.doors === "open") { P(X + 3, top - 1, 1, 3, "#f1c7a1"); P(X + 3, top - 4, 3, 3, "#f3f1ea"); P(X + 4, top - 3, 1, 1, "#2fbf5f"); light(X + 4, top - 3, 1, 1, "#4fdf7f"); }
+  }
+
+  function drawTrain() {
+    const elecUp = G.R.elec;
+    const ph = Math.floor(G.x * 2.5) & 3;
+    const night = G.sky === "night";
+    G.train.veh.forEach((v, idx) => {
+      const left = G.x - v.off - v.len, X = Math.round(left * PX) - camPx, w = v.def.w || COACH_W;
+      if (X > IW + 4 || X + w < -4) return;
+      (v.def.wheels || COACH_WHEELS).forEach(wx => wheel(sc, X + wx, yR - 4, ph));
+      sc.drawImage(sprite(v.def, v.coach && G.doorAnim > 0.5), X, yR - 16);
+      if (v.def.panto) v.def.panto.forEach(px => pantograph(sc, X + px, yR - 16, yR - 27, elecUp));
+      if (v.coach && (night || inTunnelM(left + v.len / 2) || G.sky === "dusk")) for (const wn of coachWindows(v.def)) light(X + wn[0], yR - 16 + wn[1], wn[2], wn[3], night || inTunnelM(left + v.len / 2) ? "#ffe39a" : "#f6d79a");
+      if (idx === 0) {
+        const fx = X + w - 1;
+        light(fx, yR - 9, 1, 1, "#fff6cc"); light(fx, yR - 14, 1, 1, "#fff6cc");
+        if (night || G.inTunnel) {
+          glow(fx + 1, yR - 9, 5, "255,246,200", 0.5);
+          for (let k = 1; k < 46; k++) { const hh = 2 + Math.floor(k / 4); lights.push({ t: "r", x: fx + k, y: yR - 9 - Math.floor(hh / 2), w: 1, h: hh, c: "rgba(255,244,190," + (0.2 * (1 - k / 46)).toFixed(3) + ")" }); }
+        }
+      }
+      if (idx === G.train.veh.length - 1) { light(X, yR - 8, 1, 1, "#ff3b30"); light(X, yR - 14, 1, 1, "#ff3b30"); if (night || G.inTunnel) glow(X, yR - 8, 4, "255,60,50", 0.4); }
+    });
+  }
+  function drawSmoke() {
+    for (const s of G.smoke) {
+      const X = sxW(s.x), k = s.age / s.life, sz = 1 + Math.floor(k * 3);
+      sc.globalAlpha = 0.85 * (1 - k);
+      P(X - Math.floor(sz / 2), Math.round(s.y), sz, sz, s.c);
+    }
+    sc.globalAlpha = 1;
+  }
 
   function render(dt) {
-    const T = G.theme, night = G.L.sky === "night";
     const vR = Math.min(1, G.v / 30);
-    const tp = W / (78 + 70 * vR);
-    ppm = ppm ? ppm + (tp - ppm) * Math.min(1, dt * 1.5) : tp;
-    frontFrac += ((0.68 - 0.14 * vR) - frontFrac) * Math.min(1, dt * 1.5);
-    camX = G.x - (W * frontFrac) / ppm;
-    groundY = Math.round(H * 0.8);
-    vs = Math.min(ppm * 3.6, (groundY - 12) / 7.2);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    // sky
-    const g = ctx.createLinearGradient(0, 0, 0, groundY);
-    g.addColorStop(0, T.skyTop); g.addColorStop(1, T.skyBot);
-    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    if (night) {
-      ctx.fillStyle = "#FFFFFF";
-      for (let i = 0; i < 60; i++) { const x = (hash(i) * W * 1.3 - camX * ppm * 0.02) % (W * 1.3); const xx = x < 0 ? x + W * 1.3 : x; ctx.globalAlpha = 0.4 + 0.6 * hash(i + 99); ctx.fillRect(xx, hash(i + 7) * groundY * 0.7, 1.5, 1.5); }
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = "#F4F1D8"; ctx.beginPath(); ctx.arc(W * 0.82, H * 0.17, 14, 0, 7); ctx.fill();
-      ctx.fillStyle = T.skyTop; ctx.beginPath(); ctx.arc(W * 0.82 + 6, H * 0.17 - 4, 12, 0, 7); ctx.fill();
-    } else {
-      ctx.fillStyle = G.L.sky === "dusk" ? "#FFD27A" : "#FFE680";
-      ctx.beginPath(); ctx.arc(W * 0.84, G.L.sky === "dusk" ? groundY * 0.62 : H * 0.16, G.L.sky === "dusk" ? 22 : 16, 0, 7); ctx.fill();
+    let want = 0.64 - 0.24 * vR;
+    if (!G.preview) { const sg = nextSignalAhead(); if (sg && sg.x - G.x < 85) want = Math.min(want, (IW - 14 - (sg.x - G.x) * PX) / IW); }
+    want = Math.max(0.3, want);
+    frontFrac += (want - frontFrac) * Math.min(1, dt * 1.2);
+    camPx = Math.round(G.x * PX - IW * frontFrac);
+    lights.length = 0;
+    const night = G.sky === "night";
+    bx.setTransform(1, 0, 0, 1, 0, 0);
+    drawSky(G.sky, night);
+    sc.clearRect(0, 0, IW, IH);
+    drawFar();
+    drawGround();
+    drawMid();
+    drawNear();
+    const preLights = lights.length;
+    drawBridgesBack();
+    drawTunnelHills();
+    drawStationsBack();
+    drawPoles(G.R.elec);
+    drawCrossings(false);
+    drawBridgesFront(true);
+    drawTrack();
+    drawBridgeDecks();
+    if (G.R.elec) drawWire();
+    drawTrain();
+    drawSmoke();
+    drawPlatforms();
+    for (const p of G.pax) if (p.state !== "gone") drawPerson(p);
+    drawConductor();
+    drawBridgesFront(false);
+    drawTunnelPortals();
+    drawSigns();
+    drawCrossings(true);
+    // darkness inside tunnels
+    sc.globalCompositeOperation = "source-atop";
+    for (const t of G.R.tunnels) {
+      const a = Math.max(0, sxW(t.from)), e = Math.min(IW, sxW(t.to));
+      if (e > a) { sc.fillStyle = "rgba(0,0,0,0.55)"; sc.fillRect(a, yR - 31, e - a, 35); }
     }
-    // clouds
-    ctx.fillStyle = T.cloud;
-    const coff = camX * ppm * 0.06 + G.time * 4;
-    for (let i = Math.floor(coff / 170) - 1; i < Math.floor(coff / 170) + W / 170 + 2; i++) {
-      if (hash(i + 3) < 0.4) continue;
-      const x = i * 170 - coff + hash(i) * 80, y = 14 + hash(i + 5) * groundY * 0.3, s = 0.7 + hash(i + 9) * 0.6;
-      ctx.beginPath(); ctx.arc(x, y, 12 * s, 0, 7); ctx.arc(x + 14 * s, y - 6 * s, 15 * s, 0, 7); ctx.arc(x + 30 * s, y, 12 * s, 0, 7); ctx.fill();
-    }
-    // hills
-    hills(0.12, T.far, groundY - H * 0.12, H * 0.09, 0.006);
-    hills(0.3, T.near, groundY - H * 0.05, H * 0.06, 0.011);
-    // trees (mid layer)
-    const toff = camX * ppm * 0.55, sp = 38;
-    const tsc = H / 230;
-    for (let i = Math.floor(toff / sp) - 1; i < Math.floor(toff / sp) + W / sp + 2; i++) {
-      if (hash(i * 1.7) < 0.35) continue;
-      const x = i * sp - toff + hash(i) * 24, h = (22 + hash(i + 2) * 22) * tsc, base = groundY - 6 * tsc;
-      if (hash(i + 11) < 0.12 && !night) { // little house
-        ctx.fillStyle = "#EFE3CF"; ctx.fillRect(x - 10 * tsc, base - 14 * tsc, 20 * tsc, 14 * tsc);
-        ctx.fillStyle = "#C0563E"; ctx.beginPath(); ctx.moveTo(x - 13 * tsc, base - 14 * tsc); ctx.lineTo(x, base - 24 * tsc); ctx.lineTo(x + 13 * tsc, base - 14 * tsc); ctx.fill();
-        continue;
+    const T = SKY[G.sky];
+    if (T.tint) { sc.fillStyle = T.tint; sc.fillRect(0, 0, IW, IH); }
+    sc.globalCompositeOperation = "source-over";
+    bx.drawImage(scn, 0, 0);
+    // lights: background window lights only at night/dusk; signals & train always
+    for (let i = 0; i < lights.length; i++) {
+      const L = lights[i];
+      const isBg = i < preLights;
+      if (isBg && !night) continue;
+      if (L.t === "r") {
+        if (!night && !G.inTunnel && L.c === "#ffd98a") continue;
+        bx.fillStyle = L.c; bx.fillRect(L.x, L.y, L.w, L.h);
+      } else if (night || G.inTunnel || L.r <= 5) {
+        const a = night || G.inTunnel ? L.a : L.a * 0.5;
+        for (let r = L.r; r >= 1; r--) { bx.fillStyle = "rgba(" + L.c + "," + (a * 0.22).toFixed(3) + ")"; bx.fillRect(L.x - r, L.y - r, r * 2 + 1, r * 2 + 1); }
       }
-      ctx.fillStyle = T.trunk; ctx.fillRect(x - 1.5 * tsc, base - h * 0.35, 3 * tsc, h * 0.35);
-      ctx.fillStyle = T.tree;
-      if (hash(i + 4) < 0.5) { ctx.beginPath(); ctx.moveTo(x - h * 0.3, base - h * 0.3); ctx.lineTo(x, base - h); ctx.lineTo(x + h * 0.3, base - h * 0.3); ctx.fill(); }
-      else { ctx.beginPath(); ctx.arc(x, base - h * 0.62, h * 0.32, 0, 7); ctx.fill(); }
     }
-    if (night) { // lit windows far away
-      ctx.fillStyle = "#FFD86B";
-      for (let i = Math.floor(toff / 90); i < Math.floor(toff / 90) + W / 90 + 2; i++) if (hash(i + 21) > 0.6) ctx.fillRect(i * 90 - toff + hash(i) * 40, groundY - H * 0.07 - hash(i + 3) * 10, 3, 3);
-    }
-
-    // tunnels: mountain + bore (behind train)
-    for (const z of G.L.limits) if (z.f === "tunnel" && visible(z.from - 120, z.to + 120)) {
-      ctx.fillStyle = T.rock;
-      ctx.beginPath(); ctx.moveTo(sx(z.from - 110), groundY);
-      ctx.quadraticCurveTo(sx(z.from - 40), sy(11), sx(z.from + 40), sy(13));
-      ctx.quadraticCurveTo(sx((z.from + z.to) / 2), sy(19), sx(z.to - 40), sy(13));
-      ctx.quadraticCurveTo(sx(z.to + 40), sy(11), sx(z.to + 110), groundY); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = T.rockDark;
-      for (let k = 0; k < 12; k++) { const wx = z.from - 60 + hash(k + z.from) * (z.to - z.from + 120); ctx.beginPath(); ctx.arc(sx(wx), sy(9 + hash(k) * 6), 3 + hash(k + 1) * 4, 0, 7); ctx.fill(); }
-      ctx.fillStyle = T.bore;
-      rr(sx(z.from), sy(7.2), sx(z.to) - sx(z.from), groundY - sy(7.2) + 2, vs * 2.2); ctx.fill();
-      ctx.fillStyle = "#FFD86B";
-      for (let wx = z.from + 25; wx < z.to; wx += 40) ctx.fillRect(sx(wx), sy(5.2), 3, 3);
-    }
-
-    // ground
-    ctx.fillStyle = T.ground; ctx.fillRect(0, groundY, W, H - groundY);
-    ctx.fillStyle = T.ground2; ctx.fillRect(0, groundY + 0.9 * vs + 4, W, H);
-    // bridges: valley + water
-    for (const z of G.L.limits) if (z.f === "bridge" && visible(z.from - 40, z.to + 40)) {
-      const g2 = ctx.createLinearGradient(0, groundY, 0, H);
-      g2.addColorStop(0, T.skyBot); g2.addColorStop(1, T.skyTop);
-      ctx.fillStyle = g2;
-      ctx.beginPath(); ctx.moveTo(sx(z.from), groundY + 3); ctx.lineTo(sx(z.to), groundY + 3);
-      ctx.lineTo(sx(z.to - 30), H); ctx.lineTo(sx(z.from + 30), H); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = T.water; ctx.fillRect(sx(z.from + 25), H - 14, sx(z.to - 25) - sx(z.from + 25), 14);
-      ctx.strokeStyle = "rgba(255,255,255,.5)"; ctx.lineWidth = 1.5;
-      for (let wx = z.from + 30; wx < z.to - 30; wx += 14) { const xx = sx(wx) + Math.sin(G.time * 2 + wx) * 3; ctx.beginPath(); ctx.moveTo(xx, H - 8); ctx.lineTo(xx + 8, H - 8); ctx.stroke(); }
-      ctx.fillStyle = "#6B6F7A";
-      for (let wx = z.from + 45; wx < z.to - 20; wx += 75) ctx.fillRect(sx(wx) - 0.8 * ppm, groundY + 3, 1.6 * ppm, H);
-      ctx.fillStyle = "#4A4F5A"; ctx.fillRect(sx(z.from), groundY + 1, sx(z.to) - sx(z.from), 0.7 * vs + 3);
-    }
-
-    // catenary poles
-    ctx.strokeStyle = T.pole; ctx.lineWidth = Math.max(1.5, 0.35 * ppm);
-    const p0 = Math.floor(camX / 60) * 60;
-    for (let wx = p0; wx < camX + W / ppm + 60; wx += 60) {
-      if (inTunnel(wx)) continue;
-      const x = sx(wx);
-      ctx.beginPath(); ctx.moveTo(x, groundY - 1); ctx.lineTo(x, sy(6.8)); ctx.moveTo(x, sy(6.4)); ctx.lineTo(x + 2 * ppm, sy(6.4)); ctx.stroke();
-    }
-
-    // stations (background parts)
-    G.L.stations.forEach((st, k) => {
-      const X = st[1];
-      if (!visible(X - PLAT_BEFORE - 10, X + PLAT_AFTER + 10)) return;
-      // building
-      const bx = X - 100, bw = 26;
-      ctx.fillStyle = T.build; ctx.fillRect(sx(bx), sy(6.2), bw * ppm, sy(0) - sy(6.2));
-      ctx.fillStyle = T.roof; ctx.beginPath(); ctx.moveTo(sx(bx - 1.5), sy(6.2)); ctx.lineTo(sx(bx + bw / 2), sy(8.6)); ctx.lineTo(sx(bx + bw + 1.5), sy(6.2)); ctx.fill();
-      ctx.fillStyle = night ? "#FFD86B" : "#7FA6C9";
-      for (let wx = bx + 3; wx < bx + bw - 2; wx += 5) ctx.fillRect(sx(wx), sy(4.6), 2.2 * ppm, 1.4 * vs);
-      ctx.fillStyle = "#7A5233"; ctx.fillRect(sx(bx + bw / 2 - 1.2), sy(2.4), 2.4 * ppm, 2.4 * vs);
-      // lamps
-      for (let wx = X - 135; wx < X + 10; wx += 36) {
-        ctx.strokeStyle = "#5A606C"; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(sx(wx), groundY); ctx.lineTo(sx(wx), sy(5)); ctx.stroke();
-        if (night) { const rg = ctx.createRadialGradient(sx(wx), sy(5), 1, sx(wx), sy(5), 3 * vs); rg.addColorStop(0, "rgba(255,226,140,.65)"); rg.addColorStop(1, "rgba(255,226,140,0)"); ctx.fillStyle = rg; ctx.beginPath(); ctx.arc(sx(wx), sy(5), 3 * vs, 0, 7); ctx.fill(); }
-        ctx.fillStyle = night ? "#FFE9A8" : "#E7E9EE"; ctx.beginPath(); ctx.arc(sx(wx), sy(5), Math.max(2, 0.35 * vs), 0, 7); ctx.fill();
-      }
-      // STOP sign (far side)
-      if (k > 0) {
-        const x = sx(X);
-        ctx.strokeStyle = "#5A606C"; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(x, groundY); ctx.lineTo(x, sy(4.5)); ctx.stroke();
-        const bwp = Math.max(18, 2.4 * ppm), bh = Math.max(12, 1.2 * vs);
-        ctx.fillStyle = "#F2C230"; rr(x - 2, sy(4.5) - bh, bwp, bh, 3); ctx.fill();
-        ctx.strokeStyle = "#1B2540"; ctx.lineWidth = 1.5; ctx.stroke();
-        ctx.fillStyle = "#1B2540"; ctx.font = "800 " + Math.round(bh * 0.62) + "px 'Baloo 2', sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-        ctx.fillText("STOP", x - 2 + bwp / 2, sy(4.5) - bh / 2 + 1);
-      }
-    });
-
-    // signals
-    for (const s of G.signals) {
-      if (!visible(s.x - 5, s.x + 5)) continue;
-      const x = sx(s.x);
-      ctx.strokeStyle = "#5A606C"; ctx.lineWidth = Math.max(2, 0.3 * ppm);
-      ctx.beginPath(); ctx.moveTo(x, groundY); ctx.lineTo(x, sy(4.2)); ctx.stroke();
-      const hw = Math.max(10, 1.1 * vs), hh = Math.max(20, 2.3 * vs);
-      ctx.fillStyle = "#1B1F2A"; rr(x - hw / 2, sy(4.2) - hh, hw, hh, hw / 2); ctx.fill();
-      const lr = hw * 0.32;
-      const gy = sy(4.2) - hh * 0.72, ry = sy(4.2) - hh * 0.28;
-      [[gy, "#3DDC84", s.state === "green"], [ry, "#FF4A3D", s.state === "red"]].forEach(([y, c, on]) => {
-        if (on) { const rg = ctx.createRadialGradient(x, y, 1, x, y, lr * 4); rg.addColorStop(0, c); rg.addColorStop(1, "rgba(0,0,0,0)"); ctx.fillStyle = rg; ctx.globalAlpha = 0.55; ctx.beginPath(); ctx.arc(x, y, lr * 4, 0, 7); ctx.fill(); ctx.globalAlpha = 1; }
-        ctx.fillStyle = on ? c : "#3A3F4C"; ctx.beginPath(); ctx.arc(x, y, lr, 0, 7); ctx.fill();
+    cx.imageSmoothingEnabled = false;
+    cx.drawImage(buf, 0, 0, IW * S, IH * S);
+  }
+  function drawTunnelPortals() {
+    for (const t of G.R.tunnels) {
+      [t.from, t.to].forEach((m, j) => {
+        if (!vis(m - 10, m + 10)) return;
+        const X = sxW(m) - (j === 0 ? 5 : 0);
+        P(X, yR - 38, 5, 42, "#9b958a");
+        for (let y = yR - 36; y < yR + 4; y += 3) P(X, y, 5, 1, "#7d776d");
+        P(X - 1, yR - 39, 7, 2, "#8a8478");
+        if (t.eagle) { P(X + 1, yR - 35, 3, 2, "#f3f1ea"); P(X + 2, yR - 36, 1, 1, "#e5c02b"); P(X + 1, yR - 31, 3, 2, "#d9d4c4"); }
       });
     }
-
-    // speed signs
-    for (const z of G.L.limits) {
-      [[z.from, z.v], [z.to, LINE]].forEach(([wx, v]) => {
-        if (!visible(wx - 5, wx + 5)) return;
-        const x = sx(wx), r = Math.max(9, 0.75 * vs);
-        ctx.strokeStyle = "#5A606C"; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(x, groundY); ctx.lineTo(x, sy(3)); ctx.stroke();
-        const cy = sy(3) - r;
-        ctx.fillStyle = "#FFFFFF"; ctx.beginPath(); ctx.arc(x, cy, r, 0, 7); ctx.fill();
-        ctx.strokeStyle = "#D0392F"; ctx.lineWidth = Math.max(2, r * 0.22); ctx.stroke();
-        ctx.fillStyle = "#1B2540"; ctx.font = "800 " + Math.round(r * 0.95) + "px 'Baloo 2', sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-        ctx.fillText(String(v), x, cy + 1);
-      });
-    }
-
-    // track
-    ctx.fillStyle = T.ballast;
-    ctx.fillRect(0, groundY, W, 0.6 * vs + 3);
-    ctx.fillStyle = T.sleeper;
-    const ss = 2, s0 = Math.floor(camX / ss) * ss;
-    const slw = Math.max(1, 0.5 * ppm);
-    for (let wx = s0; wx < camX + W / ppm + ss; wx += ss) ctx.fillRect(sx(wx), groundY + 1, slw, 0.3 * vs + 1);
-    ctx.fillStyle = T.rail; ctx.fillRect(0, groundY - 1.5, W, 2.5);
-
-    // catenary wire
-    ctx.strokeStyle = T.wire; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(0, sy(5.6)); ctx.lineTo(W, sy(5.6)); ctx.stroke();
-    ctx.beginPath();
-    for (let wx = p0; wx < camX + W / ppm + 60; wx += 60) { ctx.moveTo(sx(wx), sy(6.4)); ctx.quadraticCurveTo(sx(wx + 30), sy(5.7), sx(wx + 60), sy(6.4)); }
-    ctx.stroke();
-
-    drawTrain(T, night);
-
-    // platforms (near side, in front of train)
-    G.L.stations.forEach((st, k) => {
-      const X = st[1], a = X - PLAT_BEFORE, b = X + PLAT_AFTER;
-      if (!visible(a, b)) return;
-      ctx.fillStyle = T.plat; ctx.fillRect(sx(a), sy(0.95), (b - a) * ppm, H - sy(0.95));
-      ctx.fillStyle = T.platTop; ctx.fillRect(sx(a), sy(0.95), (b - a) * ppm, Math.max(3, 0.18 * vs));
-      ctx.fillStyle = "#F2C230"; ctx.fillRect(sx(a), sy(0.95), (b - a) * ppm, 2);
-      if (k > 0) { // stop mark on the platform
-        ctx.fillStyle = "#F2C230"; ctx.fillRect(sx(X) - 2, sy(0.95), 4, Math.max(6, 0.6 * vs));
-        ctx.beginPath(); ctx.moveTo(sx(X) - 6, sy(0.95) + Math.max(6, 0.6 * vs) + 6); ctx.lineTo(sx(X), sy(0.95) + Math.max(6, 0.6 * vs)); ctx.lineTo(sx(X) + 6, sy(0.95) + Math.max(6, 0.6 * vs) + 6); ctx.fill();
-      }
-    });
-
-    // passengers
-    for (const p of G.pax) {
-      if (p.state === "gone" || !visible(p.x - 2, p.x + 2)) continue;
-      drawPerson(p);
-    }
-
-    // station name boards (front)
-    G.L.stations.forEach(st => {
-      const wx = st[1] - 128;
-      if (!visible(wx - 10, wx + 20)) return;
-      const x = sx(wx), w = Math.max(70, 15 * ppm), h = Math.max(16, 1.3 * vs), y = sy(3.8);
-      ctx.strokeStyle = "#5A606C"; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(x + 4, y); ctx.lineTo(x + 4, sy(0.95)); ctx.moveTo(x + w - 4, y); ctx.lineTo(x + w - 4, sy(0.95)); ctx.stroke();
-      ctx.fillStyle = "#1D4FA8"; rr(x, y - h, w, h, 3); ctx.fill();
-      ctx.strokeStyle = "#FFFFFF"; ctx.lineWidth = 1.2; rr(x + 2, y - h + 2, w - 4, h - 4, 2); ctx.stroke();
-      ctx.fillStyle = "#FFFFFF"; ctx.font = "800 " + Math.round(h * 0.6) + "px 'Baloo 2', sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.fillText(st[0], x + w / 2, y - h / 2 + 1, w - 8);
-    });
-
-    // bridge truss + tunnel portals (front)
-    for (const z of G.L.limits) {
-      if (z.f === "bridge" && visible(z.from, z.to)) {
-        ctx.strokeStyle = night ? "#55607A" : "#4A5568"; ctx.lineWidth = Math.max(2, 0.4 * ppm);
-        ctx.beginPath(); ctx.moveTo(sx(z.from), groundY); ctx.lineTo(sx(z.from + 6), sy(6.2)); ctx.lineTo(sx(z.to - 6), sy(6.2)); ctx.lineTo(sx(z.to), groundY);
-        const n = Math.max(2, Math.round((z.to - z.from - 12) / 12));
-        const step = (z.to - z.from - 12) / n;
-        for (let i = 0; i < n; i++) { const a = z.from + 6 + i * step; ctx.moveTo(sx(a), sy(6.2)); ctx.lineTo(sx(a + step / 2), groundY); ctx.lineTo(sx(a + step), sy(6.2)); }
-        ctx.stroke();
-      }
-      if (z.f === "tunnel") {
-        [z.from, z.to].forEach((wx, i) => {
-          if (!visible(wx - 5, wx + 5)) return;
-          const a = i === 0 ? wx - 3 : wx, w = 3 * ppm;
-          ctx.fillStyle = "#8C8577"; ctx.fillRect(sx(a), sy(7.8), w, groundY - sy(7.8));
-          ctx.fillStyle = "#6E685C";
-          for (let h = 1; h < 7.8; h += 1.3) ctx.fillRect(sx(a), sy(h), w, 1);
-        });
-      }
-    }
-
-    if (night) headlight();
   }
 
-  function inTunnel(wx) { for (const z of G.L.limits) if (z.f === "tunnel" && wx > z.from - 3 && wx < z.to + 3) return true; return false; }
-
-  function hills(f, color, base, amp, freq) {
-    const off = camX * ppm * f;
-    ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(0, groundY + 2);
-    for (let x = 0; x <= W + 8; x += 8) {
-      const u = x + off;
-      const y = base - amp * (0.6 + 0.4 * Math.sin(u * freq) + 0.3 * Math.sin(u * freq * 2.3 + 1.3) + 0.15 * Math.sin(u * freq * 5.1));
-      ctx.lineTo(x, y);
-    }
-    ctx.lineTo(W, groundY + 2); ctx.closePath(); ctx.fill();
-  }
-
-  function drawPerson(p) {
-    const x = sx(p.x), feet = sy(0.95), h = p.h * vs, w = Math.max(5, 0.55 * ppm * 1.6);
-    ctx.globalAlpha = p.state === "walkOut" || p.state === "leaving" ? Math.max(0, p.alpha) : 1;
-    const walking = p.state === "walkIn" || p.state === "walkOut";
-    const swing = walking ? Math.sin(p.phase) * w * 0.35 : 0;
-    const bob = p.state === "wait" ? Math.sin(G.time * 3 + p.phase) * 0.6 : 0;
-    ctx.strokeStyle = "#2B2F3A"; ctx.lineWidth = Math.max(1.5, w * 0.28); ctx.lineCap = "round";
-    ctx.beginPath(); ctx.moveTo(x - w * 0.15, feet - h * 0.42); ctx.lineTo(x - w * 0.15 + swing, feet - 1); ctx.moveTo(x + w * 0.15, feet - h * 0.42); ctx.lineTo(x + w * 0.15 - swing, feet - 1); ctx.stroke();
-    ctx.fillStyle = p.shirt; rr(x - w / 2, feet - h * 0.82 + bob, w, h * 0.44, w * 0.35); ctx.fill();
-    ctx.fillStyle = p.skin; ctx.beginPath(); ctx.arc(x, feet - h * 0.9 + bob, Math.max(2.5, h * 0.11), 0, 7); ctx.fill();
-    if (p.hat) { ctx.fillStyle = "#2B2F3A"; ctx.fillRect(x - h * 0.12, feet - h * 1.0 + bob, h * 0.24, h * 0.06); }
-    if (p.state === "sad") { ctx.fillStyle = "#2F7BD6"; ctx.beginPath(); ctx.arc(x + h * 0.06, feet - h * 0.86, 1.4, 0, 7); ctx.fill(); }
-    ctx.globalAlpha = 1; ctx.lineCap = "butt";
-  }
-
-  function drawTrain(T, night) {
-    const x = G.x;
-    const r = Math.max(2.5, 0.42 * vs), axleY = groundY - r - 1;
-    const veh = [{ t: "loco", f: x, l: 16 }, { t: "coach", f: x - 17, l: 17 }, { t: "coach", f: x - 35, l: 17 }];
-    // couplers
-    ctx.fillStyle = "#2B2F3A";
-    for (let i = 0; i < 2; i++) { const c = veh[i].f - veh[i].l; ctx.fillRect(sx(c - 1.3), sy(1.7), 1.6 * ppm, 0.4 * vs); }
-    const rot = G.x / 0.46;
-    for (const v of veh) {
-      const L = sx(v.f - v.l), R = sx(v.f), fl = sy(1.05), top = sy(v.t === "loco" ? 4.1 : 3.95);
-      // bogies + wheels
-      for (const b of [v.f - 3.5, v.f - v.l + 3.5]) {
-        ctx.fillStyle = "#2B2F3A"; ctx.fillRect(sx(b - 2.3), fl - 1, 4.6 * ppm, Math.max(3, 0.35 * vs));
-        for (const ax of [b - 1.4, b + 1.4]) {
-          const cx = sx(ax);
-          ctx.fillStyle = "#1B1E26"; ctx.beginPath(); ctx.arc(cx, axleY, r, 0, 7); ctx.fill();
-          ctx.fillStyle = "#8D93A1"; ctx.beginPath(); ctx.arc(cx, axleY, r * 0.55, 0, 7); ctx.fill();
-          ctx.strokeStyle = "#1B1E26"; ctx.lineWidth = 1;
-          ctx.beginPath(); ctx.moveTo(cx + Math.cos(rot) * r * 0.55, axleY + Math.sin(rot) * r * 0.55); ctx.lineTo(cx - Math.cos(rot) * r * 0.55, axleY - Math.sin(rot) * r * 0.55); ctx.stroke();
-        }
-      }
-      if (v.t === "loco") {
-        const nose = h => sx(v.f - 0.3 - (h - 3.1) * 1.5);
-        ctx.beginPath();
-        ctx.moveTo(L + 3, top); ctx.lineTo(nose(4.1), top); ctx.lineTo(nose(3.1), sy(3.1)); ctx.lineTo(R, sy(2.3)); ctx.lineTo(R, fl); ctx.lineTo(L, fl); ctx.lineTo(L, top + 3); ctx.closePath();
-        ctx.fillStyle = T.red; ctx.fill();
-        ctx.save(); ctx.clip();
-        ctx.fillStyle = T.yellow; ctx.fillRect(sx(v.f - 1.2), sy(2.6), R - sx(v.f - 1.2) + 2, fl - sy(2.6));
-        ctx.fillStyle = night ? "#BDB8AE" : "#FFFFFF"; ctx.fillRect(L, sy(2.05), R - L, 0.22 * vs);
-        ctx.fillStyle = "rgba(0,0,0,.18)"; ctx.fillRect(L, top, R - L, 0.25 * vs);
-        ctx.restore();
-        // windscreen
-        ctx.fillStyle = night ? "#2A3550" : "#24324F";
-        ctx.beginPath(); ctx.moveTo(sx(v.f - 2.6), sy(3.85)); ctx.lineTo(sx(v.f - 1.58), sy(3.85)); ctx.lineTo(sx(v.f - 0.68), sy(3.25)); ctx.lineTo(sx(v.f - 2.6), sy(3.25)); ctx.closePath(); ctx.fill();
-        // driver
-        ctx.fillStyle = "#F2C9A4"; ctx.beginPath(); ctx.arc(sx(v.f - 2.05), sy(3.45), Math.max(2, 0.22 * vs), 0, 7); ctx.fill();
-        ctx.fillStyle = "#1D4FA8"; ctx.fillRect(sx(v.f - 2.05) - Math.max(2, 0.24 * vs), sy(3.45) - Math.max(2, 0.22 * vs) - 1, Math.max(4, 0.48 * vs), Math.max(1.5, 0.12 * vs));
-        // side windows + grilles
-        ctx.fillStyle = night ? T.win : "#24324F";
-        ctx.fillRect(sx(v.f - v.l + 1.2), sy(3.75), 1.2 * ppm, 0.5 * vs);
-        ctx.strokeStyle = "rgba(0,0,0,.25)"; ctx.lineWidth = 1;
-        for (let gx = v.f - 12; gx < v.f - 5; gx += 0.9) { ctx.beginPath(); ctx.moveTo(sx(gx), sy(3.7)); ctx.lineTo(sx(gx), sy(2.8)); ctx.stroke(); }
-        // door
-        ctx.strokeStyle = "rgba(0,0,0,.35)"; ctx.strokeRect(sx(v.f - 4.2), sy(3.6), 0.9 * ppm, 2.4 * vs);
-        // headlights
-        ctx.fillStyle = night ? "#FFF6C8" : "#FFFBEA";
-        ctx.beginPath(); ctx.arc(R - 1.5, sy(1.75), Math.max(1.8, 0.16 * vs), 0, 7); ctx.fill();
-        // pantograph
-        ctx.strokeStyle = "#2B2F3A"; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(sx(v.f - 11.2), top); ctx.lineTo(sx(v.f - 10.2), sy(4.85)); ctx.lineTo(sx(v.f - 11.2), sy(5.55));
-        ctx.moveTo(sx(v.f - 12), sy(5.6)); ctx.lineTo(sx(v.f - 10.4), sy(5.6)); ctx.stroke();
-        ctx.fillStyle = "#3A3F4C"; ctx.fillRect(sx(v.f - 12.5), top - 2, 3 * ppm, 2);
-      } else {
-        rr(L, top, R - L, fl - top, Math.max(2, 0.5 * vs)); ctx.fillStyle = T.blue; ctx.fill();
-        ctx.save(); ctx.clip();
-        ctx.fillStyle = T.cream; ctx.fillRect(L, sy(3.55), R - L, sy(2.05) - sy(3.55));
-        ctx.fillStyle = T.roofT; ctx.fillRect(L, top, R - L, 0.35 * vs);
-        ctx.restore();
-        // windows
-        ctx.fillStyle = T.win;
-        for (let wx = v.f - v.l + 4.4; wx < v.f - 4.4; wx += 2.15) { rr(sx(wx), sy(3.35), 1.4 * ppm, 1.05 * vs, 2); ctx.fill(); }
-        if (!night) { ctx.fillStyle = "rgba(255,255,255,.45)"; for (let wx = v.f - v.l + 4.4; wx < v.f - 4.4; wx += 2.15) ctx.fillRect(sx(wx) + 1, sy(3.35) + 1, Math.max(1, 0.3 * ppm), 1.05 * vs - 2); }
-        // passengers' heads in windows
-        ctx.fillStyle = night ? "rgba(60,40,20,.55)" : "rgba(30,40,60,.35)";
-        const seats = Math.floor((v.l - 9) / 2.15);
-        const filled = Math.min(seats, Math.ceil(G.inTrain / 2));
-        for (let i = 0; i < filled; i++) { const wx = v.f - v.l + 4.4 + ((i * 3) % seats) * 2.15 + 0.7; ctx.beginPath(); ctx.arc(sx(wx), sy(2.65), Math.max(1.6, 0.2 * vs), 0, 7); ctx.fill(); }
-        // doors
-        for (const dx of [v.f - 2.5, v.f - v.l + 2.5]) {
-          const dw = 1.3 * ppm, X0 = sx(dx) - dw / 2, Y0 = sy(3.5), Hh = fl - sy(3.5);
-          const open = G.doorAnim;
-          if (open > 0.02) {
-            ctx.fillStyle = night ? "#FFE9A0" : "#1A1F2E"; ctx.fillRect(X0, Y0, dw, Hh);
-            ctx.fillStyle = T.cream;
-            const pw = dw / 2 * (1 - open);
-            ctx.fillRect(X0, Y0, pw, Hh); ctx.fillRect(X0 + dw - pw, Y0, pw, Hh);
-          } else {
-            ctx.fillStyle = T.cream; ctx.fillRect(X0, Y0, dw, Hh);
-            ctx.strokeStyle = "rgba(0,0,0,.35)"; ctx.lineWidth = 1; ctx.strokeRect(X0, Y0, dw, Hh);
-            ctx.beginPath(); ctx.moveTo(X0 + dw / 2, Y0); ctx.lineTo(X0 + dw / 2, Y0 + Hh); ctx.stroke();
-          }
-        }
-      }
-    }
-  }
-
-  function headlight() {
-    const R = sx(G.x), y = sy(1.75);
-    const g = ctx.createLinearGradient(R, 0, R + 70 * ppm, 0);
-    g.addColorStop(0, "rgba(255,244,190,.45)"); g.addColorStop(1, "rgba(255,244,190,0)");
-    ctx.fillStyle = g;
-    ctx.beginPath(); ctx.moveTo(R, y - 2); ctx.lineTo(R + 70 * ppm, y - 2.2 * vs); ctx.lineTo(R + 70 * ppm, groundY + 0.6 * vs); ctx.lineTo(R, y + 2); ctx.closePath(); ctx.fill();
-  }
-
-  // ---------- Route strip ----------
-  let drawRouteStatic = null;
+  // ---- route strip
   function renderRoute() {
     const c = rctx; c.setTransform(dpr, 0, 0, dpr, 0, 0);
     c.clearRect(0, 0, RW, RH);
-    const L = G.L, x0 = L.stations[0][1], x1 = L.stations[L.stations.length - 1][1];
-    const pad = 12, span = x1 - x0;
-    const X = w => pad + (w - x0) / span * (RW - pad * 2);
-    const y = RH / 2;
+    const R = G.R, x0 = R.stations[0][1], x1 = R.len, pad = 12, span = x1 - x0;
+    const X = w => pad + (w - x0) / span * (RW - pad * 2), y = RH / 2;
     const css = getComputedStyle(document.documentElement);
-    const line = css.getPropertyValue("--line").trim() || "#D6DEEC", ink = css.getPropertyValue("--ink").trim() || "#1B2540", muted = css.getPropertyValue("--muted").trim() || "#5B6785";
+    const lineC = css.getPropertyValue("--line").trim() || "#D6DEEC", ink = css.getPropertyValue("--ink").trim() || "#1B2540", muted2 = css.getPropertyValue("--muted").trim() || "#5B6785";
     c.lineCap = "round";
-    c.strokeStyle = line; c.lineWidth = 6; c.beginPath(); c.moveTo(X(x0), y); c.lineTo(X(x1), y); c.stroke();
+    c.strokeStyle = lineC; c.lineWidth = 6; c.beginPath(); c.moveTo(X(x0), y); c.lineTo(X(x1), y); c.stroke();
     c.strokeStyle = "#3DBB7C"; c.beginPath(); c.moveTo(X(x0), y); c.lineTo(X(clamp(G.x, x0, x1)), y); c.stroke();
-    for (const z of L.limits) { c.strokeStyle = "rgba(233,120,47,.75)"; c.lineWidth = 6; c.beginPath(); c.moveTo(X(z.from), y); c.lineTo(X(z.to), y); c.stroke(); }
-    L.stations.forEach((st, k) => {
-      const done = k < G.next || (k === 0);
-      c.fillStyle = done ? "#3DBB7C" : "#FFFFFF"; c.strokeStyle = done ? "#3DBB7C" : muted; c.lineWidth = 2;
-      c.beginPath(); c.arc(X(st[1]), y, 6, 0, 7); c.fill(); c.stroke();
+    for (const z of R.w8) { c.strokeStyle = z.tunnel ? "rgba(90,80,70,.85)" : "rgba(233,120,47,.75)"; c.lineWidth = 6; c.beginPath(); c.moveTo(X(z.from), y); c.lineTo(X(z.to), y); c.stroke(); }
+    R.stations.forEach((st, k) => {
+      const done = k < G.next || k === 0;
+      c.fillStyle = done ? "#3DBB7C" : "#FFFFFF"; c.strokeStyle = done ? "#3DBB7C" : muted2; c.lineWidth = 2;
+      c.beginPath(); c.arc(X(st[1]), y, 5.5, 0, 7); c.fill(); c.stroke();
     });
-    for (const s of G.signals) { c.fillStyle = s.state === "red" ? "#FF4A3D" : "#3DDC84"; c.beginPath(); c.arc(X(s.x), y - 9, 3.5, 0, 7); c.fill(); }
+    for (const s of G.signals) { if (s.x < G.x) continue; c.fillStyle = s.red ? "#FF4A3D" : s.lim ? "#FFAE2B" : "#3DDC84"; c.beginPath(); c.arc(X(s.x), y - 9, 3, 0, 7); c.fill(); }
     const tx = X(clamp(G.x, x0, x1));
     c.fillStyle = ink; c.beginPath(); c.moveTo(tx + 7, y); c.lineTo(tx - 5, y - 7); c.lineTo(tx - 5, y + 7); c.closePath(); c.fill();
   }
 
-  // ---------- Main loop ----------
+  // =====================================================================
+  // Main loop
+  // =====================================================================
   function frame(t) {
     const dt = Math.min(0.05, Math.max(0, (t - lastT) / 1000));
     lastT = t;
     if (G) {
       if (running && !paused) update(dt);
+      else if (G.preview) G.time += dt;
       if (G) {
         if (toastTimer > 0 && !paused) { toastTimer -= dt; if (toastTimer <= 0) $("toast").hidden = true; }
-        if (W > 0 && H > 0) render(paused ? 0 : dt);
+        if (IW > 0 && IH > 0) render(paused ? 0 : dt);
         if (RW > 0) renderRoute();
-        updateHUD();
-        if (engGain && ac) {
-          const on = running && !paused && !muted && (G.v > 0.3 || G.notch > 0);
-          const target = on ? 0.03 + 0.03 * Math.max(0, G.notch) / 4 : 0;
-          engGain.gain.setTargetAtTime(target, ac.currentTime, 0.1);
-          eng.frequency.setTargetAtTime(45 + G.v * 3, ac.currentTime, 0.1);
+        if (!G.preview) updateHUD();
+        if (eng && ac) {
+          const on = running && !paused && !muted;
+          if (eng.kind === "diesel") {
+            eng.o.frequency.setTargetAtTime(34 + 40 * G.rpm, ac.currentTime, 0.2);
+            eng.lfo.frequency.setTargetAtTime(5 + 10 * G.rpm, ac.currentTime, 0.2);
+            eng.g.gain.setTargetAtTime(on ? 0.05 + 0.07 * G.rpm : 0, ac.currentTime, 0.1);
+          } else {
+            eng.o.frequency.setTargetAtTime(80 + G.v * 9, ac.currentTime, 0.1);
+            eng.g.gain.setTargetAtTime(on ? 0.012 + 0.05 * G.rpm + 0.012 * Math.min(1, G.v / 30) : 0, ac.currentTime, 0.1);
+          }
         }
       }
     }
@@ -1260,8 +2125,7 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-h
   showMenu();
   setNotch(0, true);
   requestAnimationFrame(t => { lastT = t; requestAnimationFrame(frame); });
-  // expose for testing
-  window.__maszynista = { get G() { return G; }, startLevel, setNotch, doorAction };
+  window.__maszynista = { get G() { return G; }, startRoute, setNotch, doorAction, caPress, ROUTES, get cons() { return cons; }, openEditor };
 })();
 </script>
 </body>
