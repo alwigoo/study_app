@@ -1,0 +1,904 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#EEF3FA">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐘</text></svg>">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>.home-link{display:inline-flex;align-self:flex-start;align-items:center;gap:6px;font-family:"Lexend",system-ui,sans-serif;font-size:14px;color:var(--muted,#5B6785);text-decoration:none;padding:6px 12px;border-radius:999px;border:1px solid var(--line,#D6DEEC);background:var(--card,#FFFFFF)}.home-link:focus-visible{outline:3px solid var(--muted,#5B6785);outline-offset:2px}</style>
+</head>
+<body>
+<title>Kolejność działań</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Lexend:wght@400;600&display=swap">
+<style>
+/* Each "floor" of operations has one colour + one animal, used everywhere:
+   brackets = purple gift, powers = pink rocket, · : = orange elephant, + − = blue mouse */
+:root {
+  --bg: #EEF3FA; --card: #FFFFFF; --ink: #1B2540; --muted: #5B6785; --line: #D6DEEC;
+  --par: #7B4FD0; --par-soft: #ECE4FB;
+  --pow: #C0347A; --pow-soft: #FBE1EE;
+  --md: #D2621C;  --md-soft: #FDEBDD;
+  --pm: #2F5FD0;  --pm-soft: #E0E8FA;
+  --res: #1E8A5F; --res-soft: #DDF3E9;
+  --bad: #D0392F; --bad-soft: #FBE3E1;
+  --grid: #E3EAF5;
+  --on-color: #FFFFFF;
+  --font-display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Lexend", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121827; --card: #1C2438; --ink: #EDF1F9; --muted: #9AA6C2; --line: #2C3752;
+    --par: #B596FF; --par-soft: #2A2145;
+    --pow: #FF7DB8; --pow-soft: #3B1A2C;
+    --md: #FF9B5C;  --md-soft: #3A2618;
+    --pm: #86A7FF;  --pm-soft: #1C2A4E;
+    --res: #4FCB95; --res-soft: #173327;
+    --bad: #FF7A70; --bad-soft: #3B1D1D;
+    --grid: #232C43;
+    --on-color: #121827;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121827; --card: #1C2438; --ink: #EDF1F9; --muted: #9AA6C2; --line: #2C3752;
+  --par: #B596FF; --par-soft: #2A2145;
+  --pow: #FF7DB8; --pow-soft: #3B1A2C;
+  --md: #FF9B5C;  --md-soft: #3A2618;
+  --pm: #86A7FF;  --pm-soft: #1C2A4E;
+  --res: #4FCB95; --res-soft: #173327;
+  --bad: #FF7A70; --bad-soft: #3B1D1D;
+  --grid: #232C43;
+  --on-color: #121827;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.45;
+  padding-inline: 16px; -webkit-tap-highlight-color: transparent;
+  font-variant-numeric: tabular-nums;
+}
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+button:focus-visible { outline: 3px solid var(--pm); outline-offset: 2px; }
+.app { max-width: 520px; margin: 0 auto; padding-block: 14px 40px; display: flex; flex-direction: column; gap: 16px; }
+
+header { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: 38px; line-height: 1; margin: 0; white-space: nowrap; }
+.sub { font-size: 14px; color: var(--muted); padding-bottom: 4px; text-align: right; }
+.c-par { color: var(--par); } .c-pow { color: var(--pow); } .c-md { color: var(--md); } .c-pm { color: var(--pm); } .c-res { color: var(--res); } .c-bad { color: var(--bad); }
+
+.tabs { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr) minmax(0, 1fr); background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 4px; gap: 4px; }
+.tabs button { font-family: var(--font-display); font-weight: 800; font-size: 17px; white-space: nowrap; padding: 8px 0 6px; border-radius: 12px; color: var(--muted); }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+
+.label { font-family: var(--font-display); font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+.note { color: var(--muted); font-size: 14px; margin: 0; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.card h3 { font-family: var(--font-display); font-weight: 800; font-size: 22px; line-height: 1.1; margin: 0; display: flex; align-items: center; gap: 10px; }
+.card h3 .em { font-size: 30px; }
+.card p { margin: 0; }
+
+/* ladder of floors */
+.ladder { display: flex; flex-direction: column; gap: 6px; }
+.floor { display: grid; grid-template-columns: 34px 46px 1fr; align-items: center; gap: 10px; border-radius: 14px; padding: 8px 12px; background: var(--soft); border-left: 6px solid var(--c); }
+.floor .n { font-family: var(--font-display); font-weight: 800; font-size: 22px; color: var(--c); text-align: center; }
+.floor .em { font-size: 34px; line-height: 1; text-align: center; }
+.floor .t { font-family: var(--font-display); font-weight: 800; font-size: 20px; line-height: 1.1; }
+.floor .t small { display: block; font-family: var(--font-body); font-weight: 400; font-size: 13px; color: var(--muted); }
+.f-par { --c: var(--par); --soft: var(--par-soft); }
+.f-pow { --c: var(--pow); --soft: var(--pow-soft); }
+.f-md  { --c: var(--md);  --soft: var(--md-soft); }
+.f-pm  { --c: var(--pm);  --soft: var(--pm-soft); }
+.lr { display: flex; align-items: center; gap: 10px; background: var(--res-soft); border-radius: 14px; padding: 8px 12px; font-size: 15px; }
+.lr .em { font-size: 28px; }
+
+/* expressions */
+.expr { font-family: var(--font-display); font-weight: 800; line-height: 1; white-space: nowrap; display: flex; align-items: baseline; gap: .18em; }
+.expr .num { color: var(--ink); }
+.expr .p { color: var(--par); }
+.expr sup { color: var(--pow); font-size: .62em; margin-left: -.12em; position: relative; top: -.6em; line-height: 1; }
+.expr .op { color: var(--muted); }
+.expr .op.l3 { color: var(--pow); } .expr .op.l2 { color: var(--md); } .expr .op.l1 { color: var(--pm); }
+.expr .hl { background: var(--res-soft); border-radius: .2em; box-shadow: 0 0 0 .08em var(--res-soft); }
+.expr .eq { color: var(--muted); margin-right: .1em; }
+.expr .grp { display: inline-flex; align-items: baseline; gap: .18em; }
+button.opb { font-family: var(--font-display); font-weight: 800; position: relative; min-width: 1.15em; padding: .12em .14em .02em; border-radius: .22em; border: 2px dashed var(--line); line-height: 1; color: inherit; }
+button.opb:active { transform: scale(.94); }
+button.opb.wrong { border-color: var(--bad); border-style: solid; background: var(--bad-soft); }
+button.opb[data-e]::after { content: attr(data-e); position: absolute; left: 50%; top: -1.05em; transform: translateX(-50%); font-size: 15px; line-height: 1; }
+.expr.picking { padding-top: 22px; }
+
+/* notebook */
+.notebook { border-radius: 16px; border: 1px solid var(--line); padding: 14px 12px; display: flex; flex-direction: column; gap: 10px;
+  background-color: var(--card);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 18px 18px; overflow: hidden; }
+.notebook .line { font-size: 26px; }
+.notebook .line.past { opacity: .75; }
+.notebook .line.cur { font-size: 44px; }
+.notebook .line.done .num { color: var(--res); }
+.ex-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip-btn { font-family: var(--font-display); font-weight: 800; font-size: 17px; padding: 7px 14px 5px; border-radius: 12px; background: var(--ink); color: var(--bg); }
+.chip-btn.ghost { background: var(--card); color: var(--ink); border: 2px solid var(--line); }
+.chip-btn:disabled { opacity: .35; cursor: default; }
+.say { font-size: 15px; min-height: 22px; }
+.say b { font-family: var(--font-display); font-size: 18px; }
+
+.trap { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; align-items: baseline; font-size: 15px; }
+.trap .expr { font-size: 26px; grid-column: 1 / -1; margin-top: 6px; }
+.trap .mark { font-size: 20px; }
+
+/* practice */
+.levels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.levels button { display: flex; align-items: center; gap: 10px; text-align: left; background: var(--card); border: 2px solid var(--line); border-radius: 14px; padding: 10px 12px; }
+.levels button .em { font-size: 28px; line-height: 1; }
+.levels button .t { font-family: var(--font-display); font-weight: 800; font-size: 19px; line-height: 1.05; }
+.levels button .t small { display: block; font-family: var(--font-body); font-weight: 400; font-size: 12px; color: var(--muted); }
+.levels button[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: var(--bg); }
+.levels button[aria-pressed="true"] .t small { color: var(--bg); opacity: .8; }
+.levels button.wide { grid-column: 1 / -1; }
+.toggle { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
+.toggle input { width: 20px; height: 20px; accent-color: var(--md); }
+
+.progress { display: flex; gap: 5px; }
+.progress span { flex: 1; height: 8px; border-radius: 4px; background: var(--line); }
+.progress span.ok { background: var(--res); } .progress span.no { background: var(--md); } .progress span.now { background: var(--muted); }
+
+.instr { font-family: var(--font-display); font-weight: 800; font-size: 21px; line-height: 1.2; min-height: 52px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.instr .expr { font-size: 26px; }
+.instr.bad { color: var(--bad); }
+.instr.ok { color: var(--res); }
+.answer-box { display: inline-block; min-width: 2.2ch; padding: 0 6px; border-bottom: 4px solid var(--muted); color: var(--ink); text-align: center; }
+.answer-box.empty { color: var(--line); }
+.answer-box.ok { color: var(--res); border-color: var(--res); }
+.answer-box.no { color: var(--bad); border-color: var(--bad); text-decoration: line-through; }
+.help { width: 100%; background: var(--md-soft); border-radius: 14px; padding: 10px 12px; font-size: 15px; }
+.help.good { background: var(--res-soft); }
+
+.keypad { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.keypad button { font-family: var(--font-display); font-weight: 800; font-size: 28px; padding: 10px 0 6px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 3px 0 var(--line); }
+.keypad button:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--line); }
+.keypad .ok-key { background: var(--res); border-color: var(--res); color: var(--on-color); box-shadow: 0 3px 0 rgba(0,0,0,.2); }
+.keypad .del-key { color: var(--muted); }
+.keypad button:disabled { opacity: .3; cursor: default; }
+
+.big-btn { display: flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-display); font-weight: 800; font-size: 20px; padding: 12px 16px 10px; border-radius: 16px; background: var(--ink); color: var(--bg); width: 100%; }
+.big-btn.ghost { background: var(--card); color: var(--ink); border: 2px solid var(--line); }
+.big-btn:active { transform: scale(.98); }
+.big-btn:disabled { opacity: .35; cursor: default; }
+
+.result { text-align: center; align-items: center; }
+.result .score { font-family: var(--font-display); font-weight: 800; font-size: 60px; line-height: 1; }
+.result .big-em { font-size: 64px; line-height: 1; }
+.stars { font-size: 26px; letter-spacing: 2px; color: var(--md); word-break: break-all; }
+.stars .off { color: var(--line); }
+.result .msg { font-family: var(--font-display); font-weight: 800; font-size: 26px; }
+
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.shake { animation: shake .35s; }
+@keyframes pop { 0%{transform:scale(.6);opacity:0} 100%{transform:scale(1);opacity:1} }
+.pop { animation: pop .25s ease-out; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="app">
+  <a class="home-link" href="index.html">← Strona główna</a>
+  <header>
+    <h1>2 <span class="c-pm">+</span> 3 <span class="c-md">·</span> 4</h1>
+    <div class="sub">kolejność<br>wykonywania działań</div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button id="tab-learn" role="tab" aria-selected="true">Zasady</button>
+    <button id="tab-step" role="tab" aria-selected="false">Krok po kroku</button>
+    <button id="tab-test" role="tab" aria-selected="false">Test</button>
+  </nav>
+
+  <section id="learn" style="display:flex;flex-direction:column;gap:14px"></section>
+  <section id="practice" hidden style="flex-direction:column;gap:14px"></section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem("kd-" + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem("kd-" + k, JSON.stringify(v)); } catch (e) {} }
+  };
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+
+  // ---------- sounds ----------
+  let actx = null;
+  function tones(freqs, dur, type) {
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      let t = actx.currentTime;
+      freqs.forEach(f => {
+        const o = actx.createOscillator(), g = actx.createGain();
+        o.type = type; o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.18, t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        o.connect(g).connect(actx.destination); o.start(t); o.stop(t + dur + 0.02);
+        t += dur * 0.8;
+      });
+    } catch (e) {}
+  }
+  const ding = () => tones([660, 880], 0.16, "sine");
+  const tick = () => tones([520], 0.08, "sine");
+  const bonk = () => tones([200, 160], 0.18, "triangle");
+  const fanfare = () => tones([523, 659, 784, 1046], 0.16, "triangle");
+
+  // ================= expression engine =================
+  // tokens: {t:"n", v}  {t:"o", v:"+"|"-"|"*"|"/"}  {t:"w", v:2|3} (power)  {t:"("}  {t:")"}
+  const LEVEL = { "+": 1, "-": 1, "*": 2, "/": 2 };
+  const SYM = { "+": "+", "-": "−", "*": "·", "/": ":" };
+  const EMOJI = { 1: "🐭", 2: "🐘", 3: "🚀" };
+  const lvl = tk => tk.t === "w" ? 3 : tk.t === "o" ? LEVEL[tk.v] : 0;
+  const isOp = tk => tk && (tk.t === "o" || tk.t === "w");
+
+  function parse(str, vals) {
+    const out = [];
+    for (let i = 0; i < str.length; i++) {
+      const c = str[i];
+      if (c === " ") continue;
+      if (/[0-9]/.test(c)) { let j = i; while (j < str.length && /[0-9]/.test(str[j])) j++; out.push({ t: "n", v: Number(str.slice(i, j)) }); i = j - 1; }
+      else if (/[a-e]/.test(c)) out.push({ t: "n", v: vals[c] });
+      else if ("+-*/".includes(c)) out.push({ t: "o", v: c });
+      else if (c === "^") { out.push({ t: "w", v: Number(str[i + 1]) }); i++; }
+      else if (c === "(" || c === ")") out.push({ t: c });
+    }
+    return out;
+  }
+
+  // innermost bracket groups (contain no other brackets); whole expression if no brackets
+  function scopes(tks) {
+    const res = [], stack = [];
+    tks.forEach((tk, i) => {
+      if (tk.t === "(") stack.push(i);
+      else if (tk.t === ")") {
+        const j = stack.pop();
+        let inner = false;
+        for (let m = j + 1; m < i; m++) if (tks[m].t === "(" || tks[m].t === ")") inner = true;
+        if (!inner) res.push([j, i]);
+      }
+    });
+    if (!tks.some(tk => tk.t === "(")) res.push([-1, tks.length]);
+    return res;
+  }
+  // all operator indices that may be done right now (canonical = first)
+  function validOps(tks) {
+    const ok = [];
+    scopes(tks).forEach(([l, r]) => {
+      let maxL = 0;
+      for (let k = l + 1; k < r; k++) maxL = Math.max(maxL, lvl(tks[k]));
+      for (let k = l + 1; k < r; k++) {
+        const tk = tks[k];
+        if (!isOp(tk) || lvl(tk) !== maxL) continue;
+        if (tk.t === "o" && k - 2 > l && isOp(tks[k - 2]) && lvl(tks[k - 2]) === maxL) continue; // same floor: left to right
+        ok.push(k);
+      }
+    });
+    return ok;
+  }
+  function whyWrong(tks, k) {
+    const sc = scopes(tks).find(([l, r]) => k > l && k < r);
+    if (!sc) return { msg: "Najpierw to, co w nawiasie!", em: "🎁" };
+    let maxL = 0;
+    for (let m = sc[0] + 1; m < sc[1]; m++) maxL = Math.max(maxL, lvl(tks[m]));
+    if (lvl(tks[k]) < maxL) {
+      if (maxL === 3) return { msg: "Najpierw potęga — rakieta startuje pierwsza!", em: "🚀" };
+      return { msg: "Najpierw mnożenie i dzielenie — słonie przed myszkami!", em: "🐘" };
+    }
+    return { msg: "Takie same zwierzaki — liczymy od lewej, jak czytasz!", em: "📖" };
+  }
+  function range(tks, k) { return tks[k].t === "w" ? [k - 1, k] : [k - 1, k + 1]; }
+  function calc(tks, k) {
+    const tk = tks[k];
+    if (tk.t === "w") return Math.pow(tks[k - 1].v, tk.v);
+    const a = tks[k - 1].v, b = tks[k + 1].v;
+    switch (tk.v) { case "+": return a + b; case "-": return a - b; case "*": return a * b; case "/": return b === 0 ? NaN : a / b; }
+  }
+  // apply op k; returns {tks, value, removedBrackets}
+  function apply(tks, k, value) {
+    const [a, b] = range(tks, k);
+    let out = tks.slice(0, a).concat([{ t: "n", v: value }], tks.slice(b + 1));
+    let removed = false, again = true;
+    while (again) {
+      again = false;
+      for (let i = 0; i + 2 < out.length; i++) {
+        if (out[i].t === "(" && out[i + 1].t === "n" && out[i + 2].t === ")") { out.splice(i + 2, 1); out.splice(i, 1); removed = again = true; break; }
+      }
+    }
+    return { tks: out, removed };
+  }
+  // full canonical solution; null if any step is not a nice whole number
+  function solve(tks, cap) {
+    const steps = [];
+    let cur = tks;
+    let guard = 0;
+    while (!(cur.length === 1 && cur[0].t === "n")) {
+      if (guard++ > 30) return null;
+      const ops = validOps(cur);
+      if (!ops.length) return null;
+      const k = ops[0];
+      const v = calc(cur, k);
+      if (!Number.isInteger(v) || v <= 0 || v > cap) return null;
+      if (cur[k].t === "o" && cur[k].v === "/" && cur[k + 1].v < 2) return null;
+      if (cur[k].t === "w" && cur[k - 1].v < 2) return null;
+      const nx = apply(cur, k, v);
+      steps.push({ tks: cur, k, v });
+      cur = nx.tks;
+    }
+    return { steps, value: cur[0].v };
+  }
+  // what you get by going strictly left to right (ignoring the floors) — the classic mistake
+  function naive(tks) {
+    let i = 0;
+    function term() {
+      let v;
+      if (tks[i].t === "(") { i++; v = seq(); i++; } else { v = tks[i].v; i++; }
+      while (i < tks.length && tks[i].t === "w") { v = Math.pow(v, tks[i].v); i++; }
+      return v;
+    }
+    function seq() {
+      let v = term();
+      while (i < tks.length && tks[i].t === "o") {
+        const op = tks[i].v; i++;
+        const w = term();
+        v = op === "+" ? v + w : op === "-" ? v - w : op === "*" ? v * w : v / w;
+      }
+      return v;
+    }
+    return seq();
+  }
+
+  // ---------- task generator ----------
+  const LEVELS = [
+    { id: "pm", em: "🐭", t: "+ i −", s: "dodawanie, odejmowanie", T: [
+      ["a+b-c", { a: [10, 60], b: [2, 30], c: [2, 40] }], ["a-b+c", { a: [15, 70], b: [2, 30], c: [2, 30] }],
+      ["a-b-c", { a: [30, 90], b: [2, 30], c: [2, 30] }], ["a+b-c+d", { a: [5, 40], b: [2, 30], c: [2, 40], d: [2, 20] }],
+      ["a-b+c-d", { a: [20, 80], b: [2, 30], c: [2, 30], d: [2, 30] }] ] },
+    { id: "md", em: "🐘", t: "· i :", s: "razem z + i −", T: [
+      ["a+b*c", { a: [2, 40] }], ["a-b*c", { a: [20, 90] }], ["b*c+a", { a: [2, 40] }], ["b*c-a", { a: [2, 20] }],
+      ["a+b/c", { a: [2, 40], b: [6, 81] }], ["a-b/c", { a: [10, 60], b: [6, 81] }], ["b/c+a", { a: [2, 30], b: [6, 81] }],
+      ["a*b+c*d", {}], ["a*b-c*d", {}], ["a+b*c-d", { a: [2, 30], d: [2, 20] }], ["a-b*c+d", { a: [20, 90], d: [2, 20] }],
+      ["a/b*c", { a: [6, 72] }], ["a*b/c", {}], ["a/b/c", { a: [12, 96] }] ] },
+    { id: "par", em: "🎁", t: "( ) nawiasy", s: "co w nawiasie, to pierwsze", T: [
+      ["(a+b)*c", { a: [2, 15], b: [2, 15] }], ["c*(a-b)", { a: [5, 20], b: [2, 15] }], ["(a+b)/c", { a: [2, 40], b: [2, 40] }],
+      ["a-(b+c)", { a: [20, 90], b: [2, 30], c: [2, 30] }], ["a*(b+c)-d", { b: [2, 8], c: [2, 8], d: [2, 30] }],
+      ["(a+b)*(c-d)", { c: [4, 12] }], ["a+(b-c)*d", { a: [2, 30], b: [5, 20] }], ["(a-b)/c+d", { a: [10, 60], b: [2, 30], d: [2, 20] }],
+      ["a-(b-c)", { a: [20, 80], b: [10, 40], c: [2, 20] }], ["(a+b*c)/d", { a: [2, 30] }], ["a*(b-c*d)", { a: [2, 6], b: [20, 60] }] ] },
+    { id: "pow", em: "🚀", t: "x² i x³", s: "kwadraty i sześciany", T: [
+      ["a+b^2", { a: [2, 30] }], ["a^2-b", { a: [4, 10], b: [2, 30] }], ["a*b^2", { a: [2, 5], b: [2, 5] }],
+      ["a^2+b^2", {}], ["(a+b)^2", { a: [1, 6], b: [1, 6] }], ["a^3+b", { a: [2, 4], b: [2, 30] }],
+      ["a^2-b*c", { a: [5, 10] }], ["a^3-b^2", { a: [2, 4], b: [2, 7] }], ["a^2/b", { a: [2, 10] }], ["(a-b)^2*c", { a: [4, 12], b: [1, 8], c: [2, 5] }] ] },
+    { id: "mix", em: "🏆", t: "Mistrz", s: "wszystko naraz", T: [
+      ["(a+b)*c-d^2", { a: [2, 8], b: [2, 8], d: [2, 5] }], ["a^2+(b-c)*d", { a: [2, 6], b: [5, 15] }], ["a+b*c^2", { a: [2, 30], b: [2, 5], c: [2, 4] }],
+      ["(a^2-b)/c", { a: [3, 10], b: [1, 30] }], ["a*(b+c)-d/e", { b: [2, 8], c: [2, 8], d: [6, 81] }], ["a-b*c+d^2", { a: [20, 80], d: [2, 6] }],
+      ["(a+b)^2-c*d", { a: [1, 5], b: [1, 5] }], ["a/b+c*(d-e)", { a: [6, 72], d: [6, 15] }], ["a^3+(b-c)/d", { a: [2, 4], b: [10, 60] }] ] }
+  ];
+  const DEF_RANGE = [2, 9];
+
+  function genOne(levelIds) {
+    for (let attempt = 0; attempt < 50; attempt++) {
+      const want = pick(levelIds), L = LEVELS.find(x => x.id === want);
+      const [tpl, ranges] = pick(L.T);
+      for (let tries = 0; tries < 400; tries++) {
+        const vals = {};
+        "abcde".split("").forEach(ch => { const r = ranges[ch] || DEF_RANGE; vals[ch] = rnd(r[0], r[1]); });
+        const tks = parse(tpl, vals);
+        const sol = solve(tks, 400);
+        if (sol && sol.value <= 300) return { tks, sol, level: L.id };
+      }
+    }
+    const tks = parse("2+3*4", {});
+    return { tks, sol: solve(tks, 400), level: "md" };
+  }
+  function genSet(levelIds, n) {
+    const out = [], seen = new Set();
+    let guard = 0;
+    while (out.length < n && guard++ < 200) {
+      const q = genOne(levelIds);
+      const key = q.tks.map(tk => tk.v != null ? tk.v : tk.t).join(" ");
+      if (seen.has(key)) continue;
+      seen.add(key); out.push(q);
+    }
+    return out;
+  }
+
+  // ---------- rendering expressions ----------
+  // opts: {hl:[a,b], pick:fn(k), hints:bool, eq:bool}
+  function renderExpr(tks, opts) {
+    opts = opts || {};
+    const box = el("div", "expr");
+    if (opts.eq) box.appendChild(el("span", "eq", "="));
+    let hlWrap = null;
+    tks.forEach((tk, i) => {
+      let node;
+      if (tk.t === "n") node = el("span", "num", String(tk.v));
+      else if (tk.t === "(" || tk.t === ")") node = el("span", "p", tk.t);
+      else if (tk.t === "w") node = el("sup", null, tk.v === 2 ? "2" : "3");
+      else node = el("span", "op l" + LEVEL[tk.v], SYM[tk.v]);
+      if (opts.pick && isOp(tk)) {
+        const b = el("button", "opb " + (tk.t === "w" ? "" : "op l" + LEVEL[tk.v]));
+        b.id = "op-" + i;
+        b.setAttribute("aria-label", "działanie " + (tk.t === "w" ? "potęga" : SYM[tk.v]));
+        if (tk.t === "w") { b.textContent = String(tk.v); b.style.color = "var(--pow)"; b.style.fontSize = ".62em"; b.style.alignSelf = "flex-start"; b.style.marginLeft = "-.1em"; }
+        else b.textContent = SYM[tk.v];
+        if (opts.hints) b.dataset.e = EMOJI[lvl(tk)];
+        b.onclick = () => opts.pick(i, b);
+        node = b;
+      }
+      if (opts.hl && i >= opts.hl[0] && i <= opts.hl[1]) {
+        if (!hlWrap) { hlWrap = el("span", "grp hl"); box.appendChild(hlWrap); }
+        hlWrap.appendChild(node);
+        if (tk.t === "w") hlWrap.style.gap = "0";
+      } else box.appendChild(node);
+    });
+    if (opts.pick) box.classList.add("picking");
+    return box;
+  }
+  // shrink a line until it fits its container
+  function fit(node, max, min) {
+    let fs = max;
+    node.style.fontSize = fs + "px";
+    const parent = node.parentElement;
+    if (!parent) return;
+    const avail = parent.clientWidth - 4;
+    while (node.scrollWidth > avail && fs > min) { fs -= 2; node.style.fontSize = fs + "px"; }
+  }
+  function exprText(tks) {
+    return tks.map(tk => tk.t === "n" ? tk.v : tk.t === "w" ? (tk.v === 2 ? "²" : "³") : tk.t === "o" ? " " + SYM[tk.v] + " " : tk.t).join("").replace(/\( /g, "(").replace(/ \)/g, ")");
+  }
+  function powHelp(base, e) { return e === 2 ? base + " · " + base : base + " · " + base + " · " + base; }
+
+  // ---------- notebook (solution line by line) ----------
+  // shows lines 0..upto of a solution; the part being computed next is highlighted
+  function notebook(tks0, sol, upto, extraCls) {
+    const nb = el("div", "notebook " + (extraCls || ""));
+    const lines = sol.steps.map(s => s.tks).concat([[{ t: "n", v: sol.value }]]);
+    for (let i = 0; i <= upto && i < lines.length; i++) {
+      const isLast = i === lines.length - 1;
+      const hl = (!isLast && i === upto) || (!isLast && i < upto) ? range(lines[i], sol.steps[i].k) : null;
+      const line = renderExpr(lines[i], { hl: i === upto && !isLast ? hl : null, eq: i > 0 });
+      line.classList.add("line");
+      if (isLast) line.classList.add("done");
+      nb.appendChild(line);
+    }
+    return nb;
+  }
+
+  // ================= LEARN =================
+  const learn = document.getElementById("learn");
+  function exampleCard(cls, em, title, textNodes, exStr) {
+    const card = el("div", "card");
+    const h = el("h3"); h.append(el("span", "em", em), el("span", cls, title));
+    card.appendChild(h);
+    const p = el("p"); p.append(...textNodes); card.appendChild(p);
+    if (exStr) {
+      const tks = parse(exStr, {}), sol = solve(tks, 10000);
+      let step = 0;
+      const holder = el("div");
+      const say = el("div", "say");
+      const acts = el("div", "ex-actions");
+      const next = el("button", "chip-btn", "Następny krok ▶");
+      const reset = el("button", "chip-btn ghost", "Od nowa");
+      acts.append(next, reset);
+      function draw() {
+        holder.replaceChildren(notebook(tks, sol, step));
+        holder.querySelectorAll(".line").forEach(n => fit(n, 30, 18));
+        next.disabled = step >= sol.steps.length;
+        if (step < sol.steps.length) {
+          const s = sol.steps[step], tk = s.tks[s.k];
+          say.replaceChildren();
+          const sub = s.tks.slice(range(s.tks, s.k)[0], range(s.tks, s.k)[1] + 1);
+          say.append(document.createTextNode(step === 0 ? "Najpierw: " : "Teraz: "), el("b", null, exprText(sub) + (tk.t === "w" ? " = " + powHelp(sub[0].v, tk.v) : "") + " = " + s.v));
+        } else { say.replaceChildren(document.createTextNode("Wynik: "), el("b", "c-res", String(sol.value) + " 🎉")); }
+      }
+      next.onclick = () => { step++; tick(); draw(); };
+      reset.onclick = () => { step = 0; draw(); };
+      card.append(holder, say, acts);
+      requestAnimationFrame(draw);
+      card._draw = draw;
+    }
+    return card;
+  }
+  const T = s => document.createTextNode(s);
+  const B = (s, c) => el("b", c, s);
+  function renderLearn() {
+    learn.replaceChildren();
+    // the ladder
+    const lad = el("div", "card");
+    const h = el("h3"); h.append(el("span", "em", "🏢"), el("span", null, "Piętra działań"));
+    lad.append(h, el("p", "note", "Im wyżej mieszka działanie, tym wcześniej je liczymy."));
+    const ladder = el("div", "ladder");
+    [["f-par", "1.", "🎁", "( ) nawiasy", "prezent otwieramy pierwszy"],
+     ["f-pow", "2.", "🚀", "x² x³ potęgi", "rakieta startuje wysoko"],
+     ["f-md", "3.", "🐘", "·  :  mnożenie i dzielenie", "słonie przepychają się przed myszki"],
+     ["f-pm", "4.", "🐭", "+  −  dodawanie i odejmowanie", "myszki czekają na koniec"]].forEach(([c, n, em, t, s]) => {
+      const f = el("div", "floor " + c);
+      const tt = el("div", "t", t); tt.appendChild(el("small", null, s));
+      f.append(el("div", "n", n), el("div", "em", em), tt);
+      ladder.appendChild(f);
+    });
+    lad.appendChild(ladder);
+    const lr = el("div", "lr"); lr.append(el("span", "em", "📖"), el("span", null, "Dwa działania na tym samym piętrze? Liczymy od lewej do prawej, tak jak czytasz książkę."));
+    lad.appendChild(lr);
+    learn.appendChild(lad);
+
+    learn.appendChild(exampleCard("c-md", "🐘", "Słonie przed myszkami",
+      [T("Mnożenie "), B("·", "c-md"), T(" i dzielenie "), B(":", "c-md"), T(" robimy przed dodawaniem "), B("+", "c-pm"), T(" i odejmowaniem "), B("−", "c-pm"), T(". Nawet gdy stoją dalej!")], "3+4*2"));
+    learn.appendChild(exampleCard("c-pm", "📖", "To samo piętro? Od lewej!",
+      [T("Gdy obok siebie są same myszki (+ −) albo same słonie (· :), idziemy po kolei od lewej.")], "20-5+3"));
+    learn.appendChild(exampleCard("c-par", "🎁", "Nawiasy – prezent na początek",
+      [T("To, co jest w nawiasie, liczymy "), B("najpierw", "c-par"), T(". Nawias potrafi przepchnąć myszkę przed słonia.")], "(3+4)*2"));
+    learn.appendChild(exampleCard("c-pow", "🚀", "Potęgi – rakieta",
+      [B("3²", "c-pow"), T(" to 3 · 3 = 9 (kwadrat), "), B("2³", "c-pow"), T(" to 2 · 2 · 2 = 8 (sześcian). Potęgę liczymy przed mnożeniem, ale po nawiasie.")], "2*3^2+1"));
+    learn.appendChild(exampleCard(null, "🏆", "Wszystko razem",
+      [T("Nawias → potęga → słonie → myszki. Spróbuj zgadnąć każdy krok, zanim go odkryjesz!")], "(8-3)*2+4^2/8"));
+
+    // traps
+    const tr = el("div", "card");
+    const th = el("h3"); th.append(el("span", "em", "🪤"), el("span", "c-bad", "Pułapki"));
+    tr.appendChild(th);
+    [["3+4*2", "3 + 4 = 7, 7 · 2 = 14", "4 · 2 = 8, 3 + 8 = 11"],
+     ["12/3*2", "3 · 2 = 6, 12 : 6 = 2", "12 : 3 = 4, 4 · 2 = 8"],
+     ["20-5+3", "5 + 3 = 8, 20 − 8 = 12", "20 − 5 = 15, 15 + 3 = 18"],
+     ["2*3^2", "2 · 3 = 6, 6² = 36", "3² = 9, 2 · 9 = 18"]].forEach(([s, bad, good]) => {
+      const g = el("div", "trap");
+      const ex = renderExpr(parse(s, {}));
+      g.append(ex);
+      g.append(el("span", "mark", "❌"), el("span", "c-bad", bad));
+      g.append(el("span", "mark", "✅"), el("span", "c-res", good));
+      tr.appendChild(g);
+    });
+    learn.appendChild(tr);
+  }
+
+  // ================= PRACTICE =================
+  const prac = document.getElementById("practice");
+  let mode = "step";
+  let levels = store.get("levels", ["pm", "md"]);
+  let hints = store.get("hints", true);
+  let state = null;
+  const N = { step: 5, test: 10 };
+
+  function renderSetup() {
+    state = null; unbindKeys();
+    prac.replaceChildren();
+    const intro = el("div", "card");
+    const h = el("h3");
+    if (mode === "step") {
+      h.append(el("span", "em", "👆"), el("span", null, "Krok po kroku"));
+      intro.append(h, el("p", "note", "Dotknij działania, które liczymy najpierw, a potem wpisz jego wynik. Działanie po działaniu, aż zostanie jedna liczba."));
+    } else {
+      h.append(el("span", "em", "📝"), el("span", null, "Test"));
+      intro.append(h, el("p", "note", "10 przykładów. Policz w głowie albo na kartce i wpisz wynik. Jak się pomylisz, zobaczysz rozwiązanie krok po kroku."));
+    }
+    prac.appendChild(intro);
+
+    prac.appendChild(el("div", "label", "Co ćwiczymy? (możesz wybrać kilka)"));
+    const lv = el("div", "levels");
+    let startBtn;
+    LEVELS.forEach(L => {
+      const b = el("button", L.id === "mix" ? "wide" : null);
+      b.id = "lvl-" + L.id;
+      const t = el("span", "t", L.t); t.appendChild(el("small", null, L.s));
+      b.append(el("span", "em", L.em), t);
+      b.setAttribute("aria-pressed", levels.includes(L.id));
+      b.onclick = () => {
+        levels = levels.includes(L.id) ? levels.filter(x => x !== L.id) : levels.concat(L.id);
+        store.set("levels", levels);
+        b.setAttribute("aria-pressed", levels.includes(L.id));
+        startBtn.disabled = !levels.length;
+      };
+      lv.appendChild(b);
+    });
+    prac.appendChild(lv);
+
+    if (mode === "step") {
+      const tg = el("label", "toggle");
+      const cb = el("input"); cb.type = "checkbox"; cb.id = "hints"; cb.checked = hints;
+      cb.onchange = () => { hints = cb.checked; store.set("hints", hints); };
+      tg.append(cb, T("Zwierzaki nad działaniami (podpowiedź) 🐘🐭"));
+      prac.appendChild(tg);
+    }
+    startBtn = el("button", "big-btn", "Start ▶");
+    startBtn.id = "start";
+    startBtn.disabled = !levels.length;
+    startBtn.onclick = () => newRound();
+    prac.appendChild(startBtn);
+    const best = store.get("best-" + mode, null);
+    if (best !== null) prac.appendChild(el("p", "note", mode === "test" ? "Najlepszy wynik: " + best + " / " + N.test : "Najlepiej: " + best + " / " + N.step + " przykładów bez błędu"));
+  }
+
+  function newRound() {
+    state = { qs: genSet(levels, N[mode]), i: 0, res: [] };
+    mode === "step" ? startStepTask() : renderTest();
+  }
+
+  function progressEl() {
+    const d = el("div", "progress");
+    for (let i = 0; i < state.qs.length; i++) {
+      const s = el("span");
+      if (i < state.res.length) s.className = state.res[i] ? "ok" : "no";
+      else if (i === state.i) s.className = "now";
+      d.appendChild(s);
+    }
+    return d;
+  }
+
+  // ---------- keypad ----------
+  let keyHandler = null;
+  function unbindKeys() { if (keyHandler) { document.removeEventListener("keydown", keyHandler); keyHandler = null; } }
+  function keypad(onPress) {
+    const pad = el("div", "keypad");
+    const keys = {};
+    ["1","2","3","4","5","6","7","8","9","del","0","ok"].forEach(k => {
+      const btn = el("button", k === "ok" ? "ok-key" : k === "del" ? "del-key" : null, k === "del" ? "⌫" : k === "ok" ? "OK" : k);
+      btn.id = "key-" + k;
+      btn.onclick = () => onPress(k);
+      keys[k] = btn; pad.appendChild(btn);
+    });
+    unbindKeys();
+    keyHandler = e => {
+      if (prac.hidden) return;
+      if (/^[0-9]$/.test(e.key)) onPress(e.key);
+      else if (e.key === "Backspace") onPress("del");
+      else if (e.key === "Enter") { e.preventDefault(); onPress("ok"); }
+    };
+    document.addEventListener("keydown", keyHandler);
+    pad.setEnabled = on => Object.values(keys).forEach(b => b.disabled = !on);
+    return pad;
+  }
+
+  // ---------- step-by-step mode ----------
+  function startStepTask() {
+    const q = state.qs[state.i];
+    state.cur = { tks: q.tks, hist: [], phase: "pick", k: -1, typed: "", tries: 0, mistakes: 0, msg: null };
+    renderStep();
+  }
+  function renderStep() {
+    const c = state.cur, q = state.qs[state.i];
+    prac.replaceChildren(progressEl());
+    const nb = el("div", "notebook");
+    c.hist.forEach((h, i) => {
+      const line = renderExpr(h.tks, { hl: range(h.tks, h.k), eq: i > 0 });
+      line.classList.add("line", "past");
+      nb.appendChild(line);
+    });
+    const finished = c.tks.length === 1;
+    let curLine;
+    if (finished) curLine = renderExpr(c.tks, { eq: true });
+    else if (c.phase === "pick") curLine = renderExpr(c.tks, { eq: c.hist.length > 0, pick: onPick, hints });
+    else curLine = renderExpr(c.tks, { eq: c.hist.length > 0, hl: range(c.tks, c.k) });
+    curLine.classList.add("line", "cur");
+    if (finished) curLine.classList.add("done", "pop");
+    nb.appendChild(curLine);
+    prac.appendChild(nb);
+
+    const instr = el("div", "instr");
+    instr.id = "instr";
+    const pad = keypad(onKey);
+    if (finished) {
+      instr.classList.add("ok");
+      instr.append(T(c.mistakes ? "Gotowe! Wynik: " + c.tks[0].v + " ✅" : "Bez błędu! Wynik: " + c.tks[0].v + " 🌟"));
+      pad.setEnabled(false);
+    } else if (c.phase === "pick") {
+      if (c.msg) { instr.classList.add("bad"); instr.append(T(c.msg.em + " " + c.msg.msg)); }
+      else instr.append(T(c.hist.length ? "Co teraz? Dotknij działania 👆" : "Co liczymy najpierw? Dotknij działania 👆"));
+      pad.setEnabled(false);
+    } else {
+      const [a, b] = range(c.tks, c.k);
+      const sub = c.tks.slice(a, b + 1);
+      const tk = c.tks[c.k];
+      instr.append(T("Policz:"));
+      const ex = renderExpr(sub);
+      if (tk.t === "w") ex.appendChild(el("span", "op", " = " + powHelp(sub[0].v, tk.v)));
+      ex.appendChild(el("span", "op", "="));
+      const box = el("span", "answer-box" + (c.typed ? "" : " empty"), c.typed || "?");
+      box.id = "answer";
+      ex.appendChild(box);
+      instr.appendChild(ex);
+      if (c.msg) { const m = el("div", "help", c.msg.msg); m.style.flexBasis = "100%"; instr.appendChild(m); }
+    }
+    prac.appendChild(instr);
+    prac.appendChild(pad);
+    if (finished) {
+      state.res.push(c.mistakes === 0);
+      prac.firstChild.replaceWith(progressEl());
+      const next = el("button", "big-btn", state.i === state.qs.length - 1 ? "Zobacz wynik →" : "Następny przykład →");
+      next.id = "next";
+      next.onclick = () => { state.i++; state.i >= state.qs.length ? renderResult() : startStepTask(); };
+      prac.appendChild(next);
+      unbindKeys();
+      keyHandler = e => { if (e.key === "Enter") { e.preventDefault(); next.click(); } };
+      document.addEventListener("keydown", keyHandler);
+    }
+    requestAnimationFrame(() => {
+      nb.querySelectorAll(".line.past").forEach(n => fit(n, 26, 16));
+      fit(curLine, finished ? 44 : 44, 22);
+      const ie = instr.querySelector(".expr"); if (ie) fit(ie, 26, 16);
+    });
+
+    function onPick(k, btn) {
+      if (validOps(c.tks).includes(k)) {
+        c.phase = "calc"; c.k = k; c.typed = ""; c.tries = 0; c.msg = null; tick(); renderStep();
+      } else {
+        c.mistakes++; c.msg = whyWrong(c.tks, k); bonk();
+        btn.classList.add("wrong", "shake");
+        const ins = document.getElementById("instr");
+        ins.className = "instr bad"; ins.replaceChildren(T(c.msg.em + " " + c.msg.msg));
+        setTimeout(() => btn.classList.remove("shake"), 400);
+      }
+    }
+    function onKey(k) {
+      if (c.phase !== "calc" || finished) return;
+      const box = document.getElementById("answer");
+      if (k === "del") c.typed = c.typed.slice(0, -1);
+      else if (k === "ok") {
+        if (!c.typed) return;
+        const v = calc(c.tks, c.k);
+        if (Number(c.typed) === v) {
+          ding();
+          c.hist.push({ tks: c.tks, k: c.k });
+          c.tks = apply(c.tks, c.k, v).tks;
+          c.phase = "pick"; c.msg = null; c.k = -1;
+          renderStep();
+          return;
+        }
+        c.mistakes++; c.tries++; bonk();
+        box.classList.add("no"); box.parentElement.classList.add("shake");
+        if (c.tries >= 2) {
+          c.msg = { msg: "Wynik to " + v + ". Wpisz " + v + " i lecimy dalej!" };
+        } else {
+          const tk = c.tks[c.k];
+          c.msg = { msg: tk.t === "w" ? "Jeszcze raz! Pomnóż liczbę przez siebie." : "Jeszcze raz, spokojnie 🙂" };
+        }
+        c.typed = "";
+        setTimeout(renderStep, 450);
+        return;
+      } else if (c.typed.length < 4) c.typed = (c.typed === "0" ? "" : c.typed) + k;
+      box.textContent = c.typed || "?";
+      box.classList.toggle("empty", !c.typed);
+    }
+  }
+
+  // ---------- test mode ----------
+  function renderTest() {
+    const q = state.qs[state.i];
+    let typed = "", done = false;
+    prac.replaceChildren(progressEl());
+    const card = el("div", "card");
+    card.style.alignItems = "center";
+    const line = renderExpr(q.tks);
+    line.appendChild(el("span", "op", "="));
+    const box = el("span", "answer-box empty", "?");
+    box.id = "answer";
+    line.appendChild(box);
+    card.appendChild(line);
+    const fb = el("div", "instr");
+    fb.id = "instr";
+    card.appendChild(fb);
+    prac.appendChild(card);
+    const pad = keypad(press);
+    prac.appendChild(pad);
+    const next = el("button", "big-btn", state.i === state.qs.length - 1 ? "Zobacz wynik →" : "Dalej →");
+    next.id = "next"; next.hidden = true;
+    next.onclick = goNext;
+    prac.appendChild(next);
+    requestAnimationFrame(() => fit(line, 46, 22));
+
+    function press(k) {
+      if (done) { if (k === "ok") goNext(); return; }
+      if (k === "del") typed = typed.slice(0, -1);
+      else if (k === "ok") { if (typed) check(); return; }
+      else if (typed.length < 4) typed = (typed === "0" ? "" : typed) + k;
+      box.textContent = typed || "?";
+      box.classList.toggle("empty", !typed);
+    }
+    function check() {
+      done = true;
+      const ans = Number(typed), ok = ans === q.sol.value;
+      state.res.push(ok);
+      pad.setEnabled(false);
+      pad.querySelector(".ok-key").disabled = false;
+      prac.firstChild.replaceWith(progressEl());
+      if (ok) {
+        box.classList.add("ok");
+        fb.className = "instr ok";
+        fb.textContent = pick(["Brawo! 🎉", "Super! 🌟", "Świetnie! 🐘", "Tak jest! ✅"]);
+        ding();
+        setTimeout(() => { if (state && state.qs[state.i] === q) goNext(); }, 1100);
+      } else {
+        box.classList.add("no");
+        card.classList.add("shake");
+        bonk();
+        fb.className = "instr bad";
+        fb.textContent = "Prawie! Dobry wynik to " + q.sol.value;
+        const nv = naive(q.tks);
+        const help = el("div", "help");
+        if (ans === nv && nv !== q.sol.value) help.textContent = "🪤 Liczyłeś po kolei od lewej. Pamiętaj o piętrach: nawias → potęga → słonie 🐘 → myszki 🐭!";
+        else help.textContent = "Zobacz, jak to policzyć krok po kroku:";
+        card.appendChild(help);
+        const nb = notebook(q.tks, q.sol, q.sol.steps.length);
+        // highlight what was computed in each line
+        nb.replaceChildren();
+        const lines = q.sol.steps.map(s => s.tks);
+        lines.forEach((tks, i) => { const l = renderExpr(tks, { hl: range(tks, q.sol.steps[i].k), eq: i > 0 }); l.classList.add("line"); nb.appendChild(l); });
+        const last = renderExpr([{ t: "n", v: q.sol.value }], { eq: true }); last.classList.add("line", "done"); nb.appendChild(last);
+        nb.style.width = "100%";
+        card.appendChild(nb);
+        requestAnimationFrame(() => nb.querySelectorAll(".line").forEach(n => fit(n, 28, 16)));
+        next.hidden = false;
+      }
+    }
+    function goNext() {
+      if (!state || state.qs[state.i] !== q) return;
+      state.i++;
+      state.i >= state.qs.length ? renderResult() : renderTest();
+    }
+  }
+
+  // ---------- result ----------
+  function renderResult() {
+    unbindKeys();
+    const n = state.qs.length;
+    const score = state.res.filter(Boolean).length;
+    const best = Math.max(store.get("best-" + mode, 0), score);
+    store.set("best-" + mode, best);
+    prac.replaceChildren();
+    const r = el("div", "card result");
+    r.id = "result";
+    r.appendChild(el("div", "big-em", score === n ? "🏆" : score >= n * 0.7 ? "🐘" : score >= n * 0.4 ? "🐭" : "🎁"));
+    r.appendChild(el("div", "score", score + " / " + n));
+    const stars = el("div", "stars");
+    for (let i = 0; i < n; i++) stars.appendChild(el("span", state.res[i] ? null : "off", "★"));
+    r.appendChild(stars);
+    r.appendChild(el("div", "msg", score === n ? "Mistrz kolejności!" : score >= n * 0.7 ? "Super!" : score >= n * 0.4 ? "Dobrze idzie!" : "Poćwiczmy jeszcze!"));
+    r.appendChild(el("p", "note", mode === "step" ? "Gwiazdka = przykład bez żadnej pomyłki." : "Gwiazdka = dobry wynik."));
+    if (score < n * 0.4) r.appendChild(el("p", "note", "Zajrzyj do zakładki Zasady i zobacz przykłady krok po kroku."));
+    r.appendChild(el("p", "note", "Najlepszy wynik: " + best + " / " + n));
+    prac.appendChild(r);
+    const again = el("button", "big-btn", "Jeszcze raz");
+    again.id = "again";
+    again.onclick = newRound;
+    const change = el("button", "big-btn ghost", "Zmień poziom");
+    change.onclick = renderSetup;
+    prac.append(again, change);
+    score === n ? fanfare() : score >= n * 0.7 && ding();
+  }
+
+  // ================= tabs =================
+  const tabs = { learn: document.getElementById("tab-learn"), step: document.getElementById("tab-step"), test: document.getElementById("tab-test") };
+  function showTab(name) {
+    Object.entries(tabs).forEach(([k, b]) => b.setAttribute("aria-selected", k === name));
+    learn.hidden = name !== "learn";
+    prac.hidden = name === "learn";
+    prac.style.display = name === "learn" ? "" : "flex";
+    if (name !== "learn" && (mode !== name || !state)) { mode = name; renderSetup(); }
+    if (name === "learn") { unbindKeys(); learn.querySelectorAll(".card").forEach(c => c._draw && c._draw()); }
+    store.set("tab", name);
+  }
+  tabs.learn.onclick = () => showTab("learn");
+  tabs.step.onclick = () => { if (mode !== "step") state = null; showTab("step"); };
+  tabs.test.onclick = () => { if (mode !== "test") state = null; showTab("test"); };
+
+  renderLearn();
+  showTab(store.get("tab", "learn"));
+
+  // for automated checks
+  window.__kd = { parse, solve, validOps, whyWrong, naive, genSet, genOne, LEVELS, get state() { return state; }, exprText };
+})();
+</script>
+</body>
+</html>
