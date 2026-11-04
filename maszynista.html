@@ -225,6 +225,7 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
 .add-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; background: var(--card); border: 2px dashed var(--line); border-radius: 12px; padding: 6px; font-size: 12px; line-height: 1.2; text-align: center; }
 .add-btn:disabled { opacity: .4; }
 .add-btn b { font-family: var(--font-display); font-size: 15px; }
+.add-h { grid-column: 1 / -1; font-family: var(--font-display); font-weight: 800; font-size: 14px; color: var(--muted); margin-top: 4px; }
 
 /* Brief */
 .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
@@ -362,7 +363,7 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
     </section>
 
     <section class="tab" id="tabFreight" hidden>
-      <p class="muted">Przewoź towary: drewno, tłuczeń, węgiel i paliwo. Podstawiaj wagony dokładnie pod ładowarkę, wjeżdżaj pod górę i zarabiaj na nowe lokomotywy.</p>
+      <p class="muted">Przewoź towary: drewno, tłuczeń, węgiel, paliwo, a nawet czołgi. Podstawiaj wagony dokładnie pod ładowarkę, wjeżdżaj pod górę i zarabiaj na nowe lokomotywy.</p>
       <div class="routes" id="missions"></div>
     </section>
 
@@ -425,7 +426,8 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
     <div class="loco-grid" id="locoGrid"></div>
     <h3>Wagony <span class="muted" id="coachCount"></span></h3>
     <div class="coach-list" id="coachList"></div>
-    <p class="muted">Dotknij wagonu, żeby zmienić jego malowanie. Dodaj nowy:</p>
+    <p class="muted" id="emuNote" hidden>🚃 EN57 i EN71 to elektryczne zespoły trakcyjne: wagony są połączone na stałe i mają własne silniki. Nie da się ich odczepić ani dołączyć innych wagonów.</p>
+    <p class="muted" id="coachHint">Dotknij wagonu, żeby zmienić go na inny. Dodaj nowy:</p>
     <div class="add-grid" id="addGrid"></div>
     <button class="big-btn go" id="btnEditDone">Gotowe ✓</button>
   </div>
@@ -618,30 +620,59 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
       draw: "ty2", stack: [27, -2], cyl: 29, wd: 1.4, tender: "TY2T", price: 1200,
       sw: [[4, 2, 1], [9, 2, 1], [14, 2, 1], [19, 2, 1], [24, 2, 1], [29, 1, 0]], horn: [440, 554, 659] }
   };
+  // electric multiple units: the cab car is the "loco", the rest is coupled for good
+  Object.assign(LOCOS, {
+    EN57: { id: "EN57", name: "EN57", nick: "", kind: "electric", type: "zespół trakcyjny · 3 wagony", vmax: 110, P: 608, F: 120, mass: 34, w: 44,
+      wheels: [4, 8, 32, 36], draw: "emu", emuDraw: true, cab: true, emu: ["EN57s"], seats: 56, doors: [12, 32],
+      wins: [[2, 3, 3, 3], [6, 3, 3, 3], [15, 3, 3, 3], [19, 3, 3, 3], [23, 3, 3, 3], [36, 3, 2, 3]], horn: [370, 466] },
+    EN71: { id: "EN71", name: "EN71", nick: "", kind: "electric", type: "zespół trakcyjny · 4 wagony", vmax: 110, P: 1160, F: 200, mass: 34, w: 44,
+      wheels: [4, 8, 32, 36], draw: "emu", emuDraw: true, cab: true, emu: ["EN71s", "EN71s"], seats: 56, doors: [12, 32], price: 700,
+      wins: [[2, 3, 3, 3], [6, 3, 3, 3], [15, 3, 3, 3], [19, 3, 3, 3], [23, 3, 3, 3], [36, 3, 2, 3]], horn: [349, 440] }
+  });
+  const EMU_CARS = {
+    EN57s: { id: "EN57s", name: "EN57 s", cls: "emu", emuDraw: true, w: 44, wheels: [4, 8, 32, 36], mass: 55, seats: 100, doors: [12, 32], panto: [19],
+      wins: [[2, 3, 3, 3], [6, 3, 3, 3], [15, 3, 3, 3], [19, 3, 3, 3], [23, 3, 3, 3], [36, 3, 3, 3], [40, 3, 3, 3]] },
+    EN71s: { id: "EN71s", name: "EN71 s", cls: "emu", emuDraw: true, w: 44, wheels: [4, 8, 32, 36], mass: 57, seats: 88, doors: [12, 32], panto: [19],
+      wins: [[2, 3, 3, 3], [6, 3, 3, 3], [15, 3, 3, 3], [19, 3, 3, 3], [23, 3, 3, 3], [36, 3, 3, 3], [40, 3, 3, 3]] }
+  };
   const TENDERS = { TY2T: { id: "TY2T", name: "tender", cls: "tender", draw: "ty2t", w: 20, wheels: [2, 6, 12, 16], mass: 55 } };
-  const LOCO_ORDER = ["SM42", "SP42", "SM31", "ST44", "SU45", "SM48", "ST43", "SU46", "EU07", "EP09", "ET22", "TKT48", "TY2"];
+  const LOCO_ORDER = ["SM42", "SP42", "SM31", "ST44", "SU45", "SM48", "ST43", "SU46", "EU07", "EP09", "EN57", "EN71", "ET22", "TKT48", "TY2"];
   Object.values(LOCOS).forEach(L => { L.cls = "loco"; if (L.sw) L.wheels = L.sw.map(w => w[0] - 2); });
-  const locoVehs = L => (L.tender ? [{ def: L }, { def: TENDERS[L.tender] }] : [{ def: L }]);
+  const locoVehs = L => (L.emu ? [{ def: L }].concat(L.emu.map(id => ({ def: EMU_CARS[id] })), [{ def: L, flip: true }])
+    : L.tender ? [{ def: L }, { def: TENDERS[L.tender] }] : [{ def: L }]);
 
   const COACH_W = 48, COACH_WHEELS = [5, 9, 35, 39];
   const COACHES = {
     "112A-zk": { id: "112A-zk", name: "112A", sub: "2 kl. · zielono-kremowy", up: C.cream, upD: C.creamD, low: "#2f6a46", lowD: "#245338", band: null, win: 9, mass: 40, seats: 54 },
     "112A-kc": { id: "112A-kc", name: "112A", sub: "1 kl. · kremowo-czerwony", up: C.cream, upD: C.creamD, low: "#a3312a", lowD: "#82261f", band: C.yellow, win: 9, mass: 40, seats: 54 },
     "112A-ol": { id: "112A-ol", name: "112A", sub: "1 kl. · oliwkowy", up: "#5d6b3c", upD: "#4b5830", low: "#5d6b3c", lowD: "#4b5830", band: C.yellow, win: 9, mass: 40, seats: 54 },
-    "111A-zk": { id: "111A-zk", name: "111A", sub: "2 kl. · zielono-kremowy", up: C.cream, upD: C.creamD, low: "#2f6a46", lowD: "#245338", band: null, win: 10, mass: 40, seats: 80 }
+    "111A-zk": { id: "111A-zk", name: "111A", sub: "2 kl. · zielono-kremowy", up: C.cream, upD: C.creamD, low: "#2f6a46", lowD: "#245338", band: null, win: 10, mass: 40, seats: 80 },
+    // PRL
+    "bhp": { id: "bhp", name: "Piętrus", sub: "Bhp · piętrowy, zielony", cdraw: "bhp", w: 50, wheels: [5, 9, 37, 41], mass: 44, seats: 126, doors: [3.5, 46.5],
+      wins: [10, 14, 18, 22, 26, 30, 34, 38].map(x => [x, -1, 2, 2]).concat([10, 14, 18, 22, 26, 30, 34, 38].map(x => [x, 5, 2, 2])) },
+    "rest": { id: "rest", name: "Restauracyjny", sub: "WR · czerwony", cdraw: "rest", mass: 44, seats: 36, doors: [3.5, 44.5],
+      wins: [[7, 4, 5, 3], [13, 4, 5, 3], [19, 4, 5, 3], [25, 4, 5, 3], [31, 4, 5, 3], [38, 4, 2, 2]] },
+    // steam era
+    "ryflak": { id: "ryflak", name: "Ryflak", sub: "z czasów parowozów · ryflowany", cdraw: "ryflak", w: 44, wheels: [4, 8, 32, 36], mass: 38, seats: 64, doors: [2.5, 41.5],
+      wins: [7, 10, 15, 18, 23, 26, 31, 34].map(x => [x, 4, 2, 2]) },
+    "dwuos": { id: "dwuos", name: "Dwuosiowy", sub: "z czasów parowozów · przedziałowy", cdraw: "dwuos", w: 30, wheels: [4, 22], mass: 16, seats: 40, doors: [2.5, 9.5, 16.5, 23.5],
+      wins: [0, 1, 2, 3].map(k => [5 + k * 7, 4, 2, 2]) }
   };
-  Object.values(COACHES).forEach(d => { d.cls = "coach"; d.w = COACH_W; d.wheels = COACH_WHEELS; });
-  const COACH_ORDER = ["112A-zk", "112A-kc", "112A-ol", "111A-zk"];
+  Object.values(COACHES).forEach(d => { d.cls = "coach"; d.w = d.w || COACH_W; d.wheels = d.wheels || COACH_WHEELS; });
+  const COACH_ORDER = ["112A-zk", "112A-kc", "112A-ol", "111A-zk", "bhp", "rest", "ryflak", "dwuos"];
+  const COACH_GROUPS = [["Wagony z PRL", ["112A-zk", "112A-kc", "112A-ol", "111A-zk", "bhp", "rest"]], ["Z czasów parowozów", ["ryflak", "dwuos"]]];
 
   const FWAG = {
     log:     { id: "log", name: "Kłonicówka", code: "Rs", cargo: "drewno", icon: "🪵", w: 40, wheels: [3, 7, 30, 34], empty: 24, cargoT: 50 },
     ballast: { id: "ballast", name: "Szutrówka", code: "Facc", cargo: "tłuczeń", icon: "🪨", w: 26, wheels: [3, 7, 16, 20], empty: 20, cargoT: 45 },
     coal:    { id: "coal", name: "Węglarka", code: "Eaos", cargo: "węgiel", icon: "⚫", w: 28, wheels: [3, 7, 18, 22], empty: 22, cargoT: 58 },
-    fuel:    { id: "fuel", name: "Cysterna", code: "Zaes", cargo: "olej napędowy", icon: "🛢️", w: 28, wheels: [3, 7, 18, 22], empty: 24, cargoT: 54 }
+    fuel:    { id: "fuel", name: "Cysterna", code: "Zaes", cargo: "olej napędowy", icon: "🛢️", w: 28, wheels: [3, 7, 18, 22], empty: 24, cargoT: 54 },
+    tank:    { id: "tank", name: "Platforma z czołgiem", code: "Slmmps", cargo: "czołg", icon: "🪖", w: 34, wheels: [3, 7, 24, 28], empty: 26, cargoT: 41, mil: true },
+    truck:   { id: "truck", name: "Platforma z ciężarówką", code: "", cargo: "ciężarówka", icon: "🚚", w: 30, wheels: [3, 7, 20, 24], empty: 22, cargoT: 10, mil: true }
   };
   Object.values(FWAG).forEach(d => { d.cls = "freight"; });
 
-  function coachWindows(d) { const r = []; if (d.win === 9) for (let i = 0; i < 9; i++) r.push([7 + i * 4, 4, 3, 3]); else for (let i = 0; i < 10; i++) r.push([8 + i * 3, 4, 2, 3]); return r; }
+  function coachWindows(d) { if (d.wins) return d.wins; const r = []; if (d.win === 9) for (let i = 0; i < 9; i++) r.push([7 + i * 4, 4, 3, 3]); else for (let i = 0; i < 10; i++) r.push([8 + i * 3, 4, 2, 3]); return r; }
   function drawCoach(p, d, open) {
     p(3, 0, 42, 1, C.roofL); p(1, 1, 46, 1, C.roof); p(0, 2, 48, 1, C.roof2);
     p(0, 3, 48, 5, d.up); p(0, 8, 48, 2, d.low); p(0, 10, 48, 1, d.lowD);
@@ -655,6 +686,108 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
     p(3, 11, 42, 1, C.frame); p(4, 11, 8, 2, C.bogie); p(34, 11, 8, 2, C.bogie);
     p(2, 11, 1, 1, C.buffer); p(45, 11, 1, 1, C.buffer);
   }
+  // EN57 / EN71: classic yellow-and-blue livery; cab (front) at the right end
+  function drawEmu(p, d, open) {
+    const Y = "#e7c64e", YD = "#c9a83a", B = "#2c4f93", BD = "#213d73", w = d.w;
+    p(3, 0, w - 6, 1, C.roofL); p(1, 1, w - 2, 1, C.roof); p(0, 2, w, 1, C.roof2);
+    p(0, 3, w, 4, Y); p(0, 7, w, 3, B); p(0, 10, w, 1, BD); p(0, 6, w, 1, YD);
+    for (const wn of d.wins) win(p, wn[0], wn[1], wn[2], wn[3]);
+    for (const dc of d.doors) {
+      const dx = dc - 2;
+      if (open) { p(dx, 3, 4, 8, "#15161b"); p(dx, 10, 4, 1, "#3b3e48"); }
+      else { p(dx, 3, 4, 4, YD); p(dx, 7, 4, 3, BD); p(dx, 4, 1, 2, C.glass); p(dx + 3, 4, 1, 2, C.glass); p(dx + 2, 3, 1, 7, "#8c7a34"); }
+    }
+    if (d.cab) {
+      p(w - 2, 1, 2, 1, C.roof2);
+      p(w - 2, 3, 2, 3, C.glass); p(w - 1, 3, 1, 1, C.glassHi); p(w - 4, 3, 1, 3, Y);
+      p(w - 2, 7, 2, 3, B); p(w - 1, 6, 1, 1, "#c0392b");
+      p(w - 1, 2, 1, 1, C.lampW); p(w - 1, 9, 1, 1, C.lampW);
+      p(w - 1, 10, 1, 2, C.buffer);
+    } else {
+      p(13, 11, 18, 2, "#26282e"); p(0, 4, 1, 6, "#15161b"); p(w - 1, 4, 1, 6, "#15161b");
+    }
+    p(2, 11, w - 4, 1, C.frame); p(3, 11, 9, 2, C.bogie); p(w - 12, 11, 9, 2, C.bogie);
+    p(0, 10, 1, 2, C.buffer);
+  }
+  function coachDoors(p, d, open, xs, wd, top, colU, colL) {
+    for (const dx of xs) {
+      if (open) { p(dx, top, wd, 11 - top, "#15161b"); p(dx, 10, wd, 1, "#3b3e48"); }
+      else { p(dx, top, wd, 8 - top, colU); p(dx, 8, wd, 3, colL); p(dx + Math.floor(wd / 2), top + 1, 1, 2, C.glass); }
+    }
+  }
+  const CDRAW = {
+    // PRL double-decker ("piętrus"): low vestibules at both ends, tall two-deck middle
+    bhp(p, d, open) {
+      const G1 = "#3d6a48", G2 = "#2f5638", Y = "#d9c25a";
+      p(1, 1, 8, 1, C.roof); p(0, 2, 9, 1, C.roof2); p(41, 1, 8, 1, C.roof); p(41, 2, 9, 1, C.roof2);
+      p(10, -4, 30, 1, C.roofL); p(8, -3, 34, 1, C.roof2);
+      p(0, 3, 9, 8, G1); p(41, 3, 9, 8, G1); p(8, -2, 34, 13, G1);
+      p(8, -2, 1, 13, G2); p(41, -2, 1, 13, G2);
+      p(9, 3, 32, 1, G2); p(0, 8, 50, 1, Y);
+      for (const x of [10, 14, 18, 22, 26, 30, 34, 38]) { win(p, x, -1, 2, 2); win(p, x, 5, 2, 2); }
+      coachDoors(p, d, open, [2, 45], 3, 3, G2, G2);
+      p(3, 11, 44, 1, C.frame); p(4, 11, 8, 2, C.bogie); p(36, 11, 8, 2, C.bogie);
+      p(1, 11, 1, 1, C.buffer); p(48, 11, 1, 1, C.buffer);
+    },
+    // PRL dining car
+    rest(p, d, open) {
+      const R = "#8f2b20", RL = "#a8382b", RD = "#6e2018";
+      p(3, 0, 42, 1, C.roofL); p(1, 1, 46, 1, C.roof); p(0, 2, 48, 1, C.roof2);
+      p(0, 3, 48, 8, R); p(0, 3, 48, 1, RL); p(0, 8, 48, 1, C.cream); p(0, 10, 48, 1, RD);
+      for (const wn of d.wins) win(p, wn[0], wn[1], wn[2], wn[3]);
+      p(39, 0, 2, 1, "#5a5e68"); p(44, 0, 1, 1, "#5a5e68");
+      p(0, 3, 1, 8, C.frame); p(47, 3, 1, 8, C.frame);
+      coachDoors(p, d, open, [2, 43], 3, 3, RD, RD);
+      p(3, 11, 42, 1, C.frame); p(4, 11, 8, 2, C.bogie); p(34, 11, 8, 2, C.bogie);
+      p(2, 11, 1, 1, C.buffer); p(45, 11, 1, 1, C.buffer);
+    },
+    // steam-era steel coach with ribbed ("ryflowane") sides
+    ryflak(p, d, open) {
+      const G1 = "#3f6b45", G2 = "#30553a", G3 = "#4d7c53";
+      p(4, 0, 36, 1, C.roofL); p(1, 1, 42, 1, C.roof); p(0, 2, 44, 1, C.roof2);
+      p(0, 3, 44, 8, G1);
+      for (let y = 7; y <= 10; y++) p(1, y, 42, 1, y % 2 ? G2 : G3);
+      for (const wn of d.wins) win(p, wn[0], wn[1], wn[2], wn[3]);
+      p(6, 3, 1, 4, G2); p(37, 3, 1, 4, G2);
+      for (const x of [9, 17, 25, 33]) p(x, 0, 1, 1, "#5a5e68");
+      coachDoors(p, d, open, [1, 40], 3, 3, G2, G2);
+      p(3, 11, 38, 1, C.frame); p(3, 11, 8, 2, C.bogie); p(31, 11, 8, 2, C.bogie);
+      p(0, 11, 1, 1, C.buffer); p(43, 11, 1, 1, C.buffer);
+    },
+    // two-axle compartment coach: a door for every compartment, footboard along the side
+    dwuos(p, d, open) {
+      const B = "#7a4a2a", BD = "#5e381f", BL = "#946039";
+      p(3, 0, 24, 1, C.roof); p(1, 1, 28, 1, C.roof); p(0, 2, 30, 1, C.roof2);
+      for (const x of [6, 13, 20]) p(x, -1, 2, 1, "#4a4e58");
+      p(0, 3, 30, 7, B); p(0, 3, 30, 1, BL);
+      for (let k = 0; k < 4; k++) {
+        const x0 = 1 + k * 7;
+        if (open) p(x0, 3, 3, 7, "#15161b"); else { p(x0, 3, 3, 7, BD); p(x0 + 1, 4, 1, 2, C.glass); }
+        win(p, x0 + 4, 4, 2, 2);
+      }
+      p(0, 10, 30, 1, "#3b2a1e");
+      p(1, 11, 28, 1, C.frame); p(3, 11, 6, 1, C.bogie); p(21, 11, 6, 1, C.bogie);
+      p(0, 11, 1, 1, C.buffer); p(29, 11, 1, 1, C.buffer);
+    }
+  };
+  // military vehicles (olive); y0 = top row
+  function drawTankV(p, x0, y0) {
+    const O = "#5b6a3a", OD = "#45512b", OL = "#717f4a", K = "#24261f";
+    p(x0 + 1, y0 + 6, 24, 2, K); for (let i = 0; i < 6; i++) p(x0 + 2 + i * 4, y0 + 7, 2, 1, "#55584c");
+    p(x0, y0 + 4, 26, 2, O); p(x0 + 1, y0 + 3, 24, 1, OL); p(x0 + 24, y0 + 4, 2, 2, OD);
+    p(x0 + 8, y0 + 1, 10, 2, O); p(x0 + 9, y0, 7, 1, OL); p(x0 + 12, y0 - 1, 2, 1, OD);
+    p(x0 - 4, y0 + 1, 12, 1, OD);
+    p(x0 + 5, y0 + 4, 3, 1, OD); p(x0 + 15, y0 + 5, 4, 1, "#7a6a3a"); p(x0 + 11, y0 + 1, 2, 1, OD); p(x0 + 20, y0 + 3, 2, 1, "#7a6a3a");
+  }
+  function drawTruckV(p, x0, y0) {
+    const O = "#5b6a3a", OD = "#45512b", T = "#6a7445";
+    p(x0, y0, 14, 6, T); p(x0, y0, 14, 1, "#7f8a55"); for (let x = x0 + 3; x < x0 + 14; x += 4) p(x, y0 + 1, 1, 5, OD);
+    p(x0 + 15, y0 + 2, 6, 5, O); p(x0 + 16, y0 + 1, 4, 1, O); win(p, x0 + 18, y0 + 2, 2, 2); p(x0 + 21, y0 + 4, 1, 3, OD);
+    p(x0, y0 + 6, 22, 1, "#2c2f39");
+    for (const wx of [2, 6, 17]) { p(x0 + wx, y0 + 7, 3, 2, "#1b1d24"); p(x0 + wx + 1, y0 + 7, 1, 1, "#6a6e78"); }
+  }
+  const milSprites = {};
+  function milSprite(kind) { return milSprites[kind] || (milSprites[kind] = mk(30, p => (kind === "tank" ? drawTankV(p, 4, 1) : drawTruckV(p, 4, 0)))); }
   const LDRAW = {
     sm42(p, d) {
       p(0, 10, 28, 2, C.frame);
@@ -897,6 +1030,18 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
       p(1, 11, 26, 1, C.frame); p(1, 11, 9, 2, C.bogie); p(17, 11, 9, 2, C.bogie);
       p(0, 11, 1, 1, C.buffer); p(27, 11, 1, 1, C.buffer);
     },
+    tank(p, lvl) {
+      p(0, 9, 34, 1, "#7a6248"); p(0, 10, 34, 1, "#3b3e48"); for (const x of [2, 10, 18, 26, 31]) p(x, 10, 1, 1, "#2c2f39");
+      p(1, 11, 32, 1, C.frame); p(1, 11, 10, 2, C.bogie); p(23, 11, 10, 2, C.bogie);
+      p(0, 10, 1, 2, C.buffer); p(33, 10, 1, 2, C.buffer);
+      if (lvl >= 4) { drawTankV(p, 5, 1); p(3, 7, 1, 2, "#9aa0aa"); p(31, 7, 1, 2, "#9aa0aa"); }
+    },
+    truck(p, lvl) {
+      p(0, 9, 30, 1, "#7a6248"); p(0, 10, 30, 1, "#3b3e48"); for (const x of [2, 10, 19, 27]) p(x, 10, 1, 1, "#2c2f39");
+      p(1, 11, 28, 1, C.frame); p(1, 11, 9, 2, C.bogie); p(20, 11, 9, 2, C.bogie);
+      p(0, 10, 1, 2, C.buffer); p(29, 10, 1, 2, C.buffer);
+      if (lvl >= 4) { drawTruckV(p, 4, 0); p(2, 8, 1, 1, "#9aa0aa"); p(27, 8, 1, 1, "#9aa0aa"); }
+    },
     fuel(p) {
       p(13, 0, 2, 1, "#2f3239"); p(12, 1, 4, 1, "#2f3239");
       p(2, 2, 24, 1, "#4a4e58"); p(1, 3, 26, 6, "#2f3239"); p(2, 3, 24, 1, "#555a66"); p(2, 9, 24, 1, "#26282e");
@@ -911,7 +1056,9 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
     const key = def.cls + def.id + "|" + (variant || 0);
     if (spriteCache[key]) return spriteCache[key];
     let s;
-    if (def.cls === "coach") s = mk(COACH_W, p => drawCoach(p, def, !!variant));
+    if (def.emuDraw) s = mk(def.w, p => drawEmu(p, def, !!variant));
+    else if (def.cdraw) s = mk(def.w, p => CDRAW[def.cdraw](p, def, !!variant));
+    else if (def.cls === "coach") s = mk(COACH_W, p => drawCoach(p, def, !!variant));
     else if (def.cls === "freight") s = mk(def.w, p => FDRAW[def.id](p, variant || 0));
     else s = mk(def.w, p => LDRAW[def.draw](p, def));
     return (spriteCache[key] = s);
@@ -953,8 +1100,9 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
     let x = w - 2;
     vehs.forEach(v => {
       x -= v.def.w;
-      if (!v.def.sw) v.def.wheels.forEach(wx => wheel(c, x + wx, 16, 0));
-      c.drawImage(sprite(v.def, v.variant), x, 0);
+      if (!v.def.sw) v.def.wheels.forEach(wx => wheel(c, x + (v.flip ? v.def.w - 4 - wx : wx), 16, 0));
+      if (v.flip) { c.save(); c.translate(x + v.def.w, 0); c.scale(-1, 1); c.drawImage(sprite(v.def, v.variant), 0, 0); c.restore(); }
+      else c.drawImage(sprite(v.def, v.variant), x, 0);
       if (v.def.sw) drawWheelSet(c, v.def, x, () => 20, 0, 0.6, false);
       x -= 1;
     });
@@ -1198,6 +1346,29 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
       zones: [[-1e9, "country"], [600, "forest"], [1700, "mountain"]], prof: [[0, 0], [2300, 30], [4600, 62]],
       drifts: [[650, 30, 0.8], [1250, 40, 1.1], [2700, 45, 1.3], [3250, 35, 1.0], [3800, 45, 1.4]], landmarks: [{ x: -200, k: "cerkiew" }], crossings: [1600], bridges: [], tunnels: [] }
   );
+  MISSIONS.push(
+    { id: "w1", mil: true, name: "Ciężarówki na manewry", emoji: "🚚", dk: "easy", diffTxt: "łatwa", region: "Mazury · Ełk → poligon Orzysz", sky: "day", elec: false, lineV: 60,
+      wag: "truck", n: 4, reward: 550, rec: ["SM42", "SM48", "SU45"],
+      desc: "Wojsko jedzie na manewry! Na rampie wojskowej ciężarówki same wjeżdżają na platformy, ale musisz podstawić każdą platformę dokładnie przy znaczniku ▲. Na poligonie znów po kolei przy rampie.",
+      load: { x: 300, label: "Rampa wojskowa Ełk", kind: "ramp" }, unload: { type: "each", x: 7200, label: "Poligon Orzysz", kind: "ramp" },
+      stations: [["Stare Juchy", 3600]], zones: [[-1e9, "town"], [1000, "country"], [2400, "forest"], [4600, "country"], [6400, "forest"]],
+      prof: [[0, 0], [2000, 4], [4500, 2], [7400, 6]], landmarks: [{ x: -80, k: "koszary" }, { x: 7350, k: "poligon" }],
+      w8: [], crossings: [1800, 5200], bridges: [{ from: 2900, to: 3100, v: 60, t: "truss" }], tunnels: [] },
+    { id: "w2", mil: true, name: "Czołgi na poligon", emoji: "🪖", dk: "medium", diffTxt: "średnia", region: "Lubuskie · Żagań → poligon Świętoszów", sky: "day", elec: false, lineV: 60,
+      wag: "tank", n: 4, reward: 950, rec: ["ST44", "ST43", "SM48"],
+      desc: "Czołg waży ponad 40 ton, więc cały eszelon jest bardzo ciężki. Podstawiaj platformy pod rampę, jedź spokojnie przez las i hamuj wcześnie przed poligonem.",
+      load: { x: 300, label: "Rampa wojskowa Żagań", kind: "ramp" }, unload: { type: "each", x: 8600, label: "Poligon Świętoszów", kind: "ramp" },
+      stations: [["Bożnów", 4200]], zones: [[-1e9, "town"], [1100, "forest"], [3600, "country"], [5000, "forest"]],
+      prof: [[0, 0], [2600, 12], [4200, 8], [6400, 18], [8800, 6]], landmarks: [{ x: -80, k: "koszary" }, { x: 8750, k: "poligon" }],
+      w8: [{ from: 6000, to: 6500, v: 40 }], crossings: [2200, 5600], bridges: [], tunnels: [] },
+    { id: "w3", mil: true, name: "Nocny eszelon", emoji: "🌙", dk: "hard", diffTxt: "trudna", region: "Pomorze · Złocieniec → poligon Drawsko", sky: "night", elec: false, lineV: 60,
+      wag: "tank", n: 6, reward: 1500, rec: ["ST44", "ST43"],
+      desc: "Tajny nocny transport sześciu czołgów na ćwiczenia. Po ciemku widać tylko światła semaforów, a trasa idzie pod górę i z górki. Ciężki skład długo hamuje!",
+      load: { x: 300, label: "Rampa Złocieniec", kind: "ramp" }, unload: { type: "each", x: 9600, label: "Poligon Drawsko", kind: "ramp" },
+      stations: [["Kosobudy", 4400]], zones: [[-1e9, "town"], [1200, "forest"], [3800, "country"], [5200, "forest"]],
+      prof: [[0, 0], [2200, 20], [4400, 26], [6200, 44], [7800, 22], [9900, 14]], landmarks: [{ x: -80, k: "koszary" }, { x: 9750, k: "poligon" }],
+      w8: [{ from: 7000, to: 7700, v: 40 }], crossings: [1900, 5600, 8500], bridges: [{ from: 3200, to: 3360, v: 50, t: "viaduct" }], tunnels: [] }
+  );
   function buildPlowRoute(M) {
     const R = { id: M.id, name: M.name, emoji: M.emoji, line: M.region, sky: M.sky || "day", elec: false, lineV: M.lineV, diff: M.dk,
       stations: M.stations.map(s => [s[0], s[1], s[2] || 0, s[3] || "pass"]), zones: M.zones, landmarks: M.landmarks || [], w8: [],
@@ -1383,7 +1554,10 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
     { id: "plow", e: "❄️", n: "Odśnieżacz", d: "Ukończ misję z pługiem" },
     { id: "storm", e: "⛈️", n: "Pogromca burz", d: "Dojedź do celu w burzy" },
     { id: "blizzard", e: "🌨️", n: "Przez zamieć", d: "Dojedź do celu w zamieci" },
-    { id: "steam", e: "🚂", n: "Parowozownia", d: "Ukończ kurs parowozem" }
+    { id: "steam", e: "🚂", n: "Parowozownia", d: "Ukończ kurs parowozem" },
+    { id: "emu", e: "🚃", n: "Elektryczny zespół", d: "Kurs EN57 lub EN71" },
+    { id: "retro", e: "🕰️", n: "Retro skład", d: "Kurs z wagonem z czasów parowozów" },
+    { id: "army", e: "🪖", n: "Eszelon", d: "Ukończ transport wojskowy" }
   ];
   function rankOf(e) { let r = RANKS[0], nx = null; for (let i = 0; i < RANKS.length; i++) if (e >= RANKS[i][0]) { r = RANKS[i]; nx = RANKS[i + 1] || null; } return { r, nx }; }
 
@@ -1584,6 +1758,15 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
     g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.05, t + 0.2); g.gain.setValueAtTime(0.05, t + dur - 0.2); g.gain.linearRampToValueAtTime(0, t + dur);
     o.connect(lp); lp.connect(g); g.connect(bus); o.start(t); o.stop(t + dur + 0.05);
   }
+  function tankMotor(dur, heavy) {
+    if (!ac || muted) return;
+    noiseBurst(dur, "lowpass", heavy ? 150 : 260, 0.9, heavy ? 0.32 : 0.2, 0, 0.4);
+    const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain(), lp = biq("lowpass", heavy ? 260 : 420, 1);
+    o.type = "sawtooth"; o.frequency.setValueAtTime(heavy ? 34 : 52, t); o.frequency.linearRampToValueAtTime(heavy ? 52 : 80, t + dur * 0.3); o.frequency.linearRampToValueAtTime(heavy ? 40 : 60, t + dur);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.08, t + 0.3); g.gain.setValueAtTime(0.08, t + dur - 0.4); g.gain.linearRampToValueAtTime(0, t + dur);
+    o.connect(lp); lp.connect(g); g.connect(bus); o.start(t); o.stop(t + dur + 0.05);
+    if (heavy) for (let k = 0; k < Math.floor(dur * 5); k++) noiseBurst(0.04, "bandpass", 900, 2, 0.05, 0.3 + k * 0.19);
+  }
   function pump(dur) {
     if (!ac || muted) return;
     const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain(), lp = biq("lowpass", 300, 1);
@@ -1664,7 +1847,8 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
     const veh = []; let off = 0;
     const add = (def, extra) => { veh.push(Object.assign({ def, off, len: def.w / PX }, extra)); off += def.w / PX + 0.5; };
     if (front) add(front, { plough: true });
-    add(loco, { loco: true });
+    add(loco, loco.emu ? { loco: true, coach: true } : { loco: true });
+    if (loco.emu) { loco.emu.forEach(id => add(EMU_CARS[id], { coach: true })); add(loco, { coach: true, flip: true, rearCab: true }); }
     if (loco.tender) add(TENDERS[loco.tender], { tender: true });
     cars.forEach(c => { if (c.def.cls === "coach") add(c.def, { coach: true }); else add(c.def, { freight: true, load: c.load || 0 }); });
     const fw = veh.findIndex(v => v.coach || v.freight);
@@ -1677,7 +1861,7 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
   }
   function doorPositions() {
     const out = [];
-    for (const v of G.train.veh) if (v.coach) { const left = G.x - v.off - v.len; out.push(left + 1.75, left + 22.25); }
+    for (const v of G.train.veh) if (v.coach) { const left = G.x - v.off - v.len; (v.def.doors || [3.5, 44.5]).forEach(px => out.push(left + (v.flip ? v.def.w - px : px) / PX)); }
     return out;
   }
 
@@ -1725,16 +1909,17 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
     if (!R.elec && LOCOS[cons.loco].kind === "electric") { showMenu("pax"); showElecWarn(i); return; }
     lastStart = { type: "pax", i };
     const loco = LOCOS[cons.loco];
-    const train = trainLayout(loco, cons.coaches.map(id => ({ def: COACHES[id] })));
+    const train = trainLayout(loco, loco.emu ? [] : cons.coaches.map(id => ({ def: COACHES[id] })));
     G = baseState(R, loco, train, "pax");
     G.x = R.stations[0][1] - 2;
     G.signals = genSignals(R);
     G.pax = buildPax(R, train.len);
     G.inTrain = ri(8, 16); G.carried = G.inTrain;
-    G.seats = cons.coaches.reduce((a, id) => a + COACHES[id].seats, 0);
-    $("lvlName").textContent = R.emoji + " " + R.name + " · " + loco.name + " + " + cons.coaches.length + " wag.";
+    G.seats = train.veh.reduce((a, v) => a + (v.coach ? v.def.seats || 0 : 0), 0);
+    $("lvlName").textContent = R.emoji + " " + R.name + " · " + loco.name + (loco.emu ? " (" + train.veh.length + " wag.)" : " + " + cons.coaches.length + " wag.");
     begin("Czekaj na sygnał na semaforze wyjazdowym");
   }
+  const siteWord = k => (k === "crane" ? "dźwig" : k === "filler" ? "nalewak" : k === "ramp" ? "rampę" : "zasobnik");
   function startMission(id, locoId) {
     const M = MISSIONS.find(m => m.id === id);
     lastStart = { type: "freight", id, loco: locoId };
@@ -1769,7 +1954,7 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
     if (M.unload && M.unload.type === "all") G.ops.push({ t: "unloadAll", x: M.unload.x });
     G.pile = 0;
     $("lvlName").textContent = M.emoji + " " + M.name + " · " + loco.name + " + " + M.n + "× " + W.name.toLowerCase();
-    begin("Podjedź pierwszym wagonem pod " + (M.load.kind === "crane" ? "dźwig" : M.load.kind === "filler" ? "nalewak" : "zasobnik") + " ▲");
+    begin("Podjedź pierwszym wagonem pod " + siteWord(M.load.kind) + " ▲");
   }
   function setupHazards() {
     const R = G.R, W = G.wx;
@@ -1889,12 +2074,14 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
   // =====================================================================
   let curTab = "pax";
   function consistText(c) {
+    const L0 = LOCOS[c.loco];
+    if (L0.emu) return L0.name + " · zespół " + (L0.emu.length + 2) + " wagony";
     const groups = {};
     c.coaches.forEach(id => { const n = COACHES[id].name; groups[n] = (groups[n] || 0) + 1; });
     return LOCOS[c.loco].name + " + " + Object.keys(groups).map(k => groups[k] + "× " + k).join(" + ");
   }
   function refreshMenuConsist() {
-    drawTrainPreview($("menuConsist"), locoVehs(LOCOS[cons.loco]).concat(cons.coaches.map(id => ({ def: COACHES[id] }))), 2);
+    drawTrainPreview($("menuConsist"), locoVehs(LOCOS[cons.loco]).concat(LOCOS[cons.loco].emu ? [] : cons.coaches.map(id => ({ def: COACHES[id] }))), 2);
     $("menuConsistTxt").textContent = consistText(cons);
     const L = LOCOS[cons.loco];
     $("menuConsistSub").textContent = L.type + " · " + L.vmax + " km/h";
@@ -1932,9 +2119,10 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
       box.appendChild(b);
     });
     const mb = $("missions"); mb.innerHTML = "";
-    let plowHdr = false;
+    let plowHdr = false, milHdr = false;
     MISSIONS.forEach(M => {
       if (M.plow && !plowHdr) { plowHdr = true; const h = document.createElement("h3"); h.textContent = "❄️ Odśnieżanie"; mb.appendChild(h); }
+      if (M.mil && !milHdr) { milHdr = true; const h = document.createElement("h3"); h.textContent = "🪖 Transport wojskowy"; mb.appendChild(h); }
       const b = document.createElement("button");
       b.className = "route-btn freight";
       b.innerHTML = '<span class="e"></span><span style="min-width:0"><span class="t"></span><br><span class="d"></span></span><span class="s"></span>';
@@ -1997,7 +2185,7 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
     k.textContent = (L.nick ? "„" + L.nick + "” · " : "") + L.type + " · " + L.vmax + " km/h";
     b.appendChild(n); b.appendChild(k);
     if (locked) { const l = document.createElement("span"); l.className = "lock"; l.textContent = "🔒 " + fmtZl(L.price); b.appendChild(l); b.disabled = true; }
-    else if (bad) { b.disabled = true; const l = document.createElement("span"); l.className = "lock"; l.textContent = "⚡ brak sieci"; b.appendChild(l); }
+    else if (bad) { b.disabled = true; const l = document.createElement("span"); l.className = "lock"; l.textContent = typeof bad === "string" ? bad : "⚡ brak sieci"; b.appendChild(l); }
     if (opts && opts.rec && opts.rec.includes(L.id)) { const r = document.createElement("span"); r.className = "rec"; r.textContent = "✓ polecana"; b.appendChild(r); }
     b.addEventListener("click", () => { if (!b.disabled) onPick(L.id); });
     return b;
@@ -2008,7 +2196,7 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
   function openEditor() {
     hideAll(); $("ovEdit").hidden = false;
     const ag = $("addGrid"); ag.innerHTML = "";
-    COACH_ORDER.forEach(id => {
+    COACH_GROUPS.forEach(([title, ids]) => { const h = document.createElement("div"); h.className = "add-h"; h.textContent = title; ag.appendChild(h); ids.forEach(id => {
       const d = COACHES[id], b = document.createElement("button");
       b.className = "add-btn"; b.dataset.id = id;
       b.appendChild(spriteCanvas(d, 0, 1.2));
@@ -2016,15 +2204,17 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
       b.appendChild(t);
       b.addEventListener("click", () => { if (cons.coaches.length < 6) { cons.coaches.push(id); renderEditor(); } });
       ag.appendChild(b);
-    });
+    }); });
     renderEditor();
   }
   function renderEditor() {
-    drawTrainPreview($("editConsist"), locoVehs(LOCOS[cons.loco]).concat(cons.coaches.map(id => ({ def: COACHES[id] }))), 2);
+    const emu = !!LOCOS[cons.loco].emu;
+    drawTrainPreview($("editConsist"), locoVehs(LOCOS[cons.loco]).concat(emu ? [] : cons.coaches.map(id => ({ def: COACHES[id] }))), 2);
+    $("coachList").hidden = emu; $("addGrid").hidden = emu; $("coachHint").hidden = emu; $("emuNote").hidden = !emu;
     const sc2 = $("editConsist").parentNode; requestAnimationFrame(() => { sc2.scrollLeft = sc2.scrollWidth; });
     const lg = $("locoGrid"); lg.innerHTML = "";
     LOCO_ORDER.forEach(id => lg.appendChild(locoCard(LOCOS[id], cons.loco === id, pid => { cons.loco = pid; renderEditor(); })));
-    $("coachCount").textContent = cons.coaches.length + " / 6";
+    $("coachCount").textContent = emu ? "· połączone na stałe" : cons.coaches.length + " / 6";
     const list = $("coachList"); list.innerHTML = "";
     cons.coaches.forEach((id, i) => {
       const d = COACHES[id], row = document.createElement("div");
@@ -2065,7 +2255,7 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
     const M = MISSIONS.find(m => m.id === id); if (!M) return;
     briefId = id;
     briefLoco = prog.floco[id] && owns(prog.floco[id]) ? prog.floco[id] : (M.rec.find(owns) || "SM42");
-    if (M.elec === false && LOCOS[briefLoco].kind === "electric") briefLoco = "SM42";
+    if ((M.elec === false && LOCOS[briefLoco].kind === "electric") || LOCOS[briefLoco].emu) briefLoco = "SM42";
     hideAll(); $("ovBrief").hidden = false;
     $("brTitle").textContent = M.emoji + " " + M.name;
     $("brRegion").textContent = M.region + " · trudność: " + M.diffTxt;
@@ -2079,7 +2269,7 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
     const M = M0, W = FWAG[M.wag], L = LOCOS[briefLoco];
     drawTrainPreview($("brConsist"), locoVehs(L).concat(Array.from({ length: M.n }, () => ({ def: W, variant: 4 }))), 1.6);
     const sc3 = $("brConsist").parentNode; requestAnimationFrame(() => { sc3.scrollLeft = sc3.scrollWidth; });
-    $("brCons").textContent = L.name + " + " + M.n + "× " + W.name + " (" + W.code + ")";
+    $("brCons").textContent = L.name + " + " + M.n + "× " + W.name + (W.code ? " (" + W.code + ")" : "");
     $("brMass").textContent = "pełny skład: " + Math.round(freightMass(M, briefLoco, true)) + " t";
     const tl = L.w / PX + M.n * (W.w / PX + 0.5);
     const R = buildFreightRoute(M, tl);
@@ -2089,7 +2279,7 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
     $("brStats").innerHTML = stats.map((s, i) => '<div class="stat">' + s[0] + "<b" + (i === 3 ? ' class="stars"' : "") + ">" + s[1] + "</b></div>").join("");
     const lg = $("brLocos"); lg.innerHTML = "";
     LOCO_ORDER.forEach(id => lg.appendChild(locoCard(LOCOS[id], briefLoco === id, pid => { briefLoco = pid; renderBrief(); },
-      { rec: M.rec, bad: Lx => !M.elec && Lx.kind === "electric" })));
+      { rec: M.rec, bad: Lx => (Lx.emu ? "🚃 tylko pasażerski" : !M.elec && Lx.kind === "electric") })));
     const wb = $("brWarn");
     if (needsPusher(M, briefLoco)) { wb.hidden = false; wb.textContent = "⚠️ " + L.name + " to za słaba lokomotywa na ten podjazd z pełnym składem. Na górce przyjedzie popychacz, ale nagroda będzie mniejsza (−15%). Polecane: " + M.rec.join(", ") + "."; }
     else wb.hidden = true;
@@ -2106,7 +2296,7 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
     const stats = [["Długość", fmtKm(R.len)], ["Pogoda", W.icon + " " + W.name], ["Nagroda", "do " + fmtZl(M.reward * 1.4)], ["Twój rekord", starsHTML(prog.mbest[M.id] || 0, 3)]];
     $("brStats").innerHTML = stats.map((s2, i) => '<div class="stat">' + s2[0] + "<b" + (i === 3 ? ' class="stars"' : "") + ">" + s2[1] + "</b></div>").join("");
     const lg = $("brLocos"); lg.innerHTML = "";
-    LOCO_ORDER.forEach(id => lg.appendChild(locoCard(LOCOS[id], briefLoco === id, pid => { briefLoco = pid; renderBrief(); }, { rec: M.rec, bad: Lx => Lx.kind === "electric" })));
+    LOCO_ORDER.forEach(id => lg.appendChild(locoCard(LOCOS[id], briefLoco === id, pid => { briefLoco = pid; renderBrief(); }, { rec: M.rec, bad: Lx => (Lx.emu ? "🚃 tylko pasażerski" : Lx.kind === "electric") })));
     const wb = $("brWarn"); wb.hidden = false;
     wb.textContent = M.plow === "rotary" ? "🌀 Pług wirnikowy: przed każdą zaspą naciśnij „Wirnik”, a w zaspie jedź najwyżej 15 km/h." : "❄️ Pług lemieszowy: w zaspę wjeżdżaj z rozpędem 30–60 km/h. Utknąłeś? Zmień kierunek ⇄, cofnij i spróbuj jeszcze raz.";
   }
@@ -2134,7 +2324,7 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
       if (M.park) mark(M.park.x, "🏁 " + M.park.label, "#1E8A5F");
       else { const pk = M.stations.find(s2 => s2[3] === "park"); mark(pk[1], "🏁 " + pk[0], "#1E8A5F"); }
     } else if (M) {
-      mark(M.load.x, M.load.kind === "crane" ? "🪵 załadunek" : "⬇ załadunek", "#E9A400");
+      mark(M.load.x, M.load.kind === "crane" ? "🪵 załadunek" : M.load.kind === "ramp" ? "🪖 rampa" : "⬇ załadunek", "#E9A400");
       if (M.unload) mark(M.unload.x, "🏁 " + M.unload.label, "#1E8A5F");
       if (M.spread) { c.strokeStyle = "#ff7a1a"; c.lineWidth = 5; c.beginPath(); c.moveTo(X(M.spread.from), Y(elevR(R, M.spread.from))); c.lineTo(X(M.spread.to), Y(elevR(R, M.spread.to))); c.stroke(); }
       if (M.park) mark(M.park.x, "🏁 " + M.park.label, "#1E8A5F");
@@ -2271,10 +2461,11 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
       G.results.push({ name: "Postój w " + G.M.park.label, stars, off, kind: "stop" });
       ding(); finish(); return;
     }
-    const dur = op.t === "unloadAll" ? 6 : G.M.wag === "log" ? 3.6 : 3;
+    const dur = op.t === "unloadAll" ? 6 : FWAG[G.M.wag].mil ? 5 : G.M.wag === "log" ? 3.6 : 3;
     G.busy = { op, t: 0, dur, d, sfxT: 0 };
     const kind = op.t === "load" ? G.M.load.kind : G.M.unload.kind;
     if (kind === "crane") craneMotor(dur);
+    else if (kind === "ramp") tankMotor(dur, G.M.wag === "tank");
     else if (kind === "filler") pump(dur);
     else pour(dur);
     caActivity();
@@ -2758,10 +2949,13 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
       if (M.wag === "ballast" && (G.coverage || 0) >= 0.9) award("ballast", got);
       if (M.id === "f4" && !G.pusher) award("nopush", got);
       if (M.plow) award("plow", got);
+      if (M.mil) award("army", got);
     }
     if (G.wx.id === "storm") award("storm", got);
     if (G.wx.id === "blizzard") award("blizzard", got);
     if (G.loco.kind === "steam") award("steam", got);
+    if (G.mode === "pax" && G.loco.emu) award("emu", got);
+    if (G.mode === "pax" && G.train.veh.some(v => v.def.id === "ryflak" || v.def.id === "dwuos")) award("retro", got);
     if (G.sniper) award("sniper", got);
     prog.cash += total; prog.earned += total;
     if (prog.earned >= 5000) award("rich", got);
@@ -2854,7 +3048,7 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
         const nd = G.drifts.find(q => !q.done);
         lab = "Odśnieżanie · zaspy " + G.cleared + "/" + G.drifts.length;
         name = nd ? "❄️ Następna zaspa: " + String(nd.depth).replace(".", ",") + " m śniegu" : "❄️ Odśnieżone!";
-      } else if (op.t === "load") { lab = "Załadunek · " + M.load.label; name = FWAG[M.wag].icon + " Wagon " + (op.i + 1) + "/" + nW + " pod " + (M.load.kind === "crane" ? "dźwig" : M.load.kind === "filler" ? "nalewak" : "zasobnik"); }
+      } else if (op.t === "load") { lab = "Załadunek · " + M.load.label; name = FWAG[M.wag].icon + " Wagon " + (op.i + 1) + "/" + nW + " pod " + siteWord(M.load.kind); }
       else if (op.t === "unload") { lab = (Math.abs(d) > 400 ? "Jedź do · " : "Rozładunek · ") + M.unload.label; name = Math.abs(d) > 400 ? M.unload.label : FWAG[M.wag].icon + " Wagon " + (op.i + 1) + "/" + nW + " nad rozładunek"; }
       else if (op.t === "unloadAll") { lab = Math.abs(d) > 400 ? "Jedź do" : "Rozładunek"; name = Math.abs(d) > 400 ? M.unload.label : "🛢️ Pierwsza cysterna pod nalewak"; }
       else if (op.t === "park") { lab = "Stacja końcowa"; name = M.park.label; }
@@ -3231,7 +3425,22 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
       if (lm.k === "kamieniolom") drawQuarry(X, base);
       if (lm.k === "bazapaliw") drawTanks(X, base);
       if (lm.k === "tartak") drawSawmill(X, base);
+      if (lm.k === "koszary") drawBarracks(X, base);
+      if (lm.k === "poligon") drawRange(X, base);
     }
+  }
+  function drawBarracks(x, base) {
+    P(x - 30, base - 18, 60, 18, "#a9533c"); P(x - 31, base - 20, 62, 2, "#4f5560");
+    for (let r = 0; r < 2; r++) for (let k = 0; k < 9; k++) { P(x - 27 + k * 6, base - 15 + r * 7, 3, 4, "#3b4458"); light(x - 27 + k * 6, base - 15 + r * 7, 3, 4, "#ffd98a"); }
+    P(x - 2, base - 7, 4, 7, "#4a2f22");
+    P(x + 36, base - 34, 1, 34, "#c9ced6"); P(x + 37, base - 34, 7, 2, "#f3f1ea"); P(x + 37, base - 32, 7, 2, "#d0392f");
+    P(x - 44, base - 6, 12, 6, "#5b6a3a"); P(x - 41, base - 8, 6, 2, "#5b6a3a"); P(x - 46, base - 7, 6, 1, "#45512b");
+  }
+  function drawRange(x, base) {
+    P(x - 40, base - 4, 30, 4, "#a08356"); P(x - 36, base - 6, 22, 2, "#a08356");
+    P(x - 4, base - 30, 1, 30, "#6a4a2a"); P(x + 6, base - 30, 1, 30, "#6a4a2a"); P(x - 6, base - 34, 14, 5, "#7a5a36"); P(x - 7, base - 36, 16, 2, "#4f5560");
+    sc.fillStyle = "#6a4a2a"; line(sc, x - 4, base - 1, x + 6, base - 20); line(sc, x + 6, base - 1, x - 4, base - 20);
+    P(x + 18, base - 14, 1, 14, "#5f6672"); P(x + 14, base - 22, 10, 8, "#f3f1ea"); P(x + 15, base - 21, 8, 6, "#d0392f"); pxText(sc, "!", x + 18, base - 21, "#f3f1ea");
   }
   function drawChurch(x, base, big) {
     const h = big ? 36 : 26;
@@ -3478,6 +3687,26 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
         } else {
           P(X - 18, ty - 18, 12, 18, "#8e8a80"); P(X - 19, ty - 20, 14, 2, "#5a5e68"); sc.fillStyle = "#5a5e68"; line(sc, X - 6, ty - 12, X + 14, ty - 30); line(sc, X - 6, ty - 11, X + 14, ty - 29);
           if (b) for (let j = 0; j < 5; j++) P(X - 6 + ((Math.floor(G.time * 12) + j * 4) % 20), ty - 12 - Math.round(((Math.floor(G.time * 12) + j * 4) % 20) * 0.9), 2, 1, "#1d1d22");
+        }
+      } else if (s.kind === "ramp") {
+        // concrete loading ramp behind the track; vehicles wait on it and drive onto the platform wagons
+        const a0 = load ? X - 92 : X + 18, spr = milSprite(M.wag), vy = ty - SH, up = 8;
+        P(a0, ty - 15, 74, 15, "#a8a49a"); P(a0, ty - 15, 74, 1, "#d2cec3"); P(a0, ty - 14, 74, 1, "#bdb9ae");
+        for (let xx = a0 + 3; xx < a0 + 74; xx += 9) P(xx, ty - 12, 1, 12, "#8f8b80");
+        if (load) { for (let j = 0; j < 8; j++) P(a0 + 74 + j, ty - 15 + j, 1, 15 - j, j % 2 ? "#9a968b" : "#a8a49a"); }
+        else { for (let j = 0; j < 8; j++) P(a0 - 1 - j, ty - 15 + j, 1, 15 - j, j % 2 ? "#9a968b" : "#a8a49a"); P(a0 + 64, ty - 38, 1, 23, "#5f6672"); P(a0 + 65, ty - 38, 6, 2, "#f3f1ea"); P(a0 + 65, ty - 36, 6, 2, "#d0392f"); }
+        const parked = load ? Math.max(0, M.n - G.op - (b ? 1 : 0)) : Math.min(1, G.pile);
+        const slots = load ? [X - 47, X - 79] : [X + 81];
+        for (let j = 0; j < Math.min(2, parked); j++) sc.drawImage(spr, slots[j] - 17, vy - up);
+        if (b && (load ? k < 0.75 : k > 0.25)) {
+          const f = load ? k / 0.75 : (k - 0.25) / 0.75;
+          let cx, lift;
+          if (load) { cx = X - 47 + 47 * Math.min(1, f / 0.8); lift = f < 0.8 ? up : up * (1 - (f - 0.8) / 0.2); }
+          else { lift = f < 0.2 ? up * f / 0.2 : up; cx = X + 49 * Math.max(0, (f - 0.2) / 0.8); }
+          cx = Math.round(cx); lift = Math.round(lift);
+          sc.drawImage(spr, cx - 17, vy - lift);
+          const puff = Math.floor(G.time * 8) % 3;
+          P(cx - 15 - puff, ty - 12 - lift - puff, 1, 1, "#5a5c62"); if (puff) P(cx - 17 - puff, ty - 14 - lift - puff, 1, 1, "#7a7c82");
         }
       } else if (s.kind === "filler") {
         const px = X + 12, Y = "#e5c02b", YD = "#b8941a";
@@ -3922,7 +4151,7 @@ button.chip.rev { background: #FFC83D; color: #1B2540; border-color: #FFC83D; }
   showMenu("pax");
   setNotch(0, true);
   requestAnimationFrame(t => { lastT = t; requestAnimationFrame(frame); });
-  window.__maszynista = { get G() { return G; }, startPax, startMission, setNotch, act, caPress, toggleDir, ROUTES, MISSIONS, WX, buildFreightRoute, buildPlowRoute, get settings() { return settings; }, get prog() { return prog; }, get cons() { return cons; }, openEditor, openBrief, showMenu, opDist, wagonCenter };
+  window.__maszynista = { get G() { return G; }, LOCOS, COACHES, FWAG, EMU_CARS, locoVehs, drawTrainPreview, startPax, startMission, setNotch, act, caPress, toggleDir, ROUTES, MISSIONS, WX, buildFreightRoute, buildPlowRoute, get settings() { return settings; }, get prog() { return prog; }, get cons() { return cons; }, openEditor, openBrief, showMenu, opDist, wagonCenter };
 })();
 </script>
 </body>
