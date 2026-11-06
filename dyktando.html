@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Trening dyktanda</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#EEF3FA">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖋️</text></svg>">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>.home-link{display:inline-flex;align-self:flex-start;align-items:center;gap:6px;font-family:"Lexend",system-ui,sans-serif;font-size:14px;color:var(--muted,#5B6785);text-decoration:none;padding:6px 12px;border-radius:999px;border:1px solid var(--line,#D6DEEC);background:var(--card,#FFFFFF)}.home-link:focus-visible{outline:3px solid var(--muted,#5B6785);outline-offset:2px}</style>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,600;7..72,800&family=Lexend:wght@400;600&display=swap">
+<style>
+[hidden]{display:none!important}
+/* Layout: one phone column styled like a dictation sheet — ink-blue words on paper, corrections in red pen */
+:root {
+  --bg: #F3F1EC;
+  --card: #FFFFFF;
+  --ink: #1C2433;
+  --muted: #5E6575;
+  --line: #DAD6CC;
+  --accent: #23407A; --accent-soft: #E3E9F5;
+  --ok: #1E7A50; --ok-soft: #DCF0E5;
+  --red: #C62828; --red-soft: #FBE3E1;
+  --gap: #F6E7A8;
+  --font-display: "Literata", Georgia, "Times New Roman", serif;
+  --font-body: "Lexend", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15171C; --card: #1F232B; --ink: #ECEEF2; --muted: #A2A8B5; --line: #343944;
+    --accent: #9DB6EC; --accent-soft: #24304A;
+    --ok: #5FD19A; --ok-soft: #173327;
+    --red: #FF7A70; --red-soft: #3B1D1D;
+    --gap: #5A4D1C;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15171C; --card: #1F232B; --ink: #ECEEF2; --muted: #A2A8B5; --line: #343944;
+  --accent: #9DB6EC; --accent-soft: #24304A;
+  --ok: #5FD19A; --ok-soft: #173327;
+  --red: #FF7A70; --red-soft: #3B1D1D;
+  --gap: #5A4D1C;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5; padding-inline: 16px; -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.app { max-width: 560px; margin: 0 auto; padding-block: 14px 48px; display: flex; flex-direction: column; gap: 16px; }
+header { display: flex; flex-direction: column; gap: 4px; }
+.eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--red); }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: 34px; line-height: 1.1; margin: 0; text-wrap: balance; }
+.note { color: var(--muted); font-size: 14px; margin: 0; }
+.label { font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+h2 { font-family: var(--font-display); font-weight: 800; font-size: 21px; line-height: 1.2; margin: 0; }
+
+.tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 4px; gap: 4px; }
+.tabs button { font-weight: 600; font-size: 16px; padding: 9px 0; border-radius: 10px; color: var(--muted); }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+
+/* rules */
+.rules { display: flex; flex-direction: column; gap: 10px; }
+.rule { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.rule ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 15px; }
+.rule i { font-family: var(--font-display); font-style: normal; font-weight: 600; color: var(--accent); }
+
+/* practice */
+.modes { display: flex; flex-wrap: wrap; gap: 6px; }
+.modes button { font-size: 14px; padding: 7px 13px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--muted); }
+.modes button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.dots { display: flex; gap: 4px; }
+.dots span { flex: 1; height: 6px; border-radius: 3px; background: var(--line); }
+.dots span.ok { background: var(--ok); } .dots span.no { background: var(--red); } .dots span.now { background: var(--muted); }
+.q { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 22px 16px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; background-image: repeating-linear-gradient(transparent 0 31px, var(--accent-soft) 31px 32px); }
+.q .kind { font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); background: var(--card); padding: 0 6px; }
+.q .word { font-family: var(--font-display); font-weight: 600; font-size: 38px; line-height: 1.2; overflow-wrap: anywhere; background: var(--card); padding: 0 6px; border-radius: 6px; }
+.q .word .g { display: inline-block; min-width: 1.4ch; background: var(--gap); border-radius: 6px; padding: 0 3px; color: transparent; }
+.q .word .g.filled { color: var(--ok); background: var(--ok-soft); }
+.q .ctx { font-size: 15px; color: var(--muted); background: var(--card); padding: 0 6px; }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.opts.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.opts.wide { grid-template-columns: 1fr; }
+.opt { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-height: 1.25; padding: 14px 10px; border-radius: 14px; background: var(--card); border: 2px solid var(--line); overflow-wrap: anywhere; }
+.opts.wide .opt { font-size: 22px; }
+.opt:disabled { opacity: .45; cursor: default; }
+.opt.picked-ok, .opt.show-ok { opacity: 1; border-color: var(--ok); background: var(--ok-soft); }
+.opt.picked-bad { opacity: 1; border-color: var(--red); background: var(--red-soft); text-decoration: line-through; text-decoration-color: var(--red); }
+.why { width: 100%; text-align: left; background: var(--accent-soft); border-radius: 12px; padding: 10px 12px; font-size: 15px; }
+.why b { font-family: var(--font-display); }
+.feedback { min-height: 26px; text-align: center; font-weight: 600; font-size: 18px; }
+.feedback.ok { color: var(--ok); } .feedback.no { color: var(--red); }
+.big-btn { display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 17px; padding: 13px 16px; border-radius: 14px; background: var(--ink); color: var(--bg); width: 100%; }
+.big-btn.ghost { background: var(--card); color: var(--ink); border: 1px solid var(--line); }
+.result { text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.result .score { font-family: var(--font-display); font-weight: 800; font-size: 56px; line-height: 1; font-variant-numeric: tabular-nums; }
+.result .msg { font-family: var(--font-display); font-weight: 600; font-size: 22px; }
+.review { width: 100%; text-align: left; display: flex; flex-direction: column; gap: 6px; }
+.review .row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; font-size: 15px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+.review .bad { color: var(--red); text-decoration: line-through; }
+.review .good { font-family: var(--font-display); font-weight: 600; color: var(--ok); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="app">
+  <a class="home-link" href="index.html">← Strona główna</a>
+  <header>
+    <div class="eyebrow">Ogólnopolskie Dyktando</div>
+    <h1>Trening dyktanda</h1>
+    <p class="note">Pułapki ortograficzne w krótkich rundach po 12 pytań. Po każdej odpowiedzi jest krótkie wyjaśnienie.</p>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button id="tab-practice" role="tab" aria-selected="true">Ćwicz</button>
+    <button id="tab-rules" role="tab" aria-selected="false">Zasady</button>
+  </nav>
+
+  <section id="practice" style="display:flex;flex-direction:column;gap:14px">
+    <div class="modes" id="modes">
+      <button id="mode-mix" data-mode="mix">Mieszanka</button>
+      <button id="mode-letters" data-mode="letters">rz/ż · ch/h · ó/u</button>
+      <button id="mode-split" data-mode="split">Razem czy osobno</button>
+      <button id="mode-form" data-mode="form">Która forma?</button>
+    </div>
+    <div id="quiz" style="display:flex;flex-direction:column;gap:14px"></div>
+  </section>
+
+  <section id="rules" hidden style="flex-direction:column;gap:12px">
+    <div class="rules">
+      <div class="rule">
+        <h2>rz czy ż</h2>
+        <ul>
+          <li><b>rz</b>, gdy wymienia się na <b>r</b>: <i>gorzki – gorycz</i>, <i>pierzyna – pióro</i>.</li>
+          <li><b>rz</b> po spółgłoskach b, p, d, t, g, k, ch, j, w: <i>przyjaciel</i>, <i>trzcina</i>, <i>chrząszcz</i>. Wyjątki z <b>sz</b>: <i>pszczoła</i>, <i>pszenica</i>, <i>kształt</i>.</li>
+          <li><b>ż</b> po l, ł, r, n: <i>lżejszy</i>, <i>drżeć</i>.</li>
+          <li>Dużo wyrazów trzeba zapamiętać: <i>żółtodziób</i>, <i>październik</i>, <i>rzetelny</i>, <i>gżegżółka</i>.</li>
+        </ul>
+      </div>
+      <div class="rule">
+        <h2>ch czy h</h2>
+        <ul>
+          <li><b>h</b>, gdy wymienia się na <b>ż</b> lub <b>g</b>: <i>druh – drużyna</i>.</li>
+          <li><b>ch</b>, gdy wymienia się na <b>sz</b>: <i>mucha – musze</i>.</li>
+          <li>Reszta do zapamiętania: <i>hultaj</i>, <i>chuligan</i>, <i>hierarchia</i>, <i>chorągiew</i>, <i>błahy</i>.</li>
+        </ul>
+      </div>
+      <div class="rule">
+        <h2>ó czy u</h2>
+        <ul>
+          <li><b>ó</b>, gdy wymienia się na <b>o, e, a</b>: <i>wódz – wodza</i>, <i>zbiór – zbiory</i>.</li>
+          <li><b>ó</b> w końcówkach -ów, -ówka, -ówna. Wyjątki z <b>u</b>: <i>skuwka</i>, <i>zasuwka</i>, <i>wsuwka</i>.</li>
+          <li>Do zapamiętania: <i>skrupulatny</i>, <i>chrust</i>, <i>żuraw</i>, <i>próchno</i>.</li>
+        </ul>
+      </div>
+      <div class="rule">
+        <h2>Razem czy osobno</h2>
+        <ul>
+          <li><b>nie</b> razem z przymiotnikami, przysłówkami od przymiotników, rzeczownikami i imiesłowami przymiotnikowymi: <i>niedobry</i>, <i>niepokój</i>, <i>niepalący</i>.</li>
+          <li><b>nie</b> osobno z czasownikami: <i>nie ma</i>, <i>nie wiem</i>, <i>nie warto</i>.</li>
+          <li>Wyrażenia przyimkowe zwykle osobno: <i>na pewno</i>, <i>w ogóle</i>, <i>z powrotem</i>, <i>na razie</i>, <i>po trochu</i>. Ale razem: <i>naprawdę</i>, <i>naprzeciwko</i>, <i>wkrótce</i>, <i>potrosze</i>.</li>
+          <li><b>-by</b> razem z czasownikiem i spójnikiem: <i>zrobiłbym</i>, <i>gdyby</i>.</li>
+        </ul>
+      </div>
+      <div class="rule">
+        <h2>Wielkie litery i łącznik</h2>
+        <ul>
+          <li>Mieszkańcy państw i regionów wielką: <i>Polak</i>, <i>Ślązak</i>. Mieszkańcy miast małą: <i>warszawiak</i>.</li>
+          <li>Święta wielką: <i>Wielkanoc</i>, <i>Boże Narodzenie</i>. Dni tygodnia i miesiące małą.</li>
+          <li>Łącznik między równorzędnymi częściami: <i>biało-czerwony</i>, <i>polsko-niemiecki</i>. Odcienie razem: <i>ciemnoniebieski</i>.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  // ---------- letters: word with {x} gap | options | explanation ----------
+  const LETTERS = [
+    ["{ż}ółtodziób", "ż rz", "Do zapamiętania."],
+    ["go{rz}ki", "rz ż", "rz, bo wymienia się na r: gorycz."],
+    ["pa{ż}dziernik", "ż rz", "Do zapamiętania."],
+    ["dr{ż}eć", "ż rz", "Po r piszemy ż."],
+    ["l{ż}ejszy", "ż rz", "Po l piszemy ż."],
+    ["ko{rz}eń", "rz ż", "Do zapamiętania."],
+    ["wie{rz}ba", "rz ż", "Do zapamiętania."],
+    ["{rz}etelny", "rz ż", "Do zapamiętania."],
+    ["pie{rz}yna", "rz ż", "rz, bo wymienia się na r: pióro."],
+    ["{ż}ołądź", "ż rz", "Do zapamiętania."],
+    ["księ{ż}yc", "ż rz", "Do zapamiętania."],
+    ["{rz}eżucha", "rz ż", "Do zapamiętania: rzeżucha."],
+    ["rze{ż}ucha", "ż rz", "Do zapamiętania: rzeżucha."],
+    ["g{ż}egżółka", "ż rz", "Do zapamiętania: gżegżółka."],
+    ["p{rz}yjaciel", "rz sz", "Po p piszemy rz."],
+    ["t{rz}cina", "rz ż", "Po t piszemy rz."],
+    ["ch{rz}ąszcz", "rz ż", "Po ch piszemy rz."],
+    ["p{sz}czoła", "sz rz", "Wyjątek: po p piszemy sz w wyrazie pszczoła."],
+    ["k{sz}tałt", "sz rz", "Wyjątek: kształt piszemy przez sz."],
+    ["{h}ultaj", "h ch", "Do zapamiętania."],
+    ["{ch}uligan", "ch h", "Do zapamiętania."],
+    ["{h}ierarchia", "h ch", "Do zapamiętania: hierarchia."],
+    ["hierar{ch}ia", "ch h", "Do zapamiętania: hierarchia."],
+    ["{h}ipokryzja", "h ch", "Do zapamiętania."],
+    ["{ch}orągiew", "ch h", "Do zapamiętania."],
+    ["{h}ołota", "h ch", "Do zapamiętania."],
+    ["{ch}ochla", "ch h", "Do zapamiętania."],
+    ["{h}armider", "h ch", "Do zapamiętania."],
+    ["{h}ańba", "h ch", "Do zapamiętania."],
+    ["{ch}ałupa", "ch h", "Do zapamiętania."],
+    ["{h}uragan", "h ch", "Do zapamiętania."],
+    ["{ch}ytry", "ch h", "Do zapamiętania."],
+    ["{h}ojny", "h ch", "Do zapamiętania."],
+    ["bła{h}y", "h ch", "Do zapamiętania: błahy."],
+    ["dru{h}", "h ch", "h, bo wymienia się na ż: drużyna."],
+    ["mu{ch}a", "ch h", "ch, bo wymienia się na sz: musze."],
+    ["{ch}ełpić się", "ch h", "Do zapamiętania."],
+    ["wa{h}adło", "h ch", "Do zapamiętania: wahać się, wahadło."],
+    ["{ch}rabąszcz", "ch h", "Do zapamiętania."],
+    ["pr{ó}chno", "ó u", "Do zapamiętania."],
+    ["w{ó}dz", "ó u", "ó, bo wymienia się na o: wodza."],
+    ["skr{u}pulatny", "u ó", "Do zapamiętania."],
+    ["chr{u}st", "u ó", "Do zapamiętania."],
+    ["kł{ó}tnia", "ó u", "Do zapamiętania."],
+    ["zbi{ó}r", "ó u", "ó, bo wymienia się na o: zbiory."],
+    ["ż{u}raw", "u ó", "Do zapamiętania."],
+    ["kr{u}chy", "u ó", "Do zapamiętania."],
+    ["st{ó}g", "ó u", "ó, bo wymienia się na o: stogi."],
+    ["zas{u}wka", "u ó", "Wyjątek od -ówka: zasuwka (od suwać)."],
+    ["sk{u}wka", "u ó", "Wyjątek od -ówka: skuwka (od skuwać)."]
+  ].map(([w, o, e]) => ({ type: "letters", w, opts: o.split(" "), e }));
+
+  // ---------- together or apart: correct | wrong | explanation ----------
+  const SPLIT = [
+    ["na pewno", "napewno", "Zawsze osobno."],
+    ["w ogóle", "wogóle", "Zawsze osobno."],
+    ["naprzeciwko", "na przeciwko", "Razem."],
+    ["z powrotem", "spowrotem", "Zawsze osobno."],
+    ["naprawdę", "na prawdę", "W znaczeniu „rzeczywiście” razem."],
+    ["na razie", "narazie", "Osobno."],
+    ["od razu", "odrazu", "Osobno."],
+    ["wkrótce", "w krótce", "Razem."],
+    ["naprędce", "na prędce", "Razem."],
+    ["na wskroś", "nawskroś", "Osobno."],
+    ["po omacku", "poomacku", "Osobno."],
+    ["na oścież", "naoścież", "Osobno."],
+    ["po trochu", "potrochu", "Osobno (ale potrosze razem)."],
+    ["potrosze", "po trosze", "Razem (ale po trochu osobno)."],
+    ["w poprzek", "wpoprzek", "Osobno."],
+    ["zawczasu", "za wczasu", "Razem."],
+    ["na czczo", "naczczo", "Osobno."],
+    ["przede wszystkim", "przedewszystkim", "Osobno."],
+    ["na co dzień", "na codzień", "Osobno (ale codzienny razem)."],
+    ["po prostu", "poprostu", "Osobno."],
+    ["nazajutrz", "na zajutrz", "Razem."],
+    ["znienacka", "z nienacka", "Razem."],
+    ["dookoła", "do okoła", "Razem."],
+    ["na zewnątrz", "nazewnątrz", "Osobno (ale wewnątrz razem)."],
+    ["wewnątrz", "we wnątrz", "Razem (ale na zewnątrz osobno)."],
+    ["nawzajem", "na wzajem", "Razem."],
+    ["niedobry", "nie dobry", "nie z przymiotnikiem razem."],
+    ["nie ma", "niema", "nie z czasownikiem osobno."],
+    ["nie wiem", "niewiem", "nie z czasownikiem osobno."],
+    ["niewiele", "nie wiele", "Razem."],
+    ["nie bardzo", "niebardzo", "Osobno."],
+    ["niezbyt", "nie zbyt", "Razem."],
+    ["nie tylko", "nietylko", "Osobno."],
+    ["niepokój", "nie pokój", "nie z rzeczownikiem razem."],
+    ["niepalący", "nie palący", "nie z imiesłowem przymiotnikowym razem."],
+    ["nie warto", "niewarto", "Osobno."],
+    ["zrobiłbym", "zrobił bym", "-by razem z czasownikiem."],
+    ["gdyby", "gdy by", "-by razem ze spójnikiem."],
+    ["chciałabyś", "chciała byś", "-by razem z czasownikiem."],
+    ["biało-czerwony", "białoczerwony", "Dwa równorzędne kolory: z łącznikiem."],
+    ["ciemnoniebieski", "ciemno-niebieski", "Odcień koloru: razem."],
+    ["polsko-niemiecki", "polskoniemiecki", "Dwa równorzędne człony: z łącznikiem."]
+  ].map(([c, w, e]) => ({ type: "split", c, w, e }));
+
+  // ---------- which form: correct | wrong | context | explanation ----------
+  const FORMS = [
+    ["półtorej godziny", "półtora godziny", "", "półtorej z rzeczownikami żeńskimi."],
+    ["półtora roku", "półtorej roku", "", "półtora z męskimi i nijakimi."],
+    ["wziąć", "wziąść", "", "Bezokolicznik: wziąć (jak zacząć)."],
+    ["wziąłem", "wziełem", "", "W formie męskiej ą: wziąłem."],
+    ["poszedłem", "poszłem", "", "Poprawnie tylko poszedłem."],
+    ["włączać", "włanczać", "", "Od włączyć: włączać."],
+    ["hart ducha", "chart ducha", "", "hart to wytrzymałość, chart to pies."],
+    ["w cudzysłowie", "w cudzysłowiu", "", "Poprawnie: w cudzysłowie."],
+    ["z wyjątkiem", "za wyjątkiem", "", "Poprawnie: z wyjątkiem."],
+    ["w każdym razie", "w każdym bądź razie", "", "„W każdym bądź razie” to błąd."],
+    ["tę książkę", "tą książkę", "Czytam …", "W bierniku: tę."],
+    ["Wielkanoc", "wielkanoc", "", "Nazwy świąt wielką literą."],
+    ["Boże Narodzenie", "Boże narodzenie", "", "Oba człony nazwy święta wielką literą."],
+    ["warszawiak", "Warszawiak", "Mieszkaniec Warszawy to …", "Mieszkańców miast piszemy małą literą."],
+    ["Ślązak", "ślązak", "Mieszkaniec Śląska to …", "Mieszkańców regionów piszemy wielką literą."],
+    ["Polak", "polak", "Mieszkaniec Polski to …", "Mieszkańców państw piszemy wielką literą."],
+    ["w poniedziałek", "w Poniedziałek", "", "Dni tygodnia małą literą."],
+    ["w listopadzie", "w Listopadzie", "", "Nazwy miesięcy małą literą."],
+    ["spaghetti", "spagetti", "", "Z włoskiego: spaghetti."],
+    ["rzeczywiście", "żeczywiście", "", "Do zapamiętania: rzeczywiście."]
+  ].map(([c, w, ctx, e]) => ({ type: "form", c, w, ctx, e }));
+
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem("dykt-" + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem("dykt-" + k, JSON.stringify(v)); } catch (e) {} }
+  };
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+
+  // ---------- tabs ----------
+  const tabP = document.getElementById("tab-practice"), tabR = document.getElementById("tab-rules");
+  const secP = document.getElementById("practice"), secR = document.getElementById("rules");
+  function showTab(name) {
+    const p = name === "practice";
+    tabP.setAttribute("aria-selected", p); tabR.setAttribute("aria-selected", !p);
+    secP.hidden = !p; secR.hidden = p; secR.style.display = p ? "" : "flex";
+    store.set("tab", name);
+  }
+  tabP.onclick = () => showTab("practice");
+  tabR.onclick = () => showTab("rules");
+
+  // ---------- rounds, no repeats until a pool is used up ----------
+  const ROUND = 12;
+  const POOLS = { letters: LETTERS, split: SPLIT, form: FORMS };
+  const decks = {};
+  function draw(key) { if (!decks[key] || !decks[key].length) decks[key] = shuffle(POOLS[key]); return decks[key].pop(); }
+  let mode = store.get("mode", "mix"); if (!["mix", "letters", "split", "form"].includes(mode)) mode = "mix";
+  let state;
+  function newRound() {
+    const qs = [];
+    for (let i = 0; i < ROUND; i++) qs.push(draw(mode === "mix" ? ["letters", "split", "form"][i % 3] : mode));
+    state = { qs: mode === "mix" ? shuffle(qs) : qs, i: 0, res: [], wrong: [] };
+    render();
+  }
+  const modeBtns = document.querySelectorAll("#modes button");
+  function markModes() { modeBtns.forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode)); }
+  modeBtns.forEach(b => b.onclick = () => { mode = b.dataset.mode; store.set("mode", mode); markModes(); newRound(); });
+  markModes();
+
+  const quiz = document.getElementById("quiz");
+  function dotsEl() {
+    const d = el("div", "dots");
+    for (let i = 0; i < ROUND; i++) { const s = el("span"); if (i < state.res.length) s.className = state.res[i] ? "ok" : "no"; else if (i === state.i) s.className = "now"; d.appendChild(s); }
+    return d;
+  }
+  const fullWord = it => it.w.replace(/[{}]/g, "");
+
+  function render() {
+    const it = state.qs[state.i];
+    let done = false;
+    quiz.replaceChildren(dotsEl());
+    const card = el("div", "q");
+    const fb = el("div", "feedback");
+    const why = el("div", "why"); why.hidden = true;
+    const next = el("button", "big-btn", state.i === ROUND - 1 ? "Zobacz wynik →" : "Dalej →"); next.hidden = true;
+    next.onclick = () => { state.i++; state.i >= ROUND ? result() : render(); };
+
+    let options, answer, gap = null;
+    if (it.type === "letters") {
+      card.appendChild(el("div", "kind", "Wybierz brakującą literę"));
+      const w = el("div", "word");
+      const m = it.w.match(/^(.*)\{(.+)\}(.*)$/);
+      gap = el("span", "g", m[2]);
+      w.append(document.createTextNode(m[1]), gap, document.createTextNode(m[3]));
+      card.appendChild(w);
+      options = shuffle(it.opts); answer = it.opts[0];
+    } else {
+      card.appendChild(el("div", "kind", it.type === "split" ? "Razem, osobno czy z łącznikiem?" : "Która forma jest poprawna?"));
+      if (it.ctx) card.appendChild(el("div", "ctx", it.ctx));
+      options = shuffle([it.c, it.w]); answer = it.c;
+    }
+    card.appendChild(why);
+    quiz.appendChild(card);
+
+    const box = el("div", "opts" + (it.type === "letters" ? (options.length === 3 ? " three" : "") : (options.some(o => o.length > 12) ? " wide" : "")));
+    const btns = options.map(o => {
+      const b = el("button", "opt", o);
+      b.onclick = () => {
+        if (done) return; done = true;
+        const ok = o === answer;
+        state.res.push(ok);
+        btns.forEach(x => x.disabled = true);
+        if (ok) { b.classList.add("picked-ok"); fb.textContent = pick(["Dobrze!", "Świetnie!", "Bez błędu!", "Tak jest!"]); fb.className = "feedback ok"; }
+        else {
+          b.classList.add("picked-bad"); btns[options.indexOf(answer)].classList.add("show-ok");
+          fb.textContent = "Błąd"; fb.className = "feedback no";
+          state.wrong.push({ bad: it.type === "letters" ? it.w.replace(/\{.+\}/, o) : o, good: it.type === "letters" ? fullWord(it) : it.c });
+        }
+        if (gap) gap.classList.add("filled");
+        why.hidden = false;
+        why.replaceChildren(el("b", null, it.type === "letters" ? fullWord(it) : it.c), document.createTextNode(". " + it.e));
+        quiz.firstChild.replaceWith(dotsEl());
+        next.hidden = false; next.focus({ preventScroll: true });
+      };
+      box.appendChild(b); return b;
+    });
+    quiz.append(box, fb, next);
+  }
+
+  function result() {
+    const score = state.res.filter(Boolean).length;
+    const k = "best-" + mode; const best = Math.max(store.get(k, 0), score); store.set(k, best);
+    quiz.replaceChildren();
+    const r = el("div", "q result");
+    r.appendChild(el("div", "score", score + " / " + ROUND));
+    r.appendChild(el("div", "msg", score === ROUND ? "Bezbłędnie. Mistrzostwo!" : score >= 10 ? "Bardzo dobrze." : score >= 7 ? "Nieźle, ale są pułapki do powtórki." : "Warto zajrzeć do zasad."));
+    if (state.wrong.length) {
+      const rev = el("div", "review"); rev.appendChild(el("div", "label", "Do powtórki"));
+      state.wrong.forEach(w => { const row = el("div", "row"); row.append(el("span", "bad", w.bad), el("span", "good", w.good)); rev.appendChild(row); });
+      r.appendChild(rev);
+    }
+    r.appendChild(el("p", "note", "Najlepszy wynik w tym trybie: " + best + " / " + ROUND));
+    quiz.appendChild(r);
+    const again = el("button", "big-btn", "Następna runda"); again.onclick = newRound;
+    const rules = el("button", "big-btn ghost", "Zasady"); rules.onclick = () => showTab("rules");
+    quiz.append(again, rules);
+  }
+
+  newRound();
+  showTab(store.get("tab", "practice"));
+})();
+</script>
+
+</body>
+</html>
