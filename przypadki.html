@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Przypadki</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#EEF3FA">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎩</text></svg>">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>.home-link{display:inline-flex;align-self:flex-start;align-items:center;gap:6px;font-family:"Lexend",system-ui,sans-serif;font-size:14px;color:var(--muted,#5B6785);text-decoration:none;padding:6px 12px;border-radius:999px;border:1px solid var(--line,#D6DEEC);background:var(--card,#FFFFFF)}.home-link:focus-visible{outline:3px solid var(--muted,#5B6785);outline-offset:2px}</style>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Lexend:wght@400;600&display=swap">
+<style>
+[hidden]{display:none!important}
+/* Layout: one phone column; every case has its own emoji + colour, the same in practice and in the cheat sheet */
+:root {
+  --bg: #EEF3FA; --card: #FFFFFF; --ink: #1B2540; --muted: #5B6785; --line: #D6DEEC;
+  --pl: #D2621C; --pl-soft: #FDEBDD;
+  --ok: #1E8A5F; --ok-soft: #DDF3E8;
+  --bad: #D0392F; --bad-soft: #FBE3E1;
+  --mark: #FFE08A;
+  --font-display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Lexend", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121827; --card: #1C2438; --ink: #EDF1F9; --muted: #9AA6C2; --line: #2C3752;
+    --pl: #FF9B5C; --pl-soft: #3A2618; --ok: #4FCB95; --ok-soft: #173327; --bad: #FF7A70; --bad-soft: #3B1D1D;
+    --mark: #6B5410;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121827; --card: #1C2438; --ink: #EDF1F9; --muted: #9AA6C2; --line: #2C3752;
+  --pl: #FF9B5C; --pl-soft: #3A2618; --ok: #4FCB95; --ok-soft: #173327; --bad: #FF7A70; --bad-soft: #3B1D1D;
+  --mark: #6B5410;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.45; padding-inline: 16px; -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+button:focus-visible { outline: 3px solid var(--pl); outline-offset: 2px; }
+.app { max-width: 520px; margin: 0 auto; padding-block: 14px 40px; display: flex; flex-direction: column; gap: 16px; }
+header { display: flex; flex-direction: column; gap: 2px; }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: 44px; line-height: 1; margin: 0; color: var(--pl); }
+.note { color: var(--muted); font-size: 14px; margin: 0; }
+h2 { font-family: var(--font-display); font-weight: 800; font-size: 24px; line-height: 1.1; margin: 0; }
+
+.tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 4px; gap: 4px; }
+.tabs button { font-family: var(--font-display); font-weight: 800; font-size: 20px; padding: 8px 0 6px; border-radius: 12px; color: var(--muted); }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+
+.modes { display: flex; flex-wrap: wrap; gap: 6px; }
+.modes button { font-size: 14px; padding: 7px 13px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--muted); }
+.modes button[aria-pressed="true"] { background: var(--pl); border-color: var(--pl); color: var(--bg); font-weight: 600; }
+
+.dots { display: flex; gap: 5px; }
+.dots span { flex: 1; height: 8px; border-radius: 4px; background: var(--line); }
+.dots span.ok { background: var(--ok); } .dots span.no { background: var(--bad); } .dots span.now { background: var(--muted); }
+
+.q { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 22px 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+.q .kind { font-size: 13px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); }
+.q .big { font-family: var(--font-display); font-weight: 800; font-size: 34px; line-height: 1.15; }
+.q .sent { font-size: 22px; line-height: 1.45; font-weight: 600; }
+.q .sent mark { background: var(--mark); color: inherit; border-radius: 6px; padding: 0 4px; }
+.q .sent .gap { display: inline-block; min-width: 4ch; border-bottom: 3px solid var(--pl); color: var(--pl); }
+.q .base { font-size: 15px; color: var(--muted); }
+.q .base b { color: var(--ink); }
+
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.opts .opt:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.opt { display: flex; align-items: center; justify-content: center; gap: 6px; font-family: var(--font-display); font-weight: 800; font-size: 22px; line-height: 1.2; padding: 12px 8px 10px; border-radius: 16px; background: var(--card); border: 2px solid var(--line); overflow-wrap: anywhere; }
+.opts.cases7 .opt { font-size: 19px; white-space: nowrap; padding-inline: 4px; }
+.opt:disabled { opacity: .45; cursor: default; }
+.opt.picked-ok, .opt.show-ok { opacity: 1; border-color: var(--ok); background: var(--ok-soft); }
+.opt.picked-bad { opacity: 1; border-color: var(--bad); background: var(--bad-soft); }
+.why { width: 100%; background: var(--pl-soft); border-radius: 14px; padding: 10px 12px; font-size: 16px; text-align: left; }
+.why b { color: var(--pl); }
+.feedback { min-height: 28px; text-align: center; font-family: var(--font-display); font-weight: 800; font-size: 22px; }
+.feedback.ok { color: var(--ok); } .feedback.no { color: var(--bad); }
+.big-btn { display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 800; font-size: 21px; padding: 11px 16px 9px; border-radius: 16px; background: var(--ink); color: var(--bg); width: 100%; }
+.big-btn.ghost { background: var(--card); color: var(--ink); border: 1px solid var(--line); }
+.result .score { font-family: var(--font-display); font-weight: 800; font-size: 64px; line-height: 1; font-variant-numeric: tabular-nums; }
+.result .msg { font-family: var(--font-display); font-weight: 800; font-size: 26px; }
+.review { width: 100%; text-align: left; display: flex; flex-direction: column; gap: 6px; }
+.review .row { border-bottom: 1px solid var(--line); padding-bottom: 6px; font-size: 15px; }
+.review .row b { color: var(--ok); }
+
+/* cheat sheet */
+.sheet { display: flex; flex-direction: column; gap: 14px; }
+.cases { display: flex; flex-direction: column; gap: 8px; }
+.case { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 10px 12px; display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 2px 10px; align-items: center; }
+.case .e { grid-row: span 2; font-size: 30px; text-align: center; }
+.case .n { font-family: var(--font-display); font-weight: 800; font-size: 21px; line-height: 1.1; }
+.case .n small { font-family: var(--font-body); font-weight: 400; font-size: 13px; color: var(--muted); }
+.case .p { font-size: 15px; }
+.case .p i { font-style: normal; color: var(--muted); }
+.tblwrap { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 6px 4px; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th, td { padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--line); }
+tr:last-child td { border-bottom: 0; }
+th { font-size: 12px; font-weight: 600; letter-spacing: .6px; text-transform: uppercase; color: var(--muted); }
+td.c { color: var(--muted); font-size: 14px; white-space: nowrap; }
+td.f { font-weight: 600; }
+.sw { display: flex; gap: 6px; flex-wrap: wrap; }
+.sw button { font-size: 15px; padding: 6px 14px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--muted); }
+.sw button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.tip { background: var(--pl-soft); border-radius: 14px; padding: 10px 12px; font-size: 15px; }
+</style>
+
+<div class="app">
+  <a class="home-link" href="index.html">← Strona główna</a>
+  <header>
+    <h1>Przypadki</h1>
+    <p class="note">Rzeczownik jak aktor: gra różne role, więc zmienia kostium. Kot śpi. Widzę kota. Idę z kotem.</p>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button id="tab-practice" role="tab" aria-selected="true">Ćwicz</button>
+    <button id="tab-sheet" role="tab" aria-selected="false">Ściąga</button>
+  </nav>
+
+  <section id="practice" style="display:flex;flex-direction:column;gap:14px">
+    <div class="modes" id="modes">
+      <button data-mode="pytania">Pytania</button>
+      <button data-mode="jaki">Jaki przypadek?</button>
+      <button data-mode="wstaw">Wstaw słowo</button>
+      <button data-mode="mix">Mieszanka</button>
+    </div>
+    <div id="quiz" style="display:flex;flex-direction:column;gap:14px"></div>
+  </section>
+
+  <section id="sheet" class="sheet" hidden>
+    <div class="cases" id="cases"></div>
+    <div class="tip">Jak to rozpoznać? Zadaj pytanie z pomocniczym słowem: „Nie ma (kogo? czego?) <b>kota</b>” to dopełniacz, a „Widzę (kogo? co?) <b>kota</b>” to biernik.</div>
+    <h2>Odmiana</h2>
+    <div class="sw" id="sw"></div>
+    <div class="tblwrap"><table><thead><tr><th>Przypadek</th><th>lp.</th><th>lm.</th></tr></thead><tbody id="tbl"></tbody></table></div>
+  </section>
+</div>
+
+<script>
+(function () {
+  const CASES = {
+    M:  { n: "mianownik",   s: "M.",  e: "🎩", q: "kto? co?",          h: "jest" },
+    D:  { n: "dopełniacz",  s: "D.",  e: "👻", q: "kogo? czego?",      h: "nie ma" },
+    C:  { n: "celownik",    s: "C.",  e: "🎯", q: "komu? czemu?",      h: "przyglądam się" },
+    B:  { n: "biernik",     s: "B.",  e: "👀", q: "kogo? co?",         h: "widzę" },
+    N:  { n: "narzędnik",   s: "N.",  e: "🤝", q: "z kim? z czym?",    h: "idę z" },
+    Ms: { n: "miejscownik", s: "Ms.", e: "💭", q: "o kim? o czym?",    h: "mówię o" },
+    W:  { n: "wołacz",      s: "W.",  e: "📣", q: "o!",                h: "witaj!" }
+  };
+  const ORDER = ["M", "D", "C", "B", "N", "Ms", "W"];
+
+  // ----- Jaki przypadek? sentence with {noun} | case | question shown after answering -----
+  const SENT = [
+    ["{Kot} śpi na kanapie.", "M", "Kto śpi? kot"],
+    ["Na niebie pojawiła się {tęcza}.", "M", "Co się pojawiło? tęcza"],
+    ["{Mama} czyta gazetę.", "M", "Kto czyta? mama"],
+    ["W ogrodzie rośnie {jabłoń}.", "M", "Co rośnie? jabłoń"],
+    ["Mały {jeż} maszeruje po lesie.", "M", "Kto maszeruje? jeż"],
+    ["Na podwórku bawią się {dzieci}.", "M", "Kto się bawi? dzieci"],
+    ["W lodówce nie ma {mleka}.", "D", "Nie ma czego? mleka"],
+    ["Nie mam {długopisu}.", "D", "Nie mam czego? długopisu"],
+    ["Piję herbatę bez {cukru}.", "D", "Bez czego? cukru"],
+    ["Nie lubię {szpinaku}.", "D", "Nie lubię czego? szpinaku"],
+    ["W nocy nie widać {słońca}.", "D", "Nie widać czego? słońca"],
+    ["Nie widzę {jeża}, bo schował się pod liśćmi.", "D", "Nie widzę kogo? jeża"],
+    ["Daję prezent {babci}.", "C", "Daję komu? babci"],
+    ["Przyglądam się {motylowi}.", "C", "Przyglądam się komu? czemu? motylowi"],
+    ["Pomagam {tacie} w kuchni.", "C", "Pomagam komu? tacie"],
+    ["Wysyłam pozdrowienia {dziadkowi}.", "C", "Wysyłam komu? dziadkowi"],
+    ["Daję kość {psu}.", "C", "Daję komu? psu"],
+    ["Przyglądam się {jeżowi}, który drepcze po ścieżce.", "C", "Przyglądam się komu? jeżowi"],
+    ["Widzę {kota} na drzewie.", "B", "Widzę kogo? kota"],
+    ["Czytam ciekawą {książkę}.", "B", "Czytam co? książkę"],
+    ["Jem pyszną {kanapkę}.", "B", "Jem co? kanapkę"],
+    ["Mam nowy {plecak}.", "B", "Mam co? plecak"],
+    ["Rysuję {słonia}.", "B", "Rysuję kogo? słonia"],
+    ["Dzisiaj spotkałem {jeża} w lesie.", "B", "Spotkałem kogo? jeża"],
+    ["Idę na spacer z {psem}.", "N", "Z kim idę? z psem"],
+    ["Piję herbatę z {cytryną}.", "N", "Z czym? z cytryną"],
+    ["Bawię się z {kolegą}.", "N", "Z kim się bawię? z kolegą"],
+    ["Z {jeżem} nie wolno się bawić.", "N", "Z kim? z jeżem"],
+    ["Piszę {ołówkiem}.", "N", "Piszę czym? ołówkiem"],
+    ["Jadę do szkoły {autobusem}.", "N", "Jadę czym? autobusem"],
+    ["Myślę o {wakacjach}.", "Ms", "O czym myślę? o wakacjach"],
+    ["Rozmawiamy o {piłce} nożnej.", "Ms", "O czym rozmawiamy? o piłce"],
+    ["Książka leży na {stole}.", "Ms", "Na czym leży? na stole"],
+    ["Mieszkam w {Krakowie}.", "Ms", "Mieszkam w czym? w Krakowie"],
+    ["Marzę o nowym {rowerze}.", "Ms", "O czym marzę? o rowerze"],
+    ["Pomyślałam o {jeżu}, gdy usłyszałam szelest.", "Ms", "O kim pomyślałam? o jeżu"],
+    ["{Mamo}, chodź tutaj!", "W", "Wołamy: o, mamo!"],
+    ["Cześć, {Kasiu}!", "W", "Wołamy: o, Kasiu!"],
+    ["{Tato}, pomożesz mi?", "W", "Wołamy: o, tato!"],
+    ["Hej, {jeżu}, dokąd tak się spieszysz?", "W", "Wołamy: o, jeżu!"],
+    ["Witaj, {Adamie}!", "W", "Wołamy: o, Adamie!"],
+    ["{Piesku}, do mnie!", "W", "Wołamy: o, piesku!"]
+  ].map(([s, c, h]) => ({ type: "jaki", s, c, h }));
+
+  // ----- Wstaw słowo: sentence with ___ | base word | correct | 3 wrong | case -----
+  const FILL = [
+    ["mieć muchy w ___", "nos", "nosie", "nosem nosa nos", "Ms", "być w złym humorze"],
+    ["mieć ___", "nos", "nosa", "nosem nosie nos", "D", "mieć przeczucie"],
+    ["padać na ___", "nos", "nos", "nosem nosa nosie", "B", "być bardzo zmęczonym"],
+    ["kręcić na coś ___", "nos", "nosem", "nosa nosie nos", "N", "grymasić"],
+    ["Nie mam ___.", "pies", "psa", "pies psem psu", "D"],
+    ["Widzę ___ na drzewie.", "kot", "kota", "kot kotem kocie", "B"],
+    ["Idę na spacer z ___.", "pies", "psem", "psa psu psie", "N"],
+    ["Daję mleko ___.", "kot", "kotu", "kota kotem kot", "C"],
+    ["Myślę o ___.", "wakacje", "wakacjach", "wakacje wakacji wakacjami", "Ms"],
+    ["___, gdzie jest mój plecak?", "mama", "Mamo", "Mama Mamą Mamie", "W"],
+    ["Czytam ciekawą ___.", "książka", "książkę", "książka książki książką", "B"],
+    ["Herbata z ___.", "cytryna", "cytryną", "cytryna cytrynę cytrynie", "N"],
+    ["Nie lubię ___.", "szpinak", "szpinaku", "szpinak szpinakiem szpinakowi", "D"],
+    ["Przyglądam się ___.", "motyl", "motylowi", "motyla motylem motylu", "C"],
+    ["Rozmawiamy o ___.", "szkoła", "szkole", "szkoła szkołę szkołą", "Ms"],
+    ["Hej, ___, dokąd tak się spieszysz?", "jeż", "jeżu", "jeż jeża jeżem", "W"],
+    ["Mały ___ maszeruje po lesie.", "jeż", "jeż", "jeża jeżu jeżowi", "M"],
+    ["Pomagam ___ w kuchni.", "tata", "tacie", "tata tatę tatą", "C"],
+    ["Jem zupę ___.", "łyżka", "łyżką", "łyżka łyżkę łyżce", "N"],
+    ["Mieszkam w ___.", "Warszawa", "Warszawie", "Warszawa Warszawę Warszawą", "Ms"],
+    ["W lodówce nie ma ___.", "mleko", "mleka", "mleko mlekiem mleku", "D"],
+    ["Kupiłem nowy ___.", "plecak", "plecak", "plecaka plecakiem plecaku", "B"],
+    ["Lubię jeździć na ___.", "rower", "rowerze", "rower rowerem roweru", "Ms"],
+    ["Jadę do szkoły ___.", "autobus", "autobusem", "autobus autobusu autobusie", "N"],
+    ["Dziękuję ___ za pomoc.", "kolega", "koledze", "kolega kolegę kolegą", "C"],
+    ["Na niebie świecą ___.", "gwiazda", "gwiazdy", "gwiazd gwiazdami gwiazdach", "M"],
+    ["W nocy nie widać ___.", "słońce", "słońca", "słońce słońcem słońcu", "D"],
+    ["Bawię się z ___.", "kolega", "kolegami", "koledzy kolegów kolegom", "N"],
+    ["Opowiadam o moich ___.", "kot", "kotach", "koty kotów kotami", "Ms"],
+    ["Daję prezent ___.", "babcia", "babci", "babcia babcię babcią", "C"],
+    ["Mój brat jest ___.", "lekarz", "lekarzem", "lekarz lekarza lekarzu", "N"],
+    ["Cześć, ___!", "Kasia", "Kasiu", "Kasia Kasię Kasią", "W"],
+    ["Rysuję ___.", "słoń", "słonia", "słoń słoniem słoniu", "B"],
+    ["Szklanka ___.", "sok", "soku", "sok sokiem sokowi", "D"],
+    ["Książka leży na ___.", "stół", "stole", "stół stołu stołem", "Ms"],
+    ["Wysyłam pozdrowienia ___.", "dziadek", "dziadkowi", "dziadek dziadka dziadkiem", "C"],
+    ["Mama piecze ___.", "ciasto", "ciasto", "ciasta ciastem cieście", "B"],
+    ["Idę do kina z ___.", "przyjaciel", "przyjacielem", "przyjaciel przyjaciela przyjacielowi", "N"]
+  ].map(([s, base, c, w, k, idiom]) => ({ type: "wstaw", s, base, c, w: w.split(" "), k, idiom }));
+
+  // ----- Pytania: built from CASES -----
+  const ASK = [];
+  ORDER.forEach(k => {
+    ASK.push({ type: "pytania", dir: "q2n", k });
+    ASK.push({ type: "pytania", dir: "n2q", k });
+    ASK.push({ type: "pytania", dir: "h2n", k });
+  });
+
+  // ----- Odmiana for the cheat sheet -----
+  const DECL = {
+    "uczeń": [["uczeń","uczniowie"],["ucznia","uczniów"],["uczniowi","uczniom"],["ucznia","uczniów"],["uczniem","uczniami"],["uczniu","uczniach"],["uczniu!","uczniowie!"]],
+    "kot":   [["kot","koty"],["kota","kotów"],["kotu","kotom"],["kota","koty"],["kotem","kotami"],["kocie","kotach"],["kocie!","koty!"]],
+    "mama":  [["mama","mamy"],["mamy","mam"],["mamie","mamom"],["mamę","mamy"],["mamą","mamami"],["mamie","mamach"],["mamo!","mamy!"]],
+    "jabłko":[["jabłko","jabłka"],["jabłka","jabłek"],["jabłku","jabłkom"],["jabłko","jabłka"],["jabłkiem","jabłkami"],["jabłku","jabłkach"],["jabłko!","jabłka!"]]
+  };
+
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem("przyp-" + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem("przyp-" + k, JSON.stringify(v)); } catch (e) {} }
+  };
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const caseLabel = k => CASES[k].e + " " + CASES[k].n;
+
+  // ----- sounds -----
+  let ac;
+  function tone(freqs, dur, type) {
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      freqs.forEach((f, i) => {
+        const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime + i * dur * .8;
+        o.type = type; o.frequency.value = f; g.gain.setValueAtTime(.18, t); g.gain.exponentialRampToValueAtTime(.001, t + dur);
+        o.connect(g).connect(ac.destination); o.start(t); o.stop(t + dur);
+      });
+    } catch (e) {}
+  }
+  const ding = () => tone([880, 1320], .16, "sine");
+  const bonk = () => tone([180, 140], .18, "triangle");
+
+  // ----- cheat sheet -----
+  const casesBox = document.getElementById("cases");
+  ORDER.forEach(k => {
+    const c = CASES[k], d = el("div", "case");
+    d.append(el("div", "e", c.e));
+    const n = el("div", "n", c.n + " "); n.append(el("small", null, "(" + c.s + ")"));
+    const p = el("div", "p", c.q + " "); p.append(el("i", null, "(" + c.h + ")"));
+    d.append(n, p); casesBox.append(d);
+  });
+  const sw = document.getElementById("sw"), tbl = document.getElementById("tbl");
+  function showDecl(word) {
+    sw.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.textContent === word));
+    tbl.replaceChildren();
+    DECL[word].forEach((f, i) => {
+      const tr = el("tr"); tr.append(el("td", "c", CASES[ORDER[i]].e + " " + CASES[ORDER[i]].s), el("td", "f", f[0]), el("td", "f", f[1])); tbl.append(tr);
+    });
+  }
+  Object.keys(DECL).forEach(w => { const b = el("button", null, w); b.onclick = () => showDecl(w); sw.append(b); });
+  showDecl("uczeń");
+
+  // ----- tabs -----
+  const tabP = document.getElementById("tab-practice"), tabS = document.getElementById("tab-sheet");
+  const secP = document.getElementById("practice"), secS = document.getElementById("sheet");
+  function showTab(name) {
+    const p = name === "practice";
+    tabP.setAttribute("aria-selected", p); tabS.setAttribute("aria-selected", !p);
+    secP.hidden = !p; secS.hidden = p;
+    store.set("tab", name);
+  }
+  tabP.onclick = () => showTab("practice"); tabS.onclick = () => showTab("sheet");
+
+  // ----- rounds -----
+  const ROUND = 10;
+  const POOLS = { pytania: ASK, jaki: SENT, wstaw: FILL };
+  const decks = {};
+  const draw = key => { if (!decks[key] || !decks[key].length) decks[key] = shuffle(POOLS[key]); return decks[key].pop(); };
+  let mode = store.get("mode", "pytania"); if (!["pytania", "jaki", "wstaw", "mix"].includes(mode)) mode = "pytania";
+  let state;
+  function newRound() {
+    const qs = [];
+    for (let i = 0; i < ROUND; i++) qs.push(draw(mode === "mix" ? ["pytania", "jaki", "wstaw"][i % 3] : mode));
+    state = { qs: mode === "mix" ? shuffle(qs) : qs, i: 0, res: [], wrong: [] };
+    render();
+  }
+  const modeBtns = document.querySelectorAll("#modes button");
+  const markModes = () => modeBtns.forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode));
+  modeBtns.forEach(b => b.onclick = () => { mode = b.dataset.mode; store.set("mode", mode); markModes(); newRound(); });
+  markModes();
+
+  const quiz = document.getElementById("quiz");
+  function dotsEl() {
+    const d = el("div", "dots");
+    for (let i = 0; i < ROUND; i++) { const s = el("span"); if (i < state.res.length) s.className = state.res[i] ? "ok" : "no"; else if (i === state.i) s.className = "now"; d.append(s); }
+    return d;
+  }
+  function sentenceEl(text, cls) {
+    // {word} → <mark>, ___ → gap
+    const p = el("div", "sent");
+    text.split(/(\{[^}]+\}|___)/).forEach(part => {
+      if (!part) return;
+      if (part === "___") { const g = el("span", "gap", "?"); p.append(g); p.gapEl = g; }
+      else if (part[0] === "{") p.append(el("mark", null, part.slice(1, -1)));
+      else p.append(document.createTextNode(part));
+    });
+    return p;
+  }
+
+  function build(it) {
+    // returns {card nodes, options[{label, value}], answer value, why(text nodes), reviewText}
+    const nodes = [];
+    let options, answer, why, review;
+    if (it.type === "pytania") {
+      const c = CASES[it.k];
+      if (it.dir === "q2n") {
+        nodes.push(el("div", "kind", "Który przypadek odpowiada na pytania"), el("div", "big", c.q));
+        options = ORDER.map(k => ({ label: caseLabel(k), v: k })); answer = it.k;
+      } else if (it.dir === "h2n") {
+        nodes.push(el("div", "kind", "Słowo pomocnicze"), el("div", "big", c.h), el("div", "base", "Który to przypadek?"));
+        options = ORDER.map(k => ({ label: caseLabel(k), v: k })); answer = it.k;
+      } else {
+        nodes.push(el("div", "kind", "Na jakie pytania odpowiada"), el("div", "big", c.e + " " + c.n));
+        const others = shuffle(ORDER.filter(k => k !== it.k)).slice(0, 3);
+        options = shuffle([it.k, ...others]).map(k => ({ label: CASES[k].q, v: k })); answer = it.k;
+      }
+      why = [el("b", null, c.n), document.createTextNode(": " + c.q + " (" + c.h + ")")];
+      review = c.n + ": " + c.q + " (" + c.h + ")";
+    } else if (it.type === "jaki") {
+      nodes.push(el("div", "kind", "W jakim przypadku jest zaznaczone słowo?"), sentenceEl(it.s));
+      options = ORDER.map(k => ({ label: caseLabel(k), v: k })); answer = it.c;
+      why = [document.createTextNode(it.h + " → "), el("b", null, CASES[it.c].n)];
+      review = it.s.replace(/[{}]/g, "") + " → " + it.h + " → " + CASES[it.c].n;
+    } else {
+      const s = sentenceEl(it.s);
+      nodes.push(el("div", "kind", "Wstaw słowo we właściwej formie"), s);
+      const b = el("div", "base", "słowo: "); b.append(el("b", null, it.base)); if (it.idiom) b.append(document.createTextNode(" · znaczy: " + it.idiom));
+      nodes.push(b);
+      options = shuffle([it.c, ...it.w]).map(w => ({ label: w, v: w })); answer = it.c;
+      why = [document.createTextNode(it.s.replace("___", it.c) + " → "), el("b", null, CASES[it.k].n), document.createTextNode(" (" + CASES[it.k].q + ")")];
+      review = it.s.replace("___", it.c) + " → " + CASES[it.k].n;
+      nodes.gap = s.gapEl;
+    }
+    return { nodes, options, answer, why, review };
+  }
+
+  function render() {
+    const it = state.qs[state.i];
+    const q = build(it);
+    let done = false;
+    quiz.replaceChildren(dotsEl());
+    const card = el("div", "q"); card.append(...q.nodes);
+    const why = el("div", "why"); why.hidden = true; card.append(why);
+    const fb = el("div", "feedback");
+    const next = el("button", "big-btn", state.i === ROUND - 1 ? "Wynik →" : "Dalej →"); next.hidden = true;
+    next.onclick = () => { state.i++; state.i >= ROUND ? result() : render(); };
+    const box = el("div", "opts" + (q.options.length === 7 ? " cases7" : ""));
+    const btns = q.options.map(o => {
+      const b = el("button", "opt", o.label);
+      b.onclick = () => {
+        if (done) return; done = true;
+        const ok = o.v === q.answer;
+        state.res.push(ok);
+        btns.forEach(x => x.disabled = true);
+        if (ok) { b.classList.add("picked-ok"); ding(); fb.textContent = pick(["Brawo!", "Super!", "Dobrze!", "Tak jest!"]); fb.className = "feedback ok"; }
+        else {
+          b.classList.add("picked-bad"); btns[q.options.findIndex(x => x.v === q.answer)].classList.add("show-ok"); bonk();
+          fb.textContent = "Nie tym razem"; fb.className = "feedback no";
+          state.wrong.push(q.review);
+        }
+        if (q.nodes.gap) { q.nodes.gap.textContent = q.answer; }
+        why.replaceChildren(...q.why); why.hidden = false;
+        quiz.firstChild.replaceWith(dotsEl());
+        next.hidden = false; next.focus({ preventScroll: true });
+      };
+      box.append(b); return b;
+    });
+    quiz.append(card, box, fb, next);
+  }
+
+  function result() {
+    const score = state.res.filter(Boolean).length;
+    const k = "best-" + mode, best = Math.max(store.get(k, 0), score); store.set(k, best);
+    quiz.replaceChildren();
+    const r = el("div", "q result");
+    r.append(el("div", "score", score + " / " + ROUND));
+    r.append(el("div", "msg", score === ROUND ? "Bezbłędnie! 🏆" : score >= 8 ? "Bardzo dobrze! ⭐" : score >= 5 ? "Nieźle, jeszcze raz?" : "Zajrzyj do ściągi 🙂"));
+    if (state.wrong.length) {
+      const rev = el("div", "review"); rev.append(el("div", "kind", "Do powtórki"));
+      state.wrong.forEach(w => rev.append(el("div", "row", w)));
+      r.append(rev);
+    }
+    r.append(el("p", "note", "Najlepszy wynik w tym trybie: " + best + " / " + ROUND));
+    const again = el("button", "big-btn", "Jeszcze raz"); again.onclick = newRound;
+    const sheet = el("button", "big-btn ghost", "Ściąga"); sheet.onclick = () => showTab("sheet");
+    quiz.append(r, again, sheet);
+  }
+
+  newRound();
+  showTab(store.get("tab", "practice"));
+})();
+</script>
+
+</body>
+</html>
