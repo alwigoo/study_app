@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Szkoła latania</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#EEF3FA">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧹</text></svg>">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>.home-link{display:inline-flex;align-self:flex-start;align-items:center;gap:6px;font-family:"Lexend",system-ui,sans-serif;font-size:14px;color:var(--muted,#5B6785);text-decoration:none;padding:6px 12px;border-radius:999px;border:1px solid var(--line,#D6DEEC);background:var(--card,#FFFFFF)}.home-link:focus-visible{outline:3px solid var(--muted,#5B6785);outline-offset:2px}</style>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Lexend:wght@400;600&display=swap">
+<style>
+[hidden]{display:none!important}
+/* Layout: one phone column, same family as the other Polish apps */
+:root {
+  --bg: #EEF3FA; --card: #FFFFFF; --ink: #1B2540; --muted: #5B6785; --line: #D6DEEC;
+  --pl: #D2621C; --pl-soft: #FDEBDD;
+  --ok: #1E8A5F; --ok-soft: #DDF3E8;
+  --bad: #D0392F; --bad-soft: #FBE3E1;
+  --font-display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Lexend", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121827; --card: #1C2438; --ink: #EDF1F9; --muted: #9AA6C2; --line: #2C3752;
+    --pl: #FF9B5C; --pl-soft: #3A2618; --ok: #4FCB95; --ok-soft: #173327; --bad: #FF7A70; --bad-soft: #3B1D1D;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121827; --card: #1C2438; --ink: #EDF1F9; --muted: #9AA6C2; --line: #2C3752;
+  --pl: #FF9B5C; --pl-soft: #3A2618; --ok: #4FCB95; --ok-soft: #173327; --bad: #FF7A70; --bad-soft: #3B1D1D;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.45; padding-inline: 16px; -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+button:focus-visible { outline: 3px solid var(--pl); outline-offset: 2px; }
+.app { max-width: 520px; margin: 0 auto; padding-block: 14px 40px; display: flex; flex-direction: column; gap: 16px; }
+header { display: flex; flex-direction: column; gap: 2px; }
+.eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: 40px; line-height: 1; margin: 0; color: var(--pl); }
+.note { color: var(--muted); font-size: 14px; margin: 0; }
+h2 { font-family: var(--font-display); font-weight: 800; font-size: 24px; line-height: 1.1; margin: 0; }
+
+.tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 4px; gap: 4px; }
+.tabs button { font-family: var(--font-display); font-weight: 800; font-size: 20px; padding: 8px 0 6px; border-radius: 12px; color: var(--muted); }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+
+.modes { display: flex; flex-wrap: wrap; gap: 6px; }
+.modes button { font-size: 14px; padding: 7px 13px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--muted); }
+.modes button[aria-pressed="true"] { background: var(--pl); border-color: var(--pl); color: var(--bg); font-weight: 600; }
+
+.dots { display: flex; gap: 5px; }
+.dots span { flex: 1; height: 8px; border-radius: 4px; background: var(--line); }
+.dots span.ok { background: var(--ok); } .dots span.no { background: var(--bad); } .dots span.now { background: var(--muted); }
+
+.q { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 20px 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+.q .kind { font-size: 13px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); }
+.q .ask { font-size: 21px; line-height: 1.35; font-weight: 600; text-wrap: balance; }
+.opts { display: flex; flex-direction: column; gap: 8px; }
+.opt { text-align: left; font-size: 17px; line-height: 1.3; font-weight: 600; padding: 13px 14px; border-radius: 16px; background: var(--card); border: 2px solid var(--line); }
+.opt:disabled { opacity: .45; cursor: default; }
+.opt.picked-ok, .opt.show-ok { opacity: 1; border-color: var(--ok); background: var(--ok-soft); }
+.opt.picked-bad { opacity: 1; border-color: var(--bad); background: var(--bad-soft); }
+.why { width: 100%; background: var(--pl-soft); border-radius: 14px; padding: 10px 12px; font-size: 15px; text-align: left; }
+.feedback { min-height: 28px; text-align: center; font-family: var(--font-display); font-weight: 800; font-size: 22px; }
+.feedback.ok { color: var(--ok); } .feedback.no { color: var(--bad); }
+.big-btn { display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 800; font-size: 21px; padding: 11px 16px 9px; border-radius: 16px; background: var(--ink); color: var(--bg); width: 100%; }
+.big-btn.ghost { background: var(--card); color: var(--ink); border: 1px solid var(--line); }
+.big-btn:disabled { opacity: .4; cursor: default; }
+
+/* order mode */
+.slot { display: flex; align-items: flex-start; gap: 10px; text-align: left; font-size: 16px; line-height: 1.3; padding: 11px 12px; border-radius: 14px; background: var(--card); border: 2px solid var(--line); }
+.slot .num { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 17px; background: var(--line); color: var(--muted); }
+.slot.picked { border-color: var(--pl); }
+.slot.picked .num { background: var(--pl); color: var(--bg); }
+.slot.right { border-color: var(--ok); background: var(--ok-soft); }
+.slot.right .num { background: var(--ok); color: var(--bg); }
+.slot.wrong { border-color: var(--bad); background: var(--bad-soft); }
+.slot.wrong .num { background: var(--bad); color: var(--bg); }
+.slot:disabled { cursor: default; }
+.row2 { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; }
+
+.result .score { font-family: var(--font-display); font-weight: 800; font-size: 64px; line-height: 1; font-variant-numeric: tabular-nums; }
+.result .msg { font-family: var(--font-display); font-weight: 800; font-size: 26px; }
+.review { width: 100%; text-align: left; display: flex; flex-direction: column; gap: 6px; }
+.review .row { border-bottom: 1px solid var(--line); padding-bottom: 6px; font-size: 15px; }
+.review .row b { color: var(--ok); }
+
+/* cheat sheet */
+.sheet { display: flex; flex-direction: column; gap: 14px; }
+.cards { display: flex; flex-direction: column; gap: 8px; }
+.hero { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 10px 12px; }
+.hero b { font-family: var(--font-display); font-weight: 800; font-size: 19px; }
+.plan { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px 12px 34px; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.terms { background: var(--pl-soft); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; font-size: 15px; }
+</style>
+
+<div class="app">
+  <a class="home-link" href="index.html">← Strona główna</a>
+  <header>
+    <div class="eyebrow">Lektura · Janusz Christa</div>
+    <h1>Kajko i Kokosz. Szkoła latania</h1>
+    <p class="note">Quiz przed kartkówką: bohaterowie, wydarzenia i kolejność.</p>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button id="tab-practice" role="tab" aria-selected="true">Ćwicz</button>
+    <button id="tab-sheet" role="tab" aria-selected="false">Ściąga</button>
+  </nav>
+
+  <section id="practice" style="display:flex;flex-direction:column;gap:14px">
+    <div class="modes" id="modes">
+      <button data-mode="quiz">Quiz</button>
+      <button data-mode="kto">Bohaterowie</button>
+      <button data-mode="order">Kolejność wydarzeń</button>
+    </div>
+    <div id="quiz" style="display:flex;flex-direction:column;gap:14px"></div>
+  </section>
+
+  <section id="sheet" class="sheet" hidden>
+    <h2>Bohaterowie</h2>
+    <div class="cards" id="heroes"></div>
+    <h2>Plan wydarzeń</h2>
+    <ol class="plan" id="plan"></ol>
+    <h2>Komiks</h2>
+    <div class="terms">
+      <div><b>kadr</b> to jeden obrazek komiksu</div>
+      <div><b>dymek (chmurka)</b> to miejsce na słowa i myśli postaci</div>
+      <div><b>onomatopeja</b> to wyraz naśladujący dźwięk: bum, trach, łup</div>
+      <div><b>plansza</b> to cała strona komiksu z kadrami</div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  // ----- question | correct | 3 wrong | explanation -----
+  const QUIZ = [
+    ["Kto jest autorem komiksu „Kajko i Kokosz. Szkoła latania”?", "Janusz Christa", "Jan Brzechwa|Kornel Makuszyński|Julian Tuwim", "Janusz Christa wymyślił i narysował przygody Kajka i Kokosza."],
+    ["Czym jest „Szkoła latania”?", "komiksem", "wierszem|baśnią|listem", "To komiks: historia opowiedziana obrazkami i dymkami."],
+    ["Gdzie w komiksie zapisuje się słowa wypowiadane przez postać?", "w dymku (chmurce)", "w kadrze obok|w tytule|na okładce", "Słowa i myśli postaci są w dymkach."],
+    ["Jak nazywa się pojedynczy obrazek w komiksie?", "kadr", "dymek|plansza|rozdział", "Kadr to jeden obrazek. Cała strona to plansza."],
+    ["Jak nazywamy wyrazy naśladujące dźwięki, np. „bum”, „trach”?", "onomatopeje", "rymy|przysłowia|dymki", "Onomatopeje naśladują dźwięki."],
+    ["Co Jaga dała Łamignatowi?", "czarodziejską fujarkę", "latającą miotłę|maść do latania|czarodziejski kufer", "Jaga dała mężowi zaczarowaną fujarkę."],
+    ["Co dawała Łamignatowi czarodziejska fujarka?", "ogromną, nadludzką siłę", "możliwość latania|niewidzialność|mądrość", "Gdy Łamignat zagrał na fujarce, stawał się niezwykle silny."],
+    ["Dlaczego Mirmiła, Kajka i Kokosza nie wpuszczono wieczorem do grodu?", "bo Mirmił sam zakazał wpuszczać kogokolwiek po zmroku", "bo brama się zepsuła|bo strażnicy spali|bo Lubawa się obraziła", "Po zmroku nie wolno było nikogo wpuszczać z powodu zbójców. Taki rozkaz wydał sam Mirmił."],
+    ["Za kogo przebrał się Hegemon, gdy przyszedł do Mirmiła?", "za kupca", "za kowala|za czarownika|za rycerza", "Hegemon udawał wędrownego kupca."],
+    ["Co według „kupca” stało się z latającym dywanem?", "zjadły go mole", "ukradła go Jaga|spadł do rzeki|spłonął", "„Kupiec” mówił, że dywan zjadły mole."],
+    ["Po co Hegemon namawiał Mirmiła do nauki latania?", "żeby wywabić go z grodu i zdobyć gród", "żeby sprzedać mu miotłę|żeby się z nim zaprzyjaźnić|żeby samemu nauczyć się latać", "Gdy kasztelana nie było, zbójcerzom łatwiej było zaatakować gród."],
+    ["Gdzie była szkoła latania?", "na Łysej Górze, w kraju Omsów", "w grodzie Mirmiła|nad morzem|w chacie Jagi", "Wyższa Szkoła Latania była na Łysej Górze, w kraju Omsów."],
+    ["Jak skończyły się pierwsze lekcje latania u Jagi?", "źle: dom Jagi został zniszczony", "Mirmił od razu pięknie poleciał|Jaga odmówiła lekcji|Mirmił wygrał zawody", "Próby się nie udały, a chata Jagi została zniszczona."],
+    ["Kto nie chciał, żeby Mirmił jechał do szkoły latania?", "Lubawa", "Kajko|Hegemon|Jaga", "Lubawa, żona Mirmiła, była przeciwna."],
+    ["Co dokuczało Mirmiłowi w drodze do szkoły?", "ból zęba", "złamana noga|katar|ból brzucha", "Mirmiła bolał ząb, więc zatrzymali się u kowala."],
+    ["Komu kowal przez pomyłkę wyrwał ząb?", "Kokoszowi", "Mirmiłowi|Kajkowi|Hegemonowi", "Mirmił uciekł, a kowal w zamieszaniu zabrał się za ząb Kokosza."],
+    ["Na czym Kajko i Kokosz polecieli w nocy w szkole?", "na miotle", "na dywanie|na kufrze|na pniu drzewa", "W nocy wzięli miotłę i polecieli."],
+    ["Co się stało, gdy Kajko i Kokosz spadli z miotły?", "zrobili dziurę w dachu szkoły", "zniszczyli bramę grodu|zerwali most|zburzyli kuźnię", "Spadli na budynek i zrobili dziurę w dachu."],
+    ["Kto zapłacił grzywnę (karę) za Kajka i Kokosza?", "Mirmił", "Lubawa|Jaga|Kokosz", "Mirmił zapłacił za nich grzywnę."],
+    ["Jak Kajko i Kokosz przerobili napis na szkole?", "na „Szkoła Łatania”", "na „Szkoła Spania”|na „Szkoła Jedzenia”|na „Szkoła Lania”", "Musieli łatać dach, więc zmienili napis na „Szkoła Łatania”."],
+    ["Kto wyrzucił Kajka i Kokosza ze szkoły?", "pani dyrektor szkoły", "Mirmił|Hegemon|Jaga", "Za przerobiony napis dyrektorka wyrzuciła ich za bramę."],
+    ["Co Mirmił kupił po zdaniu egzaminu?", "latający kufer i maść do latania", "miotłę i dywan|czarodziejską fujarkę|latającą łyżkę", "Zamiast miotły kupił latający kufer i trochę drogiej maści."],
+    ["Co stało się z kufrem w drodze powrotnej?", "wpadł do wody i się rozbił", "ukradli go zbójcerze|zjadły go mole|Mirmił go sprzedał", "Maść się skończyła, kufer wylądował w wodzie i się rozbił."],
+    ["Jak Kajko przechytrzył karczmarza?", "kazał mu w świetle księżyca wołać na rozstajach dróg, że chce być bogaty", "zapłacił mu fałszywym złotem|uciekł przez okno|zagrał mu na fujarce", "Karczmarz poszedł na rozstaje, a bohaterowie spokojnie zjedli i odpoczęli."],
+    ["Co Hegemon zrobił z fujarką Łamignata?", "zabrał ją, ale nie potrafił z niej skorzystać", "połamał ją|oddał ją Jadze|sprzedał ją", "Hegemon grał i grał, ale siły nie dostał."],
+    ["Jak Łamignat uwolnił się od zbójców?", "Hegemon kazał mu zagrać na fujarce, a wtedy Łamignat odzyskał siłę", "przekopał tunel|uratował go Kajko|przekupił strażnika", "Łamignat zagrał, dostał siłę, uwolnił się i uciekł."],
+    ["Co Jaga zaczarowała, żeby biło zbójów?", "łyżkę", "miotłę|garnek|kufer", "Latająca łyżka miała tłuc zbójów, ale zaatakowała też Łamignata."],
+    ["Czym zbójcerze chcieli rozbić bramę grodu?", "pniem drzewa (taranem)", "kufrem|wozem|kamieniem", "Zbójcerze ścinali drzewo, żeby zrobić z niego taran."],
+    ["Na czym bohaterowie polecieli na zbójców w finale?", "na pniu drzewa posmarowanym czarodziejską maścią", "na miotle|na latającym kufrze|na dywanie", "Kajko miał ukryty ostatni słoiczek maści."],
+    ["Jaki przydomek dostał Mirmił na końcu?", "Waleczny", "Mądry|Latający|Wielki", "Kajko ogłosił, że kasztelan to odtąd Mirmił Waleczny."],
+    ["Jak Mirmił zareagował na swój nowy przydomek?", "wzruszył się do łez", "obraził się|zasnął|uciekł z uczty", "Mirmił był tak wzruszony, że się popłakał."]
+  ].map(([q, c, w, e]) => ({ type: "quiz", q, c, w: w.split("|"), e }));
+
+  // ----- who is it? description | name -----
+  const NAMES = ["Kajko", "Kokosz", "Mirmił", "Lubawa", "Jaga", "Łamignat", "Hegemon"];
+  const KTO = [
+    ["kasztelan grodu, marzy o lataniu", "Mirmił"],
+    ["żona kasztelana, nie chce, żeby mąż latał", "Lubawa"],
+    ["mały, sprytny wój, ma zawsze pomysł", "Kajko"],
+    ["duży, silny wój, lubi zjeść i pospać", "Kokosz"],
+    ["czarownica, ciotka Kokosza", "Jaga"],
+    ["zbój, mąż Jagi, ma czarodziejską fujarkę", "Łamignat"],
+    ["wódz zbójcerzy, przebrał się za kupca", "Hegemon"],
+    ["przechytrzył karczmarza", "Kajko"],
+    ["stracił ząb u kowala", "Kokosz"],
+    ["zapłacił grzywnę za wojów", "Mirmił"],
+    ["dała Łamignatowi fujarkę", "Jaga"],
+    ["zabrał Łamignatowi fujarkę", "Hegemon"],
+    ["dostał przydomek Waleczny", "Mirmił"],
+    ["ukrył na czarną godzinę ostatni słoiczek maści", "Kajko"],
+    ["opowiadał, że latający dywan zjadły mole", "Hegemon"]
+  ].map(([d, n]) => ({ type: "kto", d, c: n, w: shuffle(NAMES.filter(x => x !== n)).slice(0, 3) }));
+
+  // ----- plan of events, in order -----
+  const PLAN = [
+    "Jaga daje Łamignatowi czarodziejską fujarkę.",
+    "Mirmił, Kajko i Kokosz wracają z polowania i nie zostają wpuszczeni do grodu.",
+    "Zbójcerze wkradają się do grodu przez otwartą bramę i zostają przepędzeni.",
+    "Hegemon przebrany za kupca namawia Mirmiła do nauki latania.",
+    "Nieudane lekcje latania u Jagi.",
+    "Mimo sprzeciwu Lubawy Mirmił wyrusza z wojami na Łysą Górę.",
+    "Kowal przez pomyłkę wyrywa ząb Kokoszowi.",
+    "Nocny lot Kajka i Kokosza na miotle i dziura w dachu szkoły.",
+    "Napis „Szkoła Łatania” i wyrzucenie wojów ze szkoły.",
+    "Mirmił zdaje egzamin i kupuje latający kufer oraz maść.",
+    "Kufer wpada do wody i się rozbija.",
+    "Kajko przechytrza karczmarza.",
+    "Lot na pniu drzewa i pokonanie zbójcerzy.",
+    "Uczta i przydomek Mirmił Waleczny."
+  ];
+  const HEROES = [
+    ["Mirmił", "kasztelan grodu, mały, rudy, marzy o lataniu. Na końcu dostaje przydomek Waleczny."],
+    ["Lubawa", "żona Mirmiła, stanowcza, sprzeciwia się wyjazdowi."],
+    ["Kajko", "mały i sprytny wój Mirmiła, zawsze wymyśli podstęp."],
+    ["Kokosz", "duży, silny i łakomy wój, Jaga to jego ciotka."],
+    ["Jaga", "dobra czarownica, ciotka Kokosza, żona Łamignata."],
+    ["Łamignat", "zbój, mąż Jagi, dzięki fujarce ma ogromną siłę."],
+    ["Krwawy Hegemon", "wódz zbójcerzy, chce zdobyć gród. Przebiera się za kupca."],
+    ["zbójcerze", "banda Hegemona, napadają na gród."],
+    ["pani dyrektor", "prowadzi Wyższą Szkołę Latania na Łysej Górze."]
+  ];
+
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem("kajko-" + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem("kajko-" + k, JSON.stringify(v)); } catch (e) {} }
+  };
+  function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+
+  let ac;
+  function tone(freqs, dur, type) {
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      freqs.forEach((f, i) => {
+        const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime + i * dur * .8;
+        o.type = type; o.frequency.value = f; g.gain.setValueAtTime(.18, t); g.gain.exponentialRampToValueAtTime(.001, t + dur);
+        o.connect(g).connect(ac.destination); o.start(t); o.stop(t + dur);
+      });
+    } catch (e) {}
+  }
+  const ding = () => tone([880, 1320], .16, "sine");
+  const bonk = () => tone([180, 140], .18, "triangle");
+
+  // ----- cheat sheet -----
+  const heroes = document.getElementById("heroes");
+  HEROES.forEach(([n, d]) => { const c = el("div", "hero"); c.append(el("b", null, n), document.createTextNode(": " + d)); heroes.append(c); });
+  const plan = document.getElementById("plan");
+  PLAN.forEach(p => plan.append(el("li", null, p)));
+
+  // ----- tabs -----
+  const tabP = document.getElementById("tab-practice"), tabS = document.getElementById("tab-sheet");
+  const secP = document.getElementById("practice"), secS = document.getElementById("sheet");
+  function showTab(name) {
+    const p = name === "practice";
+    tabP.setAttribute("aria-selected", p); tabS.setAttribute("aria-selected", !p);
+    secP.hidden = !p; secS.hidden = p; store.set("tab", name);
+  }
+  tabP.onclick = () => showTab("practice"); tabS.onclick = () => showTab("sheet");
+
+  // ----- rounds -----
+  const ROUND = 10, ORDER_N = 5;
+  const decks = {};
+  const POOLS = { quiz: QUIZ, kto: KTO };
+  const draw = key => { if (!decks[key] || !decks[key].length) decks[key] = shuffle(POOLS[key]); return decks[key].pop(); };
+  let mode = store.get("mode", "quiz"); if (!["quiz", "kto", "order"].includes(mode)) mode = "quiz";
+  let state;
+  function newRound() {
+    const qs = [];
+    for (let i = 0; i < ROUND; i++) {
+      if (mode === "order") {
+        const idx = shuffle(PLAN.map((_, j) => j)).slice(0, ORDER_N).sort((a, b) => a - b);
+        qs.push({ type: "order", idx });
+      } else qs.push(draw(mode));
+    }
+    state = { qs, i: 0, res: [], wrong: [] };
+    render();
+  }
+  const modeBtns = document.querySelectorAll("#modes button");
+  const markModes = () => modeBtns.forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode));
+  modeBtns.forEach(b => b.onclick = () => { mode = b.dataset.mode; store.set("mode", mode); markModes(); newRound(); });
+  markModes();
+
+  const quiz = document.getElementById("quiz");
+  function dotsEl() {
+    const d = el("div", "dots");
+    for (let i = 0; i < ROUND; i++) { const s = el("span"); if (i < state.res.length) s.className = state.res[i] ? "ok" : "no"; else if (i === state.i) s.className = "now"; d.append(s); }
+    return d;
+  }
+  function nextBtn() {
+    const b = el("button", "big-btn", state.i === ROUND - 1 ? "Wynik →" : "Dalej →"); b.hidden = true;
+    b.onclick = () => { state.i++; state.i >= ROUND ? result() : render(); };
+    return b;
+  }
+  function mark(ok, fb, wrongText) {
+    state.res.push(ok);
+    if (ok) { ding(); fb.textContent = pick(["Brawo!", "Super!", "Dobrze!", "Tak jest!"]); fb.className = "feedback ok"; }
+    else { bonk(); fb.textContent = "Nie tym razem"; fb.className = "feedback no"; state.wrong.push(wrongText); }
+    quiz.firstChild.replaceWith(dotsEl());
+  }
+
+  function render() {
+    const it = state.qs[state.i];
+    if (it.type === "order") return renderOrder(it);
+    quiz.replaceChildren(dotsEl());
+    const card = el("div", "q");
+    if (it.type === "kto") { card.append(el("div", "kind", "Kto to?"), el("div", "ask", it.d)); }
+    else card.append(el("div", "kind", "Pytanie"), el("div", "ask", it.q));
+    const why = el("div", "why"); why.hidden = true; card.append(why);
+    const fb = el("div", "feedback"), next = nextBtn(), box = el("div", "opts");
+    const options = shuffle([it.c, ...it.w]);
+    let done = false;
+    const btns = options.map(o => {
+      const b = el("button", "opt", o);
+      b.onclick = () => {
+        if (done) return; done = true;
+        const ok = o === it.c;
+        btns.forEach(x => x.disabled = true);
+        b.classList.add(ok ? "picked-ok" : "picked-bad");
+        if (!ok) btns[options.indexOf(it.c)].classList.add("show-ok");
+        mark(ok, fb, (it.type === "kto" ? it.d : it.q) + " → " + it.c);
+        why.textContent = it.type === "kto" ? it.c + ": " + it.d + "." : it.e; why.hidden = false;
+        next.hidden = false; next.focus({ preventScroll: true });
+      };
+      box.append(b); return b;
+    });
+    quiz.append(card, box, fb, next);
+  }
+
+  function renderOrder(it) {
+    quiz.replaceChildren(dotsEl());
+    const card = el("div", "q");
+    card.append(el("div", "kind", "Kolejność wydarzeń"), el("div", "ask", "Stukaj wydarzenia od najwcześniejszego do najpóźniejszego."));
+    const fb = el("div", "feedback"), next = nextBtn(), box = el("div", "opts");
+    const shown = shuffle(it.idx);
+    const picked = [];
+    const slots = shown.map(ix => {
+      const s = el("button", "slot"); const n = el("span", "num", ""); s.append(n, el("span", null, PLAN[ix]));
+      s.onclick = () => {
+        if (s.disabled) return;
+        const at = picked.indexOf(ix);
+        if (at >= 0) picked.splice(at, 1); else picked.push(ix);
+        paint();
+      };
+      box.append(s); return { s, n, ix };
+    });
+    const row = el("div", "row2");
+    const clear = el("button", "big-btn ghost", "Od nowa");
+    const check = el("button", "big-btn", "Sprawdź");
+    row.append(clear, check);
+    clear.onclick = () => { picked.length = 0; paint(); };
+    function paint() {
+      slots.forEach(o => { const at = picked.indexOf(o.ix); o.n.textContent = at >= 0 ? at + 1 : ""; o.s.classList.toggle("picked", at >= 0); });
+      check.disabled = picked.length !== shown.length;
+    }
+    check.onclick = () => {
+      const ok = picked.every((ix, k) => ix === it.idx[k]);
+      slots.forEach(o => { o.s.disabled = true; o.s.classList.remove("picked"); const right = it.idx.indexOf(o.ix); o.s.classList.add(picked.indexOf(o.ix) === right ? "right" : "wrong"); o.n.textContent = right + 1; });
+      // show slots in correct order
+      it.idx.forEach(ix => box.append(slots.find(o => o.ix === ix).s));
+      row.hidden = true;
+      mark(ok, fb, it.idx.map((ix, k) => (k + 1) + ". " + PLAN[ix]).join("  "));
+      if (!ok) card.append(Object.assign(el("div", "why"), { textContent: "Numery pokazują poprawną kolejność." }));
+      next.hidden = false; next.focus({ preventScroll: true });
+    };
+    paint();
+    quiz.append(card, box, row, fb, next);
+  }
+
+  function result() {
+    const score = state.res.filter(Boolean).length;
+    const k = "best-" + mode, best = Math.max(store.get(k, 0), score); store.set(k, best);
+    quiz.replaceChildren();
+    const r = el("div", "q result");
+    r.append(el("div", "score", score + " / " + ROUND));
+    r.append(el("div", "msg", score === ROUND ? "Bezbłędnie! 🏆" : score >= 8 ? "Bardzo dobrze! ⭐" : score >= 5 ? "Nieźle, jeszcze raz?" : "Zajrzyj do ściągi 🙂"));
+    if (state.wrong.length) {
+      const rev = el("div", "review"); rev.append(el("div", "kind", "Do powtórki"));
+      state.wrong.forEach(w => rev.append(el("div", "row", w)));
+      r.append(rev);
+    }
+    r.append(el("p", "note", "Najlepszy wynik w tym trybie: " + best + " / " + ROUND));
+    const again = el("button", "big-btn", "Jeszcze raz"); again.onclick = newRound;
+    const sheet = el("button", "big-btn ghost", "Ściąga"); sheet.onclick = () => showTab("sheet");
+    quiz.append(r, again, sheet);
+  }
+
+  newRound();
+  showTab(store.get("tab", "practice"));
+})();
+</script>
+
+</body>
+</html>
