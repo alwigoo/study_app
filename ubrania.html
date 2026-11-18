@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#EEF3FA">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👕</text></svg>">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Ubrania i charakter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Lexend:wght@400;600&display=swap">
+<style>
+:root{--bg:#EEF3FA;--card:#FFFFFF;--ink:#1B2540;--muted:#5B6785;--line:#D6DEEC;--acc:#2F5FD0;--acc-soft:#E0E8FA;--ok:#1E8A5F;--ok-soft:#DDF3E9;--bad:#D0392F;--bad-soft:#FBE3E1;--warm:#D2621C;--warm-soft:#FDEBDD;--vio:#7B4FD0;--vio-soft:#ECE4FB;--on-color:#FFFFFF;--font-display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;--font-body:"Lexend",system-ui,-apple-system,sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#121827;--card:#1C2438;--ink:#EDF1F9;--muted:#9AA6C2;--line:#2C3752;--acc:#86A7FF;--acc-soft:#1C2A4E;--ok:#4FCB95;--ok-soft:#173327;--bad:#FF7A70;--bad-soft:#3B1D1D;--warm:#FF9B5C;--warm-soft:#3A2618;--vio:#B596FF;--vio-soft:#2A2147;--on-color:#121827;color-scheme:dark}}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.45;padding-inline:16px;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.app{max-width:520px;margin:0 auto;padding-block:14px 40px;display:flex;flex-direction:column;gap:16px}
+.home-link{display:inline-flex;align-self:flex-start;align-items:center;gap:6px;font-size:14px;color:var(--muted);text-decoration:none;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card)}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+h1{font-family:var(--font-display);font-weight:800;font-size:40px;line-height:1;margin:0;letter-spacing:-.5px}
+.head-sub{font-family:var(--font-display);font-weight:800;font-size:18px;color:var(--acc);padding-bottom:4px;text-align:right}
+h3{font-family:var(--font-display);font-weight:800;font-size:22px;margin:6px 0 0;line-height:1.1}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:4px;gap:4px}
+.tabs button{font-family:var(--font-display);font-weight:800;font-size:20px;padding:8px 0 6px;border-radius:12px;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.note{color:var(--muted);font-size:14px;margin:0}
+.warn{background:var(--bad-soft);border-radius:12px;padding:10px 12px;font-size:14px;margin:0}
+.settings{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.seg{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px}
+.seg button{font-size:14px;padding:6px 12px;border-radius:9px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.modes{display:flex;flex-wrap:wrap;gap:6px}
+.modes button{font-size:15px;padding:7px 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--muted)}
+.modes button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.big-btn{display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--font-display);font-weight:800;font-size:20px;padding:12px 16px 10px;border-radius:16px;background:var(--ink);color:var(--bg);width:100%}
+.big-btn.ghost{background:var(--card);color:var(--ink);border:2px solid var(--line)}
+.big-btn:active{transform:scale(.98)}
+.dots{display:flex;gap:5px}
+.dots span{flex:1;height:8px;border-radius:4px;background:var(--line)}
+.dots span.ok{background:var(--ok)}.dots span.no{background:var(--bad)}.dots span.now{background:var(--muted)}
+.task-label{font-family:var(--font-display);font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
+.q{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:18px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.q .pic{width:120px;height:120px;font-size:84px;line-height:120px}
+.q .pic svg{width:100%;height:100%}
+.q .emo{font-size:64px;line-height:1}
+.q .sentence{font-family:var(--font-display);font-weight:800;font-size:28px;line-height:1.25;text-wrap:balance}
+.q .plq{color:var(--muted);font-size:15px}
+.slot{display:inline-block;min-width:3.5ch;border-bottom:4px dashed var(--muted);color:transparent;padding:0 4px}
+.slot.filled{border-bottom-style:solid;color:var(--ok);border-color:var(--ok)}
+.slot.filled.bad{color:var(--bad);border-color:var(--bad)}
+.replay{font-size:14px;color:var(--muted);padding:6px 12px;border-radius:999px;border:1px solid var(--line)}
+.answers{display:grid;grid-template-columns:repeat(var(--cols,2),minmax(0,1fr));gap:8px}
+.answers button{font-family:var(--font-display);font-weight:800;font-size:22px;line-height:1.15;padding:14px 6px 11px;border-radius:18px;background:var(--card);border:2px solid var(--line);color:var(--ink);box-shadow:0 4px 0 var(--line);transition:transform .1s,opacity .2s}
+.answers.color button{background:var(--acc);border-color:var(--acc);color:var(--on-color);box-shadow:0 4px 0 rgba(0,0,0,.18)}
+.answers button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.answers button svg{width:78px;height:78px;display:block;margin:0 auto}
+.answers.pics button{padding:8px}
+.answers button:disabled{opacity:.35;cursor:default}
+.answers button.picked-ok{opacity:1;border-color:var(--ok);background:var(--ok-soft);color:var(--ink);outline:3px solid var(--ok);outline-offset:1px}
+.answers button.picked-bad{opacity:1;border-color:var(--bad);background:var(--bad-soft);color:var(--ink);animation:shake .35s}
+.answers button.show-ok{opacity:1;border-color:var(--ok)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.feedback{min-height:28px;text-align:center;font-family:var(--font-display);font-weight:800;font-size:22px}
+.feedback.ok{color:var(--ok)}.feedback.no{color:var(--bad)}
+.explain{background:var(--warm-soft);border-radius:14px;padding:10px 14px;font-size:15px;text-align:left}
+.explain b{font-family:var(--font-display);font-size:19px}
+.type-row{display:flex;gap:8px}
+.type-row input{flex:1;min-width:0;font-family:var(--font-display);font-weight:800;font-size:24px;padding:10px 14px 6px;border-radius:16px;border:3px solid var(--line);background:var(--card);color:var(--ink)}
+.type-row input:focus{outline:none;border-color:var(--acc)}
+.type-row input.ok{border-color:var(--ok)}.type-row input.no{border-color:var(--bad)}
+.type-row button{font-family:var(--font-display);font-weight:800;font-size:19px;padding:0 18px;border-radius:16px;background:var(--ink);color:var(--bg)}
+.tiles{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;min-height:52px}
+.tiles button{font-family:var(--font-display);font-weight:800;font-size:22px;padding:8px 14px 5px;border-radius:14px;background:var(--vio-soft);color:var(--vio);border:2px solid var(--vio)}
+.tiles button.used{visibility:hidden}
+.built{min-height:60px;width:100%;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;border-bottom:3px dashed var(--line);padding:6px 0}
+.built button{font-family:var(--font-display);font-weight:800;font-size:22px;padding:6px 12px 3px;border-radius:12px;background:var(--vio);color:var(--on-color)}
+.built.ok{border-color:var(--ok)}.built.no{border-color:var(--bad)}
+.row-btns{display:flex;gap:8px}.row-btns>*{flex:1}
+.result{text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center}
+.result .score{font-family:var(--font-display);font-weight:800;font-size:64px;line-height:1}
+.stars{font-size:26px;letter-spacing:2px;color:var(--warm);word-break:break-all}
+.stars .off{color:var(--line)}
+.result .msg{font-family:var(--font-display);font-weight:800;font-size:26px}
+.review{width:100%;text-align:left;display:flex;flex-direction:column;gap:6px}
+.review .item{background:var(--bad-soft);border-radius:12px;padding:8px 12px;font-size:15px}
+.review .item b{font-family:var(--font-display);font-size:18px}
+.learn-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:8px 6px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
+.card:active{transform:scale(.97)}
+.card.playing{outline:3px solid var(--acc)}
+.card svg{width:64px;height:64px}
+.card .emo{font-size:44px;line-height:64px;height:64px}
+.card .en{font-family:var(--font-display);font-weight:800;font-size:clamp(15px,4.6vw,20px);line-height:1.1;overflow-wrap:anywhere}
+.card .pl{color:var(--muted);font-size:12px;line-height:1.2}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.q .clue{font-family:var(--font-display);font-weight:800;font-size:24px;line-height:1.25;text-wrap:balance}
+.hintline{font-family:var(--font-display);font-weight:800;font-size:22px;letter-spacing:4px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="app">
+  <a class="home-link" href="index.html">← Strona główna</a>
+  <header>
+    <h1>Clothes</h1>
+    <div class="head-sub">ubrania · przymiotniki<br>charakter</div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button id="tab-learn" role="tab" aria-selected="true">Poznaj</button>
+    <button id="tab-practice" role="tab" aria-selected="false">Ćwicz</button>
+  </nav>
+
+  <p class="warn" id="voice-warn" hidden></p>
+
+  <section id="learn" style="display:flex;flex-direction:column;gap:14px">
+    <p class="note">Dotknij obrazka, żeby usłyszeć słowo i przykład.</p>
+    <h3>👕 Clothes · ubrania</h3>
+    <div class="learn-grid" id="g-clothes"></div>
+    <h3>🧣 Jakie ubranie?</h3>
+    <div class="learn-grid" id="g-adj"></div>
+    <h3>😊 Jaki jesteś? · charakter</h3>
+    <div class="learn-grid" id="g-pers"></div>
+    <button class="big-btn" id="play-all">▶ Posłuchaj wszystkich ubrań</button>
+    <div class="settings">
+      <span class="note">Tempo mówienia</span>
+      <div class="seg" id="speed">
+        <button data-rate="0.7">Wolno</button>
+        <button data-rate="0.9">Normalnie</button>
+      </div>
+    </div>
+    <p class="note">Nie słychać dźwięku? Na iPhonie wyłącz tryb cichy i podgłośnij.</p>
+  </section>
+
+  <section id="practice" hidden style="flex-direction:column;gap:14px">
+    <div class="modes" id="modes"></div>
+    <div id="practice-extra"></div>
+    <div id="quiz" style="display:flex;flex-direction:column;gap:14px"></div>
+  </section>
+</div>
+<script>
+const CLOTHES = {"cap":"<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#2F5FD0\" d=\"M18 62 Q18 26 50 24 Q80 26 80 62 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#1F3F96\" d=\"M74 62 Q95 60 97 68 Q84 75 64 68 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"none\" d=\"M50 24 L50 62 M34 30 Q30 46 32 62\"/><circle stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#1F3F96\" cx=\"50\" cy=\"22\" r=\"4\"/></svg>","dress":"<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"none\" d=\"M39 8 L40 24 M61 8 L60 24\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#E86FB0\" d=\"M38 24 L62 24 L60 46 L82 90 L18 90 L40 46 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#B83C82\" d=\"M39 44 L61 44 L61 50 L39 50 Z\"/><circle fill=\"#fff\" cx=\"36\" cy=\"70\" r=\"3\"/><circle fill=\"#fff\" cx=\"52\" cy=\"62\" r=\"3\"/><circle fill=\"#fff\" cx=\"64\" cy=\"78\" r=\"3\"/><circle fill=\"#fff\" cx=\"46\" cy=\"82\" r=\"3\"/></svg>","hoodie":"<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#7E8799\" d=\"M33 22 Q34 2 50 2 Q66 2 67 22 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#9AA3B5\" d=\"M32 18 L44 13 Q50 20 56 13 L68 18 L83 28 L92 80 L81 82 L72 42 L72 88 L28 88 L28 42 L19 82 L8 80 L17 28 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#7E8799\" d=\"M38 18 Q50 34 62 18 Q56 26 50 26 Q44 26 38 18 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"none\" d=\"M46 26 L45 40 M54 26 L55 40\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#7E8799\" d=\"M36 62 L64 62 L69 78 L31 78 Z\"/></svg>","jacket":"<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#E08A2E\" d=\"M32 18 L44 13 Q50 20 56 13 L68 18 L83 28 L92 80 L81 82 L72 42 L72 88 L28 88 L28 42 L19 82 L8 80 L17 28 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#B8641A\" d=\"M44 13 L50 30 L56 13 L62 16 L54 34 L50 30 L46 34 L38 16 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"none\" d=\"M50 30 L50 88\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#B8641A\" d=\"M33 60 L44 60 L44 68 L33 68 Z M56 60 L67 60 L67 68 L56 68 Z\"/><path stroke=\"#1B2540\" stroke-width=\"2\" d=\"M48 40 L52 40 M48 50 L52 50 M48 60 L52 60 M48 70 L52 70 M48 80 L52 80\"/></svg>","jeans":"<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#3C6FD1\" d=\"M28 12 L72 12 L76 90 L55 90 L50 38 L45 90 L24 90 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"none\" d=\"M28 20 L72 20\"/><path stroke=\"#F2A93A\" stroke-width=\"2\" stroke-dasharray=\"3 3\" fill=\"none\" d=\"M32 26 Q38 34 46 28 M68 26 Q62 34 54 28 M30 84 L44 84 M56 84 L71 84\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"none\" d=\"M50 20 L50 38\"/></svg>","jumper":"<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#2E9E6A\" d=\"M32 18 L44 13 Q50 20 56 13 L68 18 L83 28 L92 80 L81 82 L72 42 L72 88 L28 88 L28 42 L19 82 L8 80 L17 28 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#1F7A50\" d=\"M28 80 L72 80 L72 88 L28 88 Z M84 72 L92 74 L92 80 L81 82 Z M16 72 L8 74 L8 80 L19 82 Z\"/><path stroke=\"#fff\" stroke-width=\"4\" fill=\"none\" stroke-linejoin=\"round\" d=\"M30 50 L36 44 L42 50 L48 44 L54 50 L60 44 L66 50 L70 46\"/><path stroke=\"#fff\" stroke-width=\"4\" fill=\"none\" stroke-linejoin=\"round\" d=\"M30 62 L36 56 L42 62 L48 56 L54 62 L60 56 L66 62 L70 58\"/></svg>","shirt":"<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#CFE3FF\" d=\"M32 18 L44 13 Q50 20 56 13 L68 18 L83 28 L92 80 L81 82 L72 42 L72 88 L28 88 L28 42 L19 82 L8 80 L17 28 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#fff\" d=\"M44 13 L50 27 L39 24 Z M56 13 L50 27 L61 24 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"none\" d=\"M50 27 L50 88\"/><circle fill=\"#1B2540\" cx=\"54\" cy=\"38\" r=\"2.3\"/><circle fill=\"#1B2540\" cx=\"54\" cy=\"50\" r=\"2.3\"/><circle fill=\"#1B2540\" cx=\"54\" cy=\"62\" r=\"2.3\"/><circle fill=\"#1B2540\" cx=\"54\" cy=\"74\" r=\"2.3\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"none\" d=\"M33 34 L42 34 L42 42 L33 42 Z\"/></svg>","shoes":"<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><g transform=\"translate(8 -16) scale(0.92)\"><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#6B4226\" d=\"M8 76 Q8 58 24 56 L44 54 Q66 58 86 66 Q95 70 93 78 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#3D2414\" d=\"M6 76 L94 78 L93 84 L8 84 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#3D2414\" d=\"M10 76 L26 76 L26 88 L12 88 Z\"/><path stroke=\"#E8D3B8\" stroke-width=\"2.5\" fill=\"none\" d=\"M42 58 L50 64 M48 57 L56 63\"/></g><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#6B4226\" d=\"M8 76 Q8 58 24 56 L44 54 Q66 58 86 66 Q95 70 93 78 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#3D2414\" d=\"M6 76 L94 78 L93 84 L8 84 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#3D2414\" d=\"M10 76 L26 76 L26 88 L12 88 Z\"/><path stroke=\"#E8D3B8\" stroke-width=\"2.5\" fill=\"none\" d=\"M42 58 L50 64 M48 57 L56 63\"/></svg>","shorts":"<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#F2B23A\" d=\"M24 24 L76 24 L80 70 L55 70 L50 46 L45 70 L20 70 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"none\" d=\"M24 32 L76 32 M50 32 L50 46\"/><path stroke=\"#1B2540\" stroke-width=\"2\" d=\"M34 24 L34 32 M66 24 L66 32\"/></svg>","skirt":"<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#6E3FC0\" d=\"M30 20 L70 20 L70 30 L30 30 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#8E5BD6\" d=\"M30 30 L70 30 L86 82 L14 82 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"none\" d=\"M40 30 L34 82 M50 30 L50 82 M60 30 L66 82\"/></svg>","socks":"<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><g transform=\"translate(-6 0)\"><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#E5484D\" d=\"M22 10 L42 10 L42 60 L54 70 Q60 80 52 86 Q48 89 40 87 L22 76 Q16 72 20 64 Z\"/><path stroke=\"#fff\" stroke-width=\"5\" d=\"M24 24 L40 24 M24 34 L40 34\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"none\" d=\"M22 10 L42 10\"/></g><g transform=\"translate(30 0)\"><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#E5484D\" d=\"M22 10 L42 10 L42 60 L54 70 Q60 80 52 86 Q48 89 40 87 L22 76 Q16 72 20 64 Z\"/><path stroke=\"#fff\" stroke-width=\"5\" d=\"M24 24 L40 24 M24 34 L40 34\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"none\" d=\"M22 10 L42 10\"/></g></svg>","trainers":"<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><g transform=\"translate(8 -16) scale(0.92)\"><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#FFFFFF\" d=\"M8 72 L10 46 Q24 46 36 34 L50 32 Q58 50 84 56 Q95 60 93 72 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#2F5FD0\" d=\"M30 66 L46 40 L54 44 L40 68 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#E5484D\" d=\"M6 72 L94 72 L92 84 L8 84 Z\"/><path stroke=\"#1B2540\" stroke-width=\"2.5\" d=\"M40 38 L48 46 M46 34 L54 42 M33 42 L42 49\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"none\" d=\"M12 46 L12 72\"/></g><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#FFFFFF\" d=\"M8 72 L10 46 Q24 46 36 34 L50 32 Q58 50 84 56 Q95 60 93 72 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#2F5FD0\" d=\"M30 66 L46 40 L54 44 L40 68 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#E5484D\" d=\"M6 72 L94 72 L92 84 L8 84 Z\"/><path stroke=\"#1B2540\" stroke-width=\"2.5\" d=\"M40 38 L48 46 M46 34 L54 42 M33 42 L42 49\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"none\" d=\"M12 46 L12 72\"/></svg>","trousers":"<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#B89B72\" d=\"M28 12 L72 12 L76 90 L55 90 L50 38 L45 90 L24 90 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"none\" d=\"M28 20 L72 20\"/><path stroke=\"#8A7150\" stroke-width=\"2.5\" fill=\"none\" d=\"M35 26 L34 88 M65 26 L66 88\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#8A7150\" d=\"M36 12 L40 12 L40 20 L36 20 Z M60 12 L64 12 L64 20 L60 20 Z\"/></svg>","tshirt":"<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"#E5484D\" d=\"M30 18 L42 14 Q50 24 58 14 L70 18 L89 33 L80 46 L70 39 L70 88 L30 88 L30 39 L20 46 L11 33 Z\"/><path stroke=\"#1B2540\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\" fill=\"none\" d=\"M42 14 Q50 30 58 14\"/><path stroke=\"#fff\" stroke-width=\"5\" fill=\"none\" stroke-linecap=\"round\" d=\"M42 56 L50 50 L58 56 M42 66 L50 60 L58 66\"/></svg>"};
+const CLOTHES_LIST = [{"id":"cap","en":"cap","pl":"czapka z daszkiem","plural":false,"colour":"blue"},{"id":"dress","en":"dress","pl":"sukienka","plural":false,"colour":"pink"},{"id":"hoodie","en":"hoodie","pl":"bluza z kapturem","plural":false,"colour":"grey"},{"id":"jacket","en":"jacket","pl":"kurtka, marynarka","plural":false,"colour":"orange"},{"id":"jeans","en":"jeans","pl":"dżinsy","plural":true,"colour":"blue"},{"id":"jumper","en":"jumper","pl":"sweter","plural":false,"colour":"green"},{"id":"shirt","en":"shirt","pl":"koszula","plural":false,"colour":"blue"},{"id":"shoes","en":"shoes","pl":"buty","plural":true,"colour":"brown"},{"id":"shorts","en":"shorts","pl":"szorty, krótkie spodenki","plural":true,"colour":"yellow"},{"id":"skirt","en":"skirt","pl":"spódnica","plural":false,"colour":"purple"},{"id":"socks","en":"socks","pl":"skarpetki","plural":true,"colour":"red"},{"id":"trainers","en":"trainers","pl":"trampki","plural":true,"colour":"white"},{"id":"trousers","en":"trousers","pl":"spodnie","plural":true,"colour":"beige"},{"id":"tshirt","en":"T-shirt","pl":"koszulka","plural":false,"colour":"red"}];
+
+// ---------- shared: voice, sounds, helpers, quiz runner ----------
+const synth = window.speechSynthesis || null;
+let voice = null, rate = 0.9;
+function pickVoice() {
+  const vs = synth.getVoices();
+  if (!vs.length) return;
+  const en = vs.filter(v => /^en[-_]/i.test(v.lang) || v.lang === "en");
+  const byLang = l => en.filter(v => v.lang.replace("_", "-").toLowerCase() === l);
+  const pref = list => list.find(v => /natural|enhanced|premium|google/i.test(v.name)) || list[0];
+  voice = pref(byLang("en-gb")) || pref(byLang("en-us")) || pref(en) || null;
+  const warn = document.getElementById("voice-warn");
+  if (!voice) { warn.textContent = "Na tym telefonie nie ma angielskiego głosu. Doinstaluj go w ustawieniach telefonu (Mowa / Zamiana tekstu na mowę)."; warn.hidden = false; }
+  else warn.hidden = true;
+}
+if (synth) { pickVoice(); synth.addEventListener ? synth.addEventListener("voiceschanged", pickVoice) : (synth.onvoiceschanged = pickVoice); }
+else { const w = document.getElementById("voice-warn"); w.textContent = "Ta przeglądarka nie umie czytać na głos. Spróbuj w Chrome albo Safari."; w.hidden = false; }
+function speak(text, onend) {
+  if (!synth || !text) { onend && onend(); return; }
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  if (voice) u.voice = voice;
+  u.lang = voice ? voice.lang : "en-GB";
+  u.rate = rate;
+  if (onend) { u.onend = onend; u.onerror = onend; }
+  setTimeout(() => synth.speak(u), 40);
+}
+let actx = null;
+function tones(freqs, dur, type) {
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    let t = actx.currentTime;
+    freqs.forEach(f => {
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = type; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.18, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g).connect(actx.destination); o.start(t); o.stop(t + dur + 0.02);
+      t += dur * 0.8;
+    });
+  } catch (e) {}
+}
+const ding = () => tones([660, 880], 0.16, "sine");
+const bonk = () => tones([200, 160], 0.18, "triangle");
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const pick = (a, n) => shuffle(a).slice(0, n);
+const norm = s => String(s).toLowerCase().replace(/[’‘`´]/g, "'").replace(/[.!?,]+/g, " ").replace(/\s+/g, " ").trim();
+const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+
+// tabs
+function setupTabs() {
+  const tl = document.getElementById("tab-learn"), tp = document.getElementById("tab-practice");
+  const sl = document.getElementById("learn"), sp = document.getElementById("practice");
+  const show = learn => {
+    tl.setAttribute("aria-selected", learn); tp.setAttribute("aria-selected", !learn);
+    sl.hidden = !learn; sp.hidden = learn; sp.style.display = learn ? "" : "flex";
+    if (synth) synth.cancel();
+  };
+  tl.onclick = () => show(true); tp.onclick = () => show(false);
+  document.querySelectorAll("#speed button").forEach(b => {
+    b.setAttribute("aria-pressed", Math.abs(+b.dataset.rate - rate) < 0.01);
+    b.onclick = () => { rate = +b.dataset.rate; document.querySelectorAll("#speed button").forEach(x => x.setAttribute("aria-pressed", x === b)); speak("Hello!"); };
+  });
+  return show;
+}
+
+// mode chips
+function setupModes(modes, start) {
+  const box = document.getElementById("modes");
+  modes.forEach((m, i) => {
+    const b = el("button", null, esc(m.label)); b.dataset.mode = m.id; b.id = "mode-" + m.id;
+    b.onclick = () => { box.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); start(m); };
+    box.appendChild(b);
+    if (i === 0) b.setAttribute("aria-pressed", "true");
+  });
+  start(modes[0]);
+}
+
+/* Quiz runner. Question kinds:
+   choice: {label, prompt(html), say, options:[{html,value}], answer, cols, pics, explain(html), sayAfter, fill(text shown in .slot)}
+   type:   {label, prompt, say, answers:[strings], show, explain, sayAfter, placeholder}
+   order:  {label, prompt, tiles:[...], answer:"Are you sporty?", sayAfter}
+   custom: {label, render(qBox, done(ok, shownAnswer))}            */
+function runQuiz(root, questions, opts = {}) {
+  root.innerHTML = "";
+  let i = 0, score = 0; const wrong = [];
+  const dots = el("div", "dots"); questions.forEach(() => dots.appendChild(el("span")));
+  const stage = el("div", null); stage.style.cssText = "display:flex;flex-direction:column;gap:14px";
+  root.append(dots, stage);
+
+  function next() {
+    [...dots.children].forEach((d, k) => { if (k === i) d.className = "now"; });
+    if (i >= questions.length) return finish();
+    const q = questions[i];
+    stage.innerHTML = "";
+    if (q.label) stage.appendChild(el("div", "task-label", esc(q.label)));
+    const box = el("div", "q"); stage.appendChild(box);
+    if (q.prompt) box.appendChild(el("div", null, q.prompt));
+    if (q.say) { const r = el("button", "replay", "🔊 Posłuchaj jeszcze raz"); r.onclick = () => speak(q.say); box.appendChild(r); speak(q.say); }
+    const fb = el("div", "feedback"); const after = el("div"); after.style.cssText = "display:flex;flex-direction:column;gap:10px";
+
+    const done = (ok, shown) => {
+      dots.children[i].className = ok ? "ok" : "no";
+      if (ok) { score++; ding(); fb.className = "feedback ok"; fb.textContent = pick(["Super!", "Brawo!", "Świetnie!", "Great!", "Well done!"], 1)[0]; }
+      else { bonk(); fb.className = "feedback no"; fb.textContent = "Ups! Poprawnie:"; wrong.push({ q, shown }); }
+      if (!ok && shown) after.appendChild(el("div", "explain", `<b>${shown}</b>${q.explain ? "<br>" + q.explain : ""}`));
+      else if (ok && q.explainOk) after.appendChild(el("div", "explain", q.explainOk));
+      const nb = el("button", "big-btn", i + 1 < questions.length ? "Dalej →" : "Wynik →");
+      nb.onclick = () => { i++; next(); };
+      after.appendChild(nb);
+      if (q.sayAfter) setTimeout(() => speak(q.sayAfter), ok ? 350 : 500);
+      setTimeout(() => nb.focus({ preventScroll: true }), 50);
+    };
+
+    if (q.kind === "choice") {
+      const ans = el("div", "answers" + (q.pics ? " pics" : "") + (q.cls ? " " + q.cls : "")); ans.style.setProperty("--cols", q.cols || 2);
+      q.options.forEach(o => {
+        const b = el("button", null, o.html); b.dataset.v = o.value;
+        b.onclick = () => {
+          const ok = o.value === q.answer;
+          [...ans.children].forEach(x => { x.disabled = true; if (x.dataset.v === q.answer) x.classList.add(ok ? "picked-ok" : "show-ok"); });
+          if (!ok) b.classList.add("picked-bad");
+          const fills = q.fills || [q.fill || q.answer];
+          box.querySelectorAll(".slot").forEach((sl, k) => { sl.textContent = fills[k] || fills[0]; sl.classList.add("filled"); });
+          done(ok, ok ? null : (q.show || q.options.find(x => x.value === q.answer).text || q.answer));
+        };
+        ans.appendChild(b);
+      });
+      stage.appendChild(ans);
+    } else if (q.kind === "type") {
+      const row = el("div", "type-row"); const inp = el("input"); inp.setAttribute("autocomplete", "off"); inp.setAttribute("autocapitalize", "off"); inp.setAttribute("spellcheck", "false"); inp.placeholder = q.placeholder || "wpisz…";
+      const go = el("button", null, "OK"); row.append(inp, go); stage.appendChild(row);
+      const check = () => {
+        if (!inp.value.trim()) return inp.focus();
+        const ok = q.answers.some(a => norm(a) === norm(inp.value));
+        inp.disabled = true; go.disabled = true; inp.classList.add(ok ? "ok" : "no");
+        const slot = box.querySelector(".slot"); if (slot) { slot.textContent = q.fill || q.show; slot.classList.add("filled"); }
+        done(ok, ok ? null : q.show);
+      };
+      go.onclick = check; inp.onkeydown = e => { if (e.key === "Enter") check(); };
+      setTimeout(() => inp.focus(), 80);
+    } else if (q.kind === "order") {
+      const built = el("div", "built"); const tiles = el("div", "tiles"); const picked = [];
+      const redraw = () => { built.innerHTML = ""; picked.forEach((t, k) => { const b = el("button", null, esc(t.w)); b.onclick = () => { if (locked) return; picked.splice(k, 1); t.btn.classList.remove("used"); redraw(); }; built.appendChild(b); }); };
+      let locked = false;
+      shuffle(q.tiles).forEach(w => { const t = { w }; t.btn = el("button", null, esc(w)); t.btn.onclick = () => { if (locked || t.btn.classList.contains("used")) return; t.btn.classList.add("used"); picked.push(t); redraw(); }; tiles.appendChild(t.btn); });
+      const chk = el("button", "big-btn", "Sprawdź");
+      chk.onclick = () => {
+        if (picked.length < q.tiles.length) return;
+        locked = true; chk.remove();
+        const said = picked.map(t => t.w).join(" ").replace(/ \?/g, "?");
+        const ok = norm(said) === norm(q.answer);
+        built.classList.add(ok ? "ok" : "no");
+        done(ok, ok ? null : q.answer);
+      };
+      box.append(built); stage.append(tiles, chk);
+    } else if (q.kind === "custom") {
+      q.render(box, stage, done);
+    }
+    stage.append(fb, after);
+  }
+
+  function finish() {
+    const n = questions.length, pct = score / n;
+    stage.innerHTML = "";
+    const r = el("div", "result");
+    r.appendChild(el("div", "score", `${score}/${n}`));
+    r.appendChild(el("div", "stars", Array.from({ length: n }, (_, k) => k < score ? "★" : '<span class="off">★</span>').join("")));
+    r.appendChild(el("div", "msg", pct === 1 ? "Perfekcyjnie! 🏆" : pct >= .8 ? "Świetna robota! 🎉" : pct >= .5 ? "Dobrze! Jeszcze trochę 💪" : "Spróbuj jeszcze raz 🙂"));
+    if (wrong.length) {
+      const rv = el("div", "review"); rv.appendChild(el("div", "task-label", "Do powtórki"));
+      wrong.forEach(w => rv.appendChild(el("div", "item", (w.q.reviewQ || "") + ` → <b>${w.shown}</b>`)));
+      r.appendChild(rv);
+    }
+    const again = el("button", "big-btn", "↻ Jeszcze raz"); again.onclick = () => opts.restart && opts.restart();
+    r.appendChild(again);
+    stage.appendChild(r);
+    if (pct >= .8) tones([523, 659, 784, 1047], 0.15, "sine");
+  }
+  next();
+}
+
+// ---------- Clothes / adjectives / personality ----------
+const ADJ = [
+  { en: 'comfortable', pl: 'wygodny', emo: '🛋️', ex: 'My hoodie is very comfortable.' },
+  { en: 'smart', pl: 'elegancki', emo: '🎩', ex: 'Grandpa\'s shirt is smart.' },
+  { en: 'sporty', pl: 'sportowy', emo: '⚽', ex: 'My shorts are sporty.' },
+  { en: 'warm', pl: 'ciepły', emo: '🧣', ex: 'It\'s cold. Wear a warm jumper!' },
+];
+const PERS = [
+  { en: 'clever', pl: 'bystry, inteligentny', emo: '🧠', ex: 'Bobo the monkey is clever.' },
+  { en: 'friendly', pl: 'przyjazny', emo: '🤗', ex: 'Teddy is very friendly.' },
+  { en: 'funny', pl: 'zabawny', emo: '🤪', ex: 'Max the dog is funny.' },
+  { en: 'helpful', pl: 'pomocny, uczynny', emo: '🤝', ex: 'Pablo is helpful at home.' },
+  { en: 'kind', pl: 'miły, uprzejmy', emo: '💝', ex: 'Ella is kind to her friends.' },
+  { en: 'quiet', pl: 'cichy, skromny', emo: '🤫', ex: 'Kitty is very quiet.' },
+  { en: 'shy', pl: 'nieśmiały', emo: '🙈', ex: 'Rosie is shy at parties.' },
+  { en: 'sporty', pl: 'wysportowany', emo: '🏃', ex: 'Gina is very sporty.' },
+];
+const EXAMPLES = { cap: 'My cap is blue.', dress: 'Her dress is pink.', hoodie: 'My hoodie is grey and comfortable.', jacket: 'His jacket is orange.', jeans: 'My jeans are blue.', jumper: 'My jumper is green and warm.', shirt: 'His shirt is smart.', shoes: 'Dad\'s shoes are big!', shorts: 'My shorts are yellow.', skirt: 'Her skirt is purple.', socks: 'The penguin\'s socks are red!', trainers: 'My trainers are white and sporty.', trousers: 'His trousers are smart.', tshirt: 'My T-shirt is red.' };
+
+const PERS_CLUES = [
+  ['clever', '🐵', 'Bobo knows all the answers.', 'Bobo zna wszystkie odpowiedzi.', 'He'],
+  ['clever', '🦉', 'Olly reads ten books a day.', 'Olly czyta dziesięć książek dziennie.', 'He'],
+  ['friendly', '🐻', 'Teddy says „Hello!” to everyone.', 'Teddy mówi „cześć” do wszystkich.', 'He'],
+  ['friendly', '🐶', 'Rex plays with all the children in the park.', 'Rex bawi się ze wszystkimi dziećmi w parku.', 'He'],
+  ['funny', '🐶', 'Max tells jokes all day.', 'Max cały dzień opowiada dowcipy.', 'He'],
+  ['funny', '🤡', 'Coco makes everyone laugh.', 'Coco rozśmiesza wszystkich.', 'She'],
+  ['helpful', '🐧', 'Pablo helps his mum in the kitchen.', 'Pablo pomaga mamie w kuchni.', 'He'],
+  ['helpful', '🐜', 'Andy carries bags for his granny.', 'Andy nosi torby babci.', 'He'],
+  ['kind', '🐘', 'Ella gives her cake to her friends.', 'Ella daje swoje ciasto przyjaciołom.', 'She'],
+  ['kind', '🐼', 'Pandy says „Don\'t worry!” to sad friends.', 'Pandy mówi „nie martw się” smutnym kolegom.', 'She'],
+  ['quiet', '🐱', 'Kitty never talks in class.', 'Kitty nigdy nie mówi na lekcji.', 'She'],
+  ['quiet', '🐟', 'Fishy never says a word.', 'Rybka nigdy nie mówi ani słowa.', 'He'],
+  ['shy', '🐰', 'At the party Rosie is under the table!', 'Na imprezie Rosie siedzi pod stołem!', 'She'],
+  ['shy', '🐢', 'Tom hides in his shell when he meets new people.', 'Tom chowa się w skorupie, gdy poznaje nowe osoby.', 'He'],
+  ['sporty', '🦒', 'Gina plays football and tennis every day.', 'Gina codziennie gra w piłkę i tenisa.', 'She'],
+  ['sporty', '🐆', 'Speedy runs ten kilometres every morning.', 'Speedy codziennie rano biega dziesięć kilometrów.', 'He'],
+];
+const ADJ_CLUES = [
+  ['warm', '❄️', 'It\'s very cold! Wear a ___ jumper.', 'jumper'],
+  ['warm', '🐧', 'Pablo is at the North Pole. His socks are ___.', 'socks'],
+  ['smart', '🎩', 'Grandpa is at a wedding. His shirt is very ___.', 'shirt'],
+  ['smart', '🎻', 'We\'re at a concert. Dad\'s jacket is ___.', 'jacket'],
+  ['sporty', '⚽', 'I\'m at the stadium. My shorts are ___.', 'shorts'],
+  ['sporty', '🏀', 'Basketball time! My trainers are ___.', 'trainers'],
+  ['comfortable', '🛋️', 'I\'m on the sofa. My hoodie is big and ___.', 'hoodie'],
+  ['comfortable', '😴', 'My old trousers are soft and very ___.', 'trousers'],
+];
+
+const C = id => CLOTHES[id];
+function card(pic, en, pl, say) {
+  const b = el('button', 'card', `${pic}<span class="en">${esc(en)}</span><span class="pl">${esc(pl)}</span>`);
+  b.onclick = () => { document.querySelectorAll('.card.playing').forEach(x => x.classList.remove('playing')); b.classList.add('playing'); speak(say, () => b.classList.remove('playing')); };
+  return b;
+}
+CLOTHES_LIST.forEach(c => document.getElementById('g-clothes').appendChild(card(C(c.id), c.en, c.pl, `${c.en}. ${EXAMPLES[c.id]}`)));
+ADJ.forEach(a => document.getElementById('g-adj').appendChild(card(`<span class="emo">${a.emo}</span>`, a.en, a.pl, `${a.en}. ${a.ex}`)));
+PERS.forEach(a => document.getElementById('g-pers').appendChild(card(`<span class="emo">${a.emo}</span>`, a.en, a.pl, `${a.en}. ${a.ex}`)));
+document.getElementById('play-all').onclick = () => {
+  const cards = [...document.querySelectorAll('#g-clothes .card')]; let k = 0;
+  const step = () => { document.querySelectorAll('.card.playing').forEach(x => x.classList.remove('playing')); if (k >= cards.length) return; const c = cards[k]; c.classList.add('playing'); c.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); speak(CLOTHES_LIST[k].en, () => { k++; setTimeout(step, 350); }); };
+  step();
+};
+
+// ---------- practice ----------
+const wordOpts = (c, pool) => shuffle([c, ...pick(pool.filter(x => x.id !== c.id), 3)]).map(x => ({ html: esc(x.en), text: x.en, value: x.id }));
+const MODES = [
+  { id: 'look', label: '👀 Co to jest?', make: () => pick(CLOTHES_LIST, 10).map(c => ({
+      kind: 'choice', label: 'Jak to się nazywa po angielsku?', prompt: `<div class="pic">${C(c.id)}</div>`,
+      options: wordOpts(c, CLOTHES_LIST), answer: c.id, show: c.en, sayAfter: c.en, reviewQ: c.pl,
+  })) },
+  { id: 'listen', label: '👂 Słuchaj', make: () => pick(CLOTHES_LIST, 10).map(c => ({
+      kind: 'choice', label: 'Posłuchaj i wskaż obrazek', prompt: '<div class="emo">👂</div>', say: c.en, cols: 2, pics: true,
+      options: shuffle([c, ...pick(CLOTHES_LIST.filter(x => x.id !== c.id), 3)]).map(x => ({ html: C(x.id), text: x.en, value: x.id })),
+      answer: c.id, show: `${c.en} – ${c.pl}`, reviewQ: '🔊',
+  })) },
+  { id: 'type', label: '✏️ Wpisz', make: () => pick(CLOTHES_LIST, 10).map(c => ({
+      kind: 'type', label: 'Wpisz nazwę ubrania', prompt: `<div class="pic">${C(c.id)}</div><div class="hintline">${c.en[0]}${c.en.slice(1).replace(/[a-z]/g, '_').replace(/-/g, '-')}</div><div class="plq">${c.pl}</div>`,
+      answers: c.id === 'tshirt' ? ['t-shirt', 'tshirt', 't shirt'] : [c.en], show: c.en, sayAfter: c.en, reviewQ: c.pl,
+  })) },
+  { id: 'pers', label: '😊 Charakter', make: () => {
+      const used = new Set();
+      return shuffle(PERS_CLUES).filter(([a]) => !used.has(a) && used.add(a)).map(([a, emo, en, pl, pr]) => ({
+        kind: 'choice', label: 'Jaki on/ona jest?', prompt: `<div class="emo">${emo}</div><div class="clue">${esc(en)}</div><div class="plq">${esc(pl)}</div>`,
+        say: en.replace(/[„”]/g, ''), options: shuffle([a, ...pick(PERS.map(p => p.en).filter(x => x !== a), 3)]).map(x => ({ html: x, text: x, value: x })),
+        answer: a, show: `${a} – ${PERS.find(p => p.en === a).pl}`, sayAfter: `${pr} is ${a}.`, reviewQ: en,
+      }));
+  } },
+  { id: 'adj', label: '🧣 Jakie ubranie?', make: () => shuffle(ADJ_CLUES).map(([a, emo, s, id]) => ({
+      kind: 'choice', label: 'Wybierz przymiotnik', prompt: `<div style="display:flex;gap:10px;align-items:center;justify-content:center"><span class="emo">${emo}</span><span class="pic" style="width:72px;height:72px">${C(id)}</span></div><div class="clue">${esc(s).replace('___', '<span class="slot"></span>')}</div>`,
+      options: ADJ.map(x => ({ html: x.en, text: x.en, value: x.en })), answer: a, show: `${a} – ${ADJ.find(x => x.en === a).pl}`, sayAfter: s.replace('___', a), reviewQ: s,
+  })) },
+];
+setupTabs();
+const quiz = document.getElementById('quiz');
+setupModes(MODES, function start(m) { runQuiz(quiz, m.make(), { restart: () => start(m) }); });
+
+</script>
+</body>
+</html>

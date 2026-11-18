@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#EEF3FA">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>❓</text></svg>">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>to be: przeczenia i pytania</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Lexend:wght@400;600&display=swap">
+<style>
+:root{--bg:#EEF3FA;--card:#FFFFFF;--ink:#1B2540;--muted:#5B6785;--line:#D6DEEC;--acc:#2F5FD0;--acc-soft:#E0E8FA;--ok:#1E8A5F;--ok-soft:#DDF3E9;--bad:#D0392F;--bad-soft:#FBE3E1;--warm:#D2621C;--warm-soft:#FDEBDD;--vio:#7B4FD0;--vio-soft:#ECE4FB;--on-color:#FFFFFF;--font-display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;--font-body:"Lexend",system-ui,-apple-system,sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#121827;--card:#1C2438;--ink:#EDF1F9;--muted:#9AA6C2;--line:#2C3752;--acc:#86A7FF;--acc-soft:#1C2A4E;--ok:#4FCB95;--ok-soft:#173327;--bad:#FF7A70;--bad-soft:#3B1D1D;--warm:#FF9B5C;--warm-soft:#3A2618;--vio:#B596FF;--vio-soft:#2A2147;--on-color:#121827;color-scheme:dark}}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.45;padding-inline:16px;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.app{max-width:520px;margin:0 auto;padding-block:14px 40px;display:flex;flex-direction:column;gap:16px}
+.home-link{display:inline-flex;align-self:flex-start;align-items:center;gap:6px;font-size:14px;color:var(--muted);text-decoration:none;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card)}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+h1{font-family:var(--font-display);font-weight:800;font-size:40px;line-height:1;margin:0;letter-spacing:-.5px}
+.head-sub{font-family:var(--font-display);font-weight:800;font-size:18px;color:var(--acc);padding-bottom:4px;text-align:right}
+h3{font-family:var(--font-display);font-weight:800;font-size:22px;margin:6px 0 0;line-height:1.1}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:4px;gap:4px}
+.tabs button{font-family:var(--font-display);font-weight:800;font-size:20px;padding:8px 0 6px;border-radius:12px;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.note{color:var(--muted);font-size:14px;margin:0}
+.warn{background:var(--bad-soft);border-radius:12px;padding:10px 12px;font-size:14px;margin:0}
+.settings{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.seg{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px}
+.seg button{font-size:14px;padding:6px 12px;border-radius:9px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.modes{display:flex;flex-wrap:wrap;gap:6px}
+.modes button{font-size:15px;padding:7px 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--muted)}
+.modes button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.big-btn{display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--font-display);font-weight:800;font-size:20px;padding:12px 16px 10px;border-radius:16px;background:var(--ink);color:var(--bg);width:100%}
+.big-btn.ghost{background:var(--card);color:var(--ink);border:2px solid var(--line)}
+.big-btn:active{transform:scale(.98)}
+.dots{display:flex;gap:5px}
+.dots span{flex:1;height:8px;border-radius:4px;background:var(--line)}
+.dots span.ok{background:var(--ok)}.dots span.no{background:var(--bad)}.dots span.now{background:var(--muted)}
+.task-label{font-family:var(--font-display);font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
+.q{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:18px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.q .pic{width:120px;height:120px;font-size:84px;line-height:120px}
+.q .pic svg{width:100%;height:100%}
+.q .emo{font-size:64px;line-height:1}
+.q .sentence{font-family:var(--font-display);font-weight:800;font-size:28px;line-height:1.25;text-wrap:balance}
+.q .plq{color:var(--muted);font-size:15px}
+.slot{display:inline-block;min-width:3.5ch;border-bottom:4px dashed var(--muted);color:transparent;padding:0 4px}
+.slot.filled{border-bottom-style:solid;color:var(--ok);border-color:var(--ok)}
+.slot.filled.bad{color:var(--bad);border-color:var(--bad)}
+.replay{font-size:14px;color:var(--muted);padding:6px 12px;border-radius:999px;border:1px solid var(--line)}
+.answers{display:grid;grid-template-columns:repeat(var(--cols,2),minmax(0,1fr));gap:8px}
+.answers button{font-family:var(--font-display);font-weight:800;font-size:22px;line-height:1.15;padding:14px 6px 11px;border-radius:18px;background:var(--card);border:2px solid var(--line);color:var(--ink);box-shadow:0 4px 0 var(--line);transition:transform .1s,opacity .2s}
+.answers.color button{background:var(--acc);border-color:var(--acc);color:var(--on-color);box-shadow:0 4px 0 rgba(0,0,0,.18)}
+.answers button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.answers button svg{width:78px;height:78px;display:block;margin:0 auto}
+.answers.pics button{padding:8px}
+.answers button:disabled{opacity:.35;cursor:default}
+.answers button.picked-ok{opacity:1;border-color:var(--ok);background:var(--ok-soft);color:var(--ink);outline:3px solid var(--ok);outline-offset:1px}
+.answers button.picked-bad{opacity:1;border-color:var(--bad);background:var(--bad-soft);color:var(--ink);animation:shake .35s}
+.answers button.show-ok{opacity:1;border-color:var(--ok)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.feedback{min-height:28px;text-align:center;font-family:var(--font-display);font-weight:800;font-size:22px}
+.feedback.ok{color:var(--ok)}.feedback.no{color:var(--bad)}
+.explain{background:var(--warm-soft);border-radius:14px;padding:10px 14px;font-size:15px;text-align:left}
+.explain b{font-family:var(--font-display);font-size:19px}
+.type-row{display:flex;gap:8px}
+.type-row input{flex:1;min-width:0;font-family:var(--font-display);font-weight:800;font-size:24px;padding:10px 14px 6px;border-radius:16px;border:3px solid var(--line);background:var(--card);color:var(--ink)}
+.type-row input:focus{outline:none;border-color:var(--acc)}
+.type-row input.ok{border-color:var(--ok)}.type-row input.no{border-color:var(--bad)}
+.type-row button{font-family:var(--font-display);font-weight:800;font-size:19px;padding:0 18px;border-radius:16px;background:var(--ink);color:var(--bg)}
+.tiles{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;min-height:52px}
+.tiles button{font-family:var(--font-display);font-weight:800;font-size:22px;padding:8px 14px 5px;border-radius:14px;background:var(--vio-soft);color:var(--vio);border:2px solid var(--vio)}
+.tiles button.used{visibility:hidden}
+.built{min-height:60px;width:100%;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;border-bottom:3px dashed var(--line);padding:6px 0}
+.built button{font-family:var(--font-display);font-weight:800;font-size:22px;padding:6px 12px 3px;border-radius:12px;background:var(--vio);color:var(--on-color)}
+.built.ok{border-color:var(--ok)}.built.no{border-color:var(--bad)}
+.row-btns{display:flex;gap:8px}.row-btns>*{flex:1}
+.result{text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center}
+.result .score{font-family:var(--font-display);font-weight:800;font-size:64px;line-height:1}
+.stars{font-size:26px;letter-spacing:2px;color:var(--warm);word-break:break-all}
+.stars .off{color:var(--line)}
+.result .msg{font-family:var(--font-display);font-weight:800;font-size:26px}
+.review{width:100%;text-align:left;display:flex;flex-direction:column;gap:6px}
+.review .item{background:var(--bad-soft);border-radius:12px;padding:8px 12px;font-size:15px}
+.review .item b{font-family:var(--font-display);font-size:18px}
+.learn-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:8px 6px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
+.card:active{transform:scale(.97)}
+.card.playing{outline:3px solid var(--acc)}
+.card svg{width:64px;height:64px}
+.card .emo{font-size:44px;line-height:64px;height:64px}
+.card .en{font-family:var(--font-display);font-weight:800;font-size:clamp(15px,4.6vw,20px);line-height:1.1;overflow-wrap:anywhere}
+.card .pl{color:var(--muted);font-size:12px;line-height:1.2}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.tbl{display:flex;flex-direction:column;gap:6px}
+.srow{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:9px 14px;text-align:left}
+.srow:active{transform:scale(.98)}.srow.playing{outline:3px solid var(--acc)}
+.srow .a{font-family:var(--font-display);font-weight:800;font-size:21px;line-height:1.15}
+.srow .b{font-family:var(--font-display);font-weight:800;font-size:17px;padding:4px 10px;border-radius:999px;border:2px solid currentColor;color:var(--bad);white-space:nowrap}
+.srow .pl{grid-column:1/-1;color:var(--muted);font-size:13px}
+.srow .yes{color:var(--ok)}.srow .no{color:var(--bad)}
+.k-not{color:var(--bad)}.k-be{color:var(--acc)}
+.tipbox{background:var(--warm-soft);border-radius:14px;padding:10px 14px;font-size:15px}
+.answers.color3 button{color:var(--on-color);border:0;box-shadow:0 4px 0 rgba(0,0,0,.18);font-size:26px}
+.answers.color3 button:nth-child(1){background:var(--warm)}.answers.color3 button:nth-child(2){background:var(--ok)}.answers.color3 button:nth-child(3){background:var(--acc)}
+.answers.color3 button.picked-bad{background:var(--bad)}
+.answers.color3 button.picked-ok{color:var(--on-color)}
+.yn{font-family:var(--font-display);font-weight:800;font-size:20px;padding:4px 14px;border-radius:999px}
+.yn.y{background:var(--ok-soft);color:var(--ok)}.yn.n{background:var(--bad-soft);color:var(--bad)}
+</style>
+</head>
+<body>
+<div class="app">
+  <a class="home-link" href="index.html">← Strona główna</a>
+  <header>
+    <h1>to be</h1>
+    <div class="head-sub">isn't · aren't<br>Is…? Are…?</div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button id="tab-learn" role="tab" aria-selected="true">Poznaj</button>
+    <button id="tab-practice" role="tab" aria-selected="false">Ćwicz</button>
+  </nav>
+
+  <p class="warn" id="voice-warn" hidden></p>
+
+  <section id="learn" style="display:flex;flex-direction:column;gap:14px">
+    <p class="note">Dotknij zdania, żeby je usłyszeć.</p>
+    <h3>➖ Przeczenia</h3>
+    <div class="tbl" id="t-neg"></div>
+    <h3>❓ Pytania i krótkie odpowiedzi</h3>
+    <div class="tbl" id="t-q"></div>
+    <h3>🔎 Who? What? What … like?</h3>
+    <div class="tbl" id="t-wh"></div>
+    <div class="tipbox">💡 W krótkiej odpowiedzi na <b>tak</b> nie skracamy: <b>Yes, he is.</b> (nie: <s>Yes, he's.</s>)<br>Pytanie o kogoś zaczynamy od <b>Is / Are</b>: <b>Is</b> he sporty?</div>
+    <div class="settings">
+      <span class="note">Tempo mówienia</span>
+      <div class="seg" id="speed">
+        <button data-rate="0.7">Wolno</button>
+        <button data-rate="0.9">Normalnie</button>
+      </div>
+    </div>
+    <p class="note">Nie słychać dźwięku? Na iPhonie wyłącz tryb cichy i podgłośnij.</p>
+  </section>
+
+  <section id="practice" hidden style="flex-direction:column;gap:14px">
+    <div class="modes" id="modes"></div>
+    <div id="practice-extra"></div>
+    <div id="quiz" style="display:flex;flex-direction:column;gap:14px"></div>
+  </section>
+</div>
+<script>
+
+// ---------- shared: voice, sounds, helpers, quiz runner ----------
+const synth = window.speechSynthesis || null;
+let voice = null, rate = 0.9;
+function pickVoice() {
+  const vs = synth.getVoices();
+  if (!vs.length) return;
+  const en = vs.filter(v => /^en[-_]/i.test(v.lang) || v.lang === "en");
+  const byLang = l => en.filter(v => v.lang.replace("_", "-").toLowerCase() === l);
+  const pref = list => list.find(v => /natural|enhanced|premium|google/i.test(v.name)) || list[0];
+  voice = pref(byLang("en-gb")) || pref(byLang("en-us")) || pref(en) || null;
+  const warn = document.getElementById("voice-warn");
+  if (!voice) { warn.textContent = "Na tym telefonie nie ma angielskiego głosu. Doinstaluj go w ustawieniach telefonu (Mowa / Zamiana tekstu na mowę)."; warn.hidden = false; }
+  else warn.hidden = true;
+}
+if (synth) { pickVoice(); synth.addEventListener ? synth.addEventListener("voiceschanged", pickVoice) : (synth.onvoiceschanged = pickVoice); }
+else { const w = document.getElementById("voice-warn"); w.textContent = "Ta przeglądarka nie umie czytać na głos. Spróbuj w Chrome albo Safari."; w.hidden = false; }
+function speak(text, onend) {
+  if (!synth || !text) { onend && onend(); return; }
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  if (voice) u.voice = voice;
+  u.lang = voice ? voice.lang : "en-GB";
+  u.rate = rate;
+  if (onend) { u.onend = onend; u.onerror = onend; }
+  setTimeout(() => synth.speak(u), 40);
+}
+let actx = null;
+function tones(freqs, dur, type) {
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    let t = actx.currentTime;
+    freqs.forEach(f => {
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = type; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.18, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g).connect(actx.destination); o.start(t); o.stop(t + dur + 0.02);
+      t += dur * 0.8;
+    });
+  } catch (e) {}
+}
+const ding = () => tones([660, 880], 0.16, "sine");
+const bonk = () => tones([200, 160], 0.18, "triangle");
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const pick = (a, n) => shuffle(a).slice(0, n);
+const norm = s => String(s).toLowerCase().replace(/[’‘`´]/g, "'").replace(/[.!?,]+/g, " ").replace(/\s+/g, " ").trim();
+const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+
+// tabs
+function setupTabs() {
+  const tl = document.getElementById("tab-learn"), tp = document.getElementById("tab-practice");
+  const sl = document.getElementById("learn"), sp = document.getElementById("practice");
+  const show = learn => {
+    tl.setAttribute("aria-selected", learn); tp.setAttribute("aria-selected", !learn);
+    sl.hidden = !learn; sp.hidden = learn; sp.style.display = learn ? "" : "flex";
+    if (synth) synth.cancel();
+  };
+  tl.onclick = () => show(true); tp.onclick = () => show(false);
+  document.querySelectorAll("#speed button").forEach(b => {
+    b.setAttribute("aria-pressed", Math.abs(+b.dataset.rate - rate) < 0.01);
+    b.onclick = () => { rate = +b.dataset.rate; document.querySelectorAll("#speed button").forEach(x => x.setAttribute("aria-pressed", x === b)); speak("Hello!"); };
+  });
+  return show;
+}
+
+// mode chips
+function setupModes(modes, start) {
+  const box = document.getElementById("modes");
+  modes.forEach((m, i) => {
+    const b = el("button", null, esc(m.label)); b.dataset.mode = m.id; b.id = "mode-" + m.id;
+    b.onclick = () => { box.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); start(m); };
+    box.appendChild(b);
+    if (i === 0) b.setAttribute("aria-pressed", "true");
+  });
+  start(modes[0]);
+}
+
+/* Quiz runner. Question kinds:
+   choice: {label, prompt(html), say, options:[{html,value}], answer, cols, pics, explain(html), sayAfter, fill(text shown in .slot)}
+   type:   {label, prompt, say, answers:[strings], show, explain, sayAfter, placeholder}
+   order:  {label, prompt, tiles:[...], answer:"Are you sporty?", sayAfter}
+   custom: {label, render(qBox, done(ok, shownAnswer))}            */
+function runQuiz(root, questions, opts = {}) {
+  root.innerHTML = "";
+  let i = 0, score = 0; const wrong = [];
+  const dots = el("div", "dots"); questions.forEach(() => dots.appendChild(el("span")));
+  const stage = el("div", null); stage.style.cssText = "display:flex;flex-direction:column;gap:14px";
+  root.append(dots, stage);
+
+  function next() {
+    [...dots.children].forEach((d, k) => { if (k === i) d.className = "now"; });
+    if (i >= questions.length) return finish();
+    const q = questions[i];
+    stage.innerHTML = "";
+    if (q.label) stage.appendChild(el("div", "task-label", esc(q.label)));
+    const box = el("div", "q"); stage.appendChild(box);
+    if (q.prompt) box.appendChild(el("div", null, q.prompt));
+    if (q.say) { const r = el("button", "replay", "🔊 Posłuchaj jeszcze raz"); r.onclick = () => speak(q.say); box.appendChild(r); speak(q.say); }
+    const fb = el("div", "feedback"); const after = el("div"); after.style.cssText = "display:flex;flex-direction:column;gap:10px";
+
+    const done = (ok, shown) => {
+      dots.children[i].className = ok ? "ok" : "no";
+      if (ok) { score++; ding(); fb.className = "feedback ok"; fb.textContent = pick(["Super!", "Brawo!", "Świetnie!", "Great!", "Well done!"], 1)[0]; }
+      else { bonk(); fb.className = "feedback no"; fb.textContent = "Ups! Poprawnie:"; wrong.push({ q, shown }); }
+      if (!ok && shown) after.appendChild(el("div", "explain", `<b>${shown}</b>${q.explain ? "<br>" + q.explain : ""}`));
+      else if (ok && q.explainOk) after.appendChild(el("div", "explain", q.explainOk));
+      const nb = el("button", "big-btn", i + 1 < questions.length ? "Dalej →" : "Wynik →");
+      nb.onclick = () => { i++; next(); };
+      after.appendChild(nb);
+      if (q.sayAfter) setTimeout(() => speak(q.sayAfter), ok ? 350 : 500);
+      setTimeout(() => nb.focus({ preventScroll: true }), 50);
+    };
+
+    if (q.kind === "choice") {
+      const ans = el("div", "answers" + (q.pics ? " pics" : "") + (q.cls ? " " + q.cls : "")); ans.style.setProperty("--cols", q.cols || 2);
+      q.options.forEach(o => {
+        const b = el("button", null, o.html); b.dataset.v = o.value;
+        b.onclick = () => {
+          const ok = o.value === q.answer;
+          [...ans.children].forEach(x => { x.disabled = true; if (x.dataset.v === q.answer) x.classList.add(ok ? "picked-ok" : "show-ok"); });
+          if (!ok) b.classList.add("picked-bad");
+          const fills = q.fills || [q.fill || q.answer];
+          box.querySelectorAll(".slot").forEach((sl, k) => { sl.textContent = fills[k] || fills[0]; sl.classList.add("filled"); });
+          done(ok, ok ? null : (q.show || q.options.find(x => x.value === q.answer).text || q.answer));
+        };
+        ans.appendChild(b);
+      });
+      stage.appendChild(ans);
+    } else if (q.kind === "type") {
+      const row = el("div", "type-row"); const inp = el("input"); inp.setAttribute("autocomplete", "off"); inp.setAttribute("autocapitalize", "off"); inp.setAttribute("spellcheck", "false"); inp.placeholder = q.placeholder || "wpisz…";
+      const go = el("button", null, "OK"); row.append(inp, go); stage.appendChild(row);
+      const check = () => {
+        if (!inp.value.trim()) return inp.focus();
+        const ok = q.answers.some(a => norm(a) === norm(inp.value));
+        inp.disabled = true; go.disabled = true; inp.classList.add(ok ? "ok" : "no");
+        const slot = box.querySelector(".slot"); if (slot) { slot.textContent = q.fill || q.show; slot.classList.add("filled"); }
+        done(ok, ok ? null : q.show);
+      };
+      go.onclick = check; inp.onkeydown = e => { if (e.key === "Enter") check(); };
+      setTimeout(() => inp.focus(), 80);
+    } else if (q.kind === "order") {
+      const built = el("div", "built"); const tiles = el("div", "tiles"); const picked = [];
+      const redraw = () => { built.innerHTML = ""; picked.forEach((t, k) => { const b = el("button", null, esc(t.w)); b.onclick = () => { if (locked) return; picked.splice(k, 1); t.btn.classList.remove("used"); redraw(); }; built.appendChild(b); }); };
+      let locked = false;
+      shuffle(q.tiles).forEach(w => { const t = { w }; t.btn = el("button", null, esc(w)); t.btn.onclick = () => { if (locked || t.btn.classList.contains("used")) return; t.btn.classList.add("used"); picked.push(t); redraw(); }; tiles.appendChild(t.btn); });
+      const chk = el("button", "big-btn", "Sprawdź");
+      chk.onclick = () => {
+        if (picked.length < q.tiles.length) return;
+        locked = true; chk.remove();
+        const said = picked.map(t => t.w).join(" ").replace(/ \?/g, "?");
+        const ok = norm(said) === norm(q.answer);
+        built.classList.add(ok ? "ok" : "no");
+        done(ok, ok ? null : q.answer);
+      };
+      box.append(built); stage.append(tiles, chk);
+    } else if (q.kind === "custom") {
+      q.render(box, stage, done);
+    }
+    stage.append(fb, after);
+  }
+
+  function finish() {
+    const n = questions.length, pct = score / n;
+    stage.innerHTML = "";
+    const r = el("div", "result");
+    r.appendChild(el("div", "score", `${score}/${n}`));
+    r.appendChild(el("div", "stars", Array.from({ length: n }, (_, k) => k < score ? "★" : '<span class="off">★</span>').join("")));
+    r.appendChild(el("div", "msg", pct === 1 ? "Perfekcyjnie! 🏆" : pct >= .8 ? "Świetna robota! 🎉" : pct >= .5 ? "Dobrze! Jeszcze trochę 💪" : "Spróbuj jeszcze raz 🙂"));
+    if (wrong.length) {
+      const rv = el("div", "review"); rv.appendChild(el("div", "task-label", "Do powtórki"));
+      wrong.forEach(w => rv.appendChild(el("div", "item", (w.q.reviewQ || "") + ` → <b>${w.shown}</b>`)));
+      r.appendChild(rv);
+    }
+    const again = el("button", "big-btn", "↻ Jeszcze raz"); again.onclick = () => opts.restart && opts.restart();
+    r.appendChild(again);
+    stage.appendChild(r);
+    if (pct >= .8) tones([523, 659, 784, 1047], 0.15, "sine");
+  }
+  next();
+}
+
+// ---------- to be: negatives, questions, short answers ----------
+const P = [
+  { s: 'I', be: 'am', neg: "'m not", long: 'am not', ans: 'I', yes: 'am', no: "'m not", pl: 'ja' },
+  { s: 'You', be: 'are', neg: "aren't", long: 'are not', ans: 'I', yes: 'am', no: "'m not", pl: 'ty' },
+  { s: 'He', be: 'is', neg: "isn't", long: 'is not', ans: 'he', yes: 'is', no: "isn't", pl: 'on' },
+  { s: 'She', be: 'is', neg: "isn't", long: 'is not', ans: 'she', yes: 'is', no: "isn't", pl: 'ona' },
+  { s: 'It', be: 'is', neg: "isn't", long: 'is not', ans: 'it', yes: 'is', no: "isn't", pl: 'ono (rzecz, zwierzę)' },
+  { s: 'We', be: 'are', neg: "aren't", long: 'are not', ans: 'we', yes: 'are', no: "aren't", pl: 'my' },
+  { s: 'They', be: 'are', neg: "aren't", long: 'are not', ans: 'they', yes: 'are', no: "aren't", pl: 'oni / one' },
+];
+function srow(html, sayText, pl, badge) {
+  const b = el('button', 'srow', `<span class="a">${html}</span>${badge ? `<span class="b">${badge}</span>` : ''}${pl ? `<span class="pl">${pl}</span>` : ''}`);
+  b.onclick = () => { document.querySelectorAll('.srow.playing').forEach(x => x.classList.remove('playing')); b.classList.add('playing'); speak(sayText, () => b.classList.remove('playing')); };
+  return b;
+}
+const contr = (s, neg) => neg === "'m not" ? "I'm not" : `${s} ${neg}`;
+const NEG_PL = ['Nie jestem wysportowany.', 'Nie jesteś wysportowany.', 'On nie jest wysportowany.', 'Ona nie jest wysportowana.', 'To nie jest sportowe.', 'Nie jesteśmy wysportowani.', 'Oni nie są wysportowani.'];
+P.forEach((p, i) => document.getElementById('t-neg').appendChild(srow(`${p.s} <span class="k-be">${p.long}</span> sporty.`, `${p.s} ${p.long} sporty. ${contr(p.s, p.neg)} sporty.`, NEG_PL[i], contr(p.s, p.neg))));
+[['Am I sporty?', 'you', 'are', "aren't", 'Czy jestem wysportowany?'], ['Are you sporty?', 'I', 'am', "'m not", 'Czy jesteś wysportowany?'], ['Is he sporty?', 'he', 'is', "isn't", 'Czy on jest…?'], ['Is she sporty?', 'she', 'is', "isn't", 'Czy ona jest…?'], ['Is it sporty?', 'it', 'is', "isn't", 'Czy to jest…?'], ['Are we sporty?', 'we', 'are', "aren't", 'Czy jesteśmy…?'], ['Are they sporty?', 'they', 'are', "aren't", 'Czy oni są…?']]
+  .forEach(([q, a, y, n, pl]) => {
+    const no = n === "'m not" ? "No, I'm not." : `No, ${a} ${n}.`, yes = `Yes, ${a} ${y}.`;
+    document.getElementById('t-q').appendChild(srow(`<span class="k-be">${q.split(' ')[0]}</span> ${q.split(' ').slice(1).join(' ')}<br><span class="yes" style="font-size:17px">${yes}</span> <span class="no" style="font-size:17px">${no}</span>`, `${q} ${yes} ${no}`, pl));
+  });
+[['<span class="k-be">Who</span> is she?', 'She\'s my sister, Ola.', 'Kto to jest? – osoba'], ['<span class="k-be">What</span> is it?', 'It\'s a hoodie.', 'Co to jest? – rzecz'], ['<span class="k-be">What</span> are they?', 'They\'re trainers.', 'Co to jest? (liczba mnoga)'], ['<span class="k-be">What</span> is he <span class="k-be">like</span>?', 'He\'s funny and kind.', 'Jaki on jest? – charakter']]
+  .forEach(([q, a, pl]) => document.getElementById('t-wh').appendChild(srow(`${q}<br><span style="font-size:17px;color:var(--muted)">${a}</span>`, `${q.replace(/<[^>]+>/g, '')} ${a}`, pl)));
+
+// ---------- practice data ----------
+const NEG = [
+  ['🦖', 'I', 'a dinosaur!', "'m not"], ['🐱', 'My cat', 'a doctor.', "isn't"], ['🐧', 'The penguins', 'cold. They\'re in warm jumpers!', "aren't"],
+  ['👞', "Dad's shoes", 'small. They\'re very big!', "aren't"], ['👕', 'This T-shirt', 'new. It\'s old.', "isn't"], ['🏠', 'We', 'at school. It\'s Saturday!', "aren't"],
+  ['😊', 'You', 'shy. You\'re very friendly!', "aren't"], ['🕘', 'It', 'half past eight. It\'s nine o\'clock.', "isn't"], ['🦒', 'Gina', 'short. She\'s very tall!', "isn't"],
+  ['🐵', 'Bobo and Max', 'quiet. They\'re funny!', "aren't"], ['🧢', 'My cap', 'red. It\'s blue.', "isn't"], ['🙋', 'I', 'ready! Just a minute!', "'m not"],
+  ['🐻', 'Teddy', 'shy. He\'s friendly.', "isn't"], ['🧦', 'The socks', 'clean. Yuck!', "aren't"], ['👖', 'My jeans', 'comfortable.', "aren't"],
+  ['🐘', 'Ella', 'small!', "isn't"], ['🤖', 'Robots', 'people.', "aren't"], ['🎩', "Grandpa's jacket", 'sporty. It\'s smart.', "isn't"],
+];
+// question, answer pronoun, yes-form, no-form, emoji
+const SA = [
+  ['Are you sporty?', 'I', 'am', "'m not", '🏃'], ['Is your cap blue?', 'it', 'is', "isn't", '🧢'], ['Are the socks red?', 'they', 'are', "aren't", '🧦'],
+  ['Is Pablo a penguin?', 'he', 'is', "isn't", '🐧'], ['Is Gina a giraffe?', 'she', 'is', "isn't", '🦒'], ['Is the dinosaur shy?', 'it', 'is', "isn't", '🦖'],
+  ['Are Max and Bobo funny?', 'they', 'are', "aren't", '🤪'], ['Is Mrs Brown at home?', 'she', 'is', "isn't", '🏠'], ['Is your dad a teacher?', 'he', 'is', "isn't", '👨‍🏫'],
+  ['Are your trainers new?', 'they', 'are', "aren't", '👟'], ['Is it half past eight?', 'it', 'is', "isn't", '🕗'], ['Am I clever?', 'you', 'are', "aren't", '🧠'],
+  ['Are you and Ola friends?', 'we', 'are', "aren't", '👫'], ['Is the hoodie comfortable?', 'it', 'is', "isn't", '🛋️'], ['Are the penguins cold?', 'they', 'are', "aren't", '🥶'],
+];
+const ORDER = ['Are you sporty ?', 'Is your cap blue ?', 'Is your teacher funny ?', 'Are your trainers new ?', 'Is he your brother ?', 'Are they in your class ?', 'Is it a hoodie ?', 'Am I late ?', 'What is he like ?', 'Who is she ?', 'What are they ?', 'Is the penguin cold ?', 'Are your friends clever ?', 'Is your jumper warm ?'];
+const WH = [
+  ['___ is she?', "She's my sister, Ola.", 'Who'], ['___ is it?', "It's a hoodie.", 'What'], ['___ is he ___?', "He's funny and kind.", 'What … like'],
+  ['___ are they?', "They're my new trainers.", 'What'], ['___ is your English teacher?', 'Mrs Nowak.', 'Who'], ['___ are they ___?', "They're clever and friendly.", 'What … like'],
+  ['___ is he?', "He's my friend, Tom.", 'Who'], ['___ is your dog ___?', "He's very sporty!", 'What … like'], ['___ is it?', "It's my school bag.", 'What'],
+  ['___ are they?', 'My grandma and grandpa.', 'Who'], ['___ is she ___?', "She's shy and quiet.", 'What … like'], ['___ is that?', "It's a penguin in a hat!", 'What'],
+];
+const TYPE = [
+  ['My cat is a doctor.', "My cat isn't a doctor.", 'My cat is not a doctor.'], ['I am ready.', "I'm not ready.", 'I am not ready.'],
+  ['The socks are clean.', "The socks aren't clean.", 'The socks are not clean.'], ['She is shy.', "She isn't shy.", 'She is not shy.'],
+  ['We are at school.', "We aren't at school.", 'We are not at school.'], ['It is my cap.', "It isn't my cap.", 'It is not my cap.'],
+  ['They are my trainers.', "They aren't my trainers.", 'They are not my trainers.'], ['He is a penguin.', "He isn't a penguin.", 'He is not a penguin.'],
+  ['You are funny.', "You aren't funny.", 'You are not funny.'], ['I am a dinosaur.', "I'm not a dinosaur.", 'I am not a dinosaur.'],
+];
+const short = (yes, a, y, n) => yes ? `Yes, ${a} ${y}.` : (n === "'m not" ? `No, ${a}'m not.` : `No, ${a} ${n}.`);
+function saOptions(a, y, n, yes) {
+  const right = short(yes, a, y, n), cap = a === 'I' ? 'I' : a;
+  const wrongBe = { is: 'are', are: 'is', am: 'is' }[y], wrongNeg = { "isn't": "aren't", "aren't": "isn't", "'m not": "isn't" }[n];
+  const otherPron = { he: 'she', she: 'he', it: 'they', they: 'we', we: 'they', I: 'you', you: 'I' }[a];
+  const c = yes ? [`Yes, ${cap}${y === 'am' ? "'m" : y === 'is' ? "'s" : "'re"}.`, `Yes, ${cap} ${wrongBe}.`, short(false, a, y, n), `Yes, ${otherPron} ${y === 'am' ? 'is' : y}.`]
+    : [`No, ${cap} ${wrongNeg}.`, short(true, a, y, n), `No, ${cap} ${y === 'am' ? 'am' : y}.`, `No, ${otherPron} ${n === "'m not" ? "isn't" : n}.`];
+  return shuffle([right, ...[...new Set(c)].filter(x => x !== right).slice(0, 3)]);
+}
+
+const MODES = [
+  { id: 'neg', label: "'m not / isn't / aren't", make: () => pick(NEG, 10).map(([e, s, rest, a]) => ({
+      kind: 'choice', label: 'Wybierz przeczenie', prompt: `<div class="emo">${e}</div><div class="sentence">${esc(s)}${a === "'m not" ? '' : ' '}<span class="slot"></span> ${esc(rest)}</div>`,
+      cols: 3, options: ["'m not", "isn't", "aren't"].map(x => ({ html: x, text: x, value: x })), answer: a, fill: a,
+      sayAfter: `${s}${a === "'m not" ? '' : ' '}${a} ${rest}`, show: `${s}${a === "'m not" ? '' : ' '}${a} ${rest}`, reviewQ: `${s} ___ ${rest}`, cls: 'color3',
+  })) },
+  { id: 'short', label: '✅❌ Krótkie odpowiedzi', make: () => pick(SA, 10).map(([q, a, y, n, e]) => {
+      const yes = Math.random() < 0.5, right = short(yes, a, y, n);
+      return { kind: 'choice', label: 'Wybierz dobrą odpowiedź', prompt: `<div class="emo">${e}</div><div class="sentence">${esc(q)}</div><span class="yn ${yes ? 'y' : 'n'}">${yes ? '✅ Tak' : '❌ Nie'}</span>`, say: q, cols: 1,
+        options: saOptions(a, y, n, yes).map(x => ({ html: esc(x), text: x, value: x })), answer: right, show: right, sayAfter: `${q} ${right}`, reviewQ: `${q} (${yes ? 'tak' : 'nie'})` };
+  }) },
+  { id: 'order', label: '🧩 Ułóż pytanie', make: () => pick(ORDER, 8).map(s => ({
+      kind: 'order', label: 'Ułóż pytanie z kafelków', prompt: '', tiles: s.split(' '), answer: s.replace(' ?', '?'), sayAfter: s.replace(' ?', '?'), reviewQ: '🧩',
+  })) },
+  { id: 'wh', label: '🔎 Who / What', make: () => pick(WH, 10).map(([q, a, w]) => {
+      const full = w === 'What … like' ? q.replace('___', 'What').replace('___', 'like') : q.replace('___', w);
+      return { kind: 'choice', label: 'Czego brakuje?', prompt: `<div class="sentence">${esc(q).replace(/___/g, '<span class="slot"></span>')}</div><div class="plq">– ${esc(a)}</div>`, cols: 3,
+        options: ['Who', 'What', 'What … like'].map(x => ({ html: x, text: x, value: x })), answer: w, show: full, sayAfter: `${full} ${a}`, reviewQ: `${q} – ${a}`, fills: w === 'What … like' ? ['What', 'like'] : [w] };
+  }) },
+  { id: 'type', label: '✏️ Napisz przeczenie', make: () => pick(TYPE, 8).map(([s, a, b]) => ({
+      kind: 'type', label: 'Napisz zdanie przeczące (najlepiej skrótem)', prompt: `<div class="sentence">${esc(s)}</div><div class="plq">np. <i>She is happy. → She isn't happy.</i></div>`, placeholder: '…',
+      answers: [a, b], show: a, sayAfter: a, reviewQ: s,
+  })) },
+];
+setupTabs();
+const quiz = document.getElementById('quiz');
+function start(m) { runQuiz(quiz, m.make(), { restart: () => start(m) }); }
+setupModes(MODES, start);
+
+</script>
+</body>
+</html>
